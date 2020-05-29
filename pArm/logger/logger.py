@@ -17,7 +17,7 @@ import logging
 
 
 def setup_logging(logger_name: str,
-                  log_file: str,
+                  log_file: str = None,
                   level=logging.DEBUG,
                   logging_format: str = "%(process)d - %(asctime)s | [%("
                                         "levelname)s]: %(message)s",
@@ -35,18 +35,20 @@ def setup_logging(logger_name: str,
     from os import path
     from os import makedirs
 
-    log_dir = path.dirname(path.abspath(log_file))
-    if not path.exists(log_dir):
-        makedirs(log_dir)
-
     logger = logging.getLogger(logger_name)
     formatter = logging.Formatter(logging_format)
-    file_handler = logging.FileHandler(log_file, mode='w')
-    file_handler.setFormatter(formatter)
+    if log_file:
+        log_dir = path.dirname(path.abspath(log_file))
+        if not path.exists(log_dir):
+            makedirs(log_dir)
+        file_handler = logging.FileHandler(log_file, mode='w')
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
     logger.setLevel(level)
-    logger.addHandler(file_handler)
     if log_to_stdout:
-        logger.addHandler(logging.StreamHandler())
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
 
     return logger
