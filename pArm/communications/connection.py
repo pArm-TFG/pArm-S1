@@ -14,11 +14,18 @@
 #     You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 import serial
+from numpy import short
 
 
 class Connection:
-    def __init__(self, port: str = "/dev/ttyUSB0", baudrate: int = 9600):
-        self.ser = serial.Serial(port=port, baudrate=baudrate)
+    def __init__(self,
+                 port: str = "/dev/ttyUSB0",
+                 baudrate: int = 9600,
+                 should_open: bool = False):
+        self.ser = serial.Serial(baudrate=baudrate)
+        self.ser.port = port
+        if should_open:
+            self.ser.open()
 
     def __enter__(self):
         if not self.ser.is_open:

@@ -14,41 +14,77 @@
 #     You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 import logging
+import os
+from logging.handlers import RotatingFileHandler
+from typing import Optional
 
 
-def setup_logging(logger_name: str,
-                  log_file: str = None,
-                  level=logging.DEBUG,
-                  logging_format: str = "%(process)d - %(asctime)s | [%("
-                                        "levelname)s]: %(message)s",
-                  log_to_stdout: bool = True) -> logging:
+def init_logging(logger_name: Optional[str] = None,
+                 log_file: Optional[str] = None,
+                 console_level: int = logging.DEBUG,
+                 file_level: int = logging.WARNING,
+                 log_format: str = "%(process)d - %(asctime)s | [%("
+                                   "levelname)s]: %(message)s") -> logging:
     """
-    Creates a new logging which can log to both stdout and/or file
+    Creates a custom logging that outputs to both console and file, if
+    filename provided. Automatically cleans-up old logs during runtime and
+    allows customization of both console and file levels in addition to the
+    formatter.
 
-    :param logger_name: the logger identifying name.
-    :param log_file: the logging file.
-    :param level: logging level - defaults to DEBUG.
-    :param logging_format: custom logging formatter.
-    :param log_to_stdout: whether to log to console or not - defaults True.
-    :return: the logger.
+    :param logger_name: the logger name for later obtaining it.
+    :param log_file: a filename for saving the logs during execution - can be
+                    `None`
+    :param console_level: the logging level for console.
+    :param file_level: the logging level for the file.
+    :param log_format: the logging format.
+
+    :return: the created logging instance
     """
-    from os import path
-    from os import makedirs
-
+    formatter = logging.Formatter(log_format)
     logger = logging.getLogger(logger_name)
-    formatter = logging.Formatter(logging_format)
-    if log_file:
-        log_dir = path.dirname(path.abspath(log_file))
-        if not path.exists(log_dir):
-            makedirs(log_dir)
-        file_handler = logging.FileHandler(log_file, mode='w')
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+    if logger.created:
+        return logger
+    logger.created = True
+    for handler in logger.handlers:
+        if type(handler) is logging.StreamHandler:
+            handler.setLevel(console_level)
+            handler.formatter = formatter
 
-    logger.setLevel(level)
-    if log_to_stdout:
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
-        logger.addHandler(stream_handler)
+    def file_rotator(source: str, dest: str):
+        """
+        Custom file rotator for creating compressed logging files.
+
+        :param source: source filename.
+        :param dest: destination filename.
+        """
+        import gzip
+        import shutil
+
+        with open(source, "rb") as in_file:
+            with gzip.open(dest, "wb") as out_file:
+                shutil.copyfileobj(in_file, out_file)
+
+    def namer(name: str) -> str:
+        """
+        Custom namer implementation as we are gzipping files.
+
+        :param name: the name to append .gz
+        :return: the name with .gz extension
+        """
+        return f"{name}.gz"
+
+    if log_file:
+        old_log = os.path.exists(log_file)
+        file_handler = RotatingFileHandler(log_file,
+                                           mode='a',
+                                           maxBytes=2 << 20,
+                                           backupCount=5)
+        file_handler.rotator = file_rotator
+        file_handler.namer = namer
+        file_handler.setLevel(file_level)
+        file_handler.formatter = formatter
+        if old_log:
+            file_handler.doRollover()
+        logger.addHandler(file_handler)
 
     return logger
