@@ -9,5 +9,14 @@ def generate_theta_movement(theta1, theta2, theta3):
     return byte_stream
 
 
+def generate_send_to_origin(onX, onY, onZ):
 
+    gcode = "G28 "
+
+    if onX:
+        gcode += "X "
+    if onY:
+        gcode += "Y "
+    if onZ:
+        gcode += "Z"
 

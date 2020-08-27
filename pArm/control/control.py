@@ -1,6 +1,7 @@
-from .. import generate_xyz_movement, generate_theta_movement
+from .. import generate_xyz_movement, generate_theta_movement, generate_send_to_origin
 from .. import Connection
 from serial import SerialException
+from logging import getLogger
 
 
 LOWEST_X_VALUE = 0
@@ -9,6 +10,8 @@ LOWEST_Y_VALUE = 0
 HIGHEST_Y_VALUE = 300
 LOWEST_Z_VALUE = 0
 HIGHEST_Z_VALUE = 300
+
+log = getLogger("Roger")
 
 
 class Control:
@@ -65,9 +68,26 @@ class Control:
             with self.connection as conn:
                 conn.write(byte_stream)
         except SerialException:
-            print("There is no suitable connection with the device")
+            log.warning("There is no suitable connection with the device")
         else:
-            print("X, Y, Z values successfully sent to device")
+            log.debug("X, Y, Z values successfully sent to device")
+
+    def move_to_thetas(self, theta1, theta2, theta3):
+
+        byte_stream = generate_theta_movement(theta1, theta2, theta3)
+
+        try:
+            with self.connection as conn:
+                conn.write(byte_stream)
+        except SerialException:
+            log.warning("There is no suitable connection with the device")
+        else:
+            log.debug("theta1, theta2, theta3 values successfully sent to device")
+
+    def send_to_origin(self, onX, onY, onZ):
+        generate_send_to_origin(onX, onY, onZ)
+
+
 
 
 
