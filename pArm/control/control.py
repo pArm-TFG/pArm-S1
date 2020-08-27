@@ -1,4 +1,14 @@
 from .. import generate_xyz_movement, generate_theta_movement
+from .. import Connection
+from serial import SerialException
+
+
+LOWEST_X_VALUE = 0
+HIGHEST_X_VALUE = 300
+LOWEST_Y_VALUE = 0
+HIGHEST_Y_VALUE = 300
+LOWEST_Z_VALUE = 0
+HIGHEST_Z_VALUE = 300
 
 
 class Control:
@@ -11,6 +21,8 @@ class Control:
         self.theta1 = theta1
         self.theta2 = theta2
         self.theta3 = theta3
+
+        self.connection = Connection()
 
     @property
     def x(self):
@@ -26,21 +38,37 @@ class Control:
 
     @x.setter
     def x(self, x):
-        # TODO - check constraints
-        self._x = x
+        if LOWEST_X_VALUE <= x <= HIGHEST_X_VALUE:
+            self._x = x
+        else:
+            print("X value out of bounds")
 
     @y.setter
     def y(self, y):
-        # TODO - check constraints
-        self._y = y
+        if LOWEST_Y_VALUE <= y <= HIGHEST_Y_VALUE:
+            self._y = y
+        else:
+            print("Y value out of bounds")
 
     @z.setter
     def z(self, z):
-        self._z = z
-
-
+        if LOWEST_Z_VALUE <= y <= HIGHEST_Z_VALUE:
+            self._z = z
+        else:
+            print("Z value out of bounds")
 
     def move_to_xyz(self, x, y, z):
+
+        byte_stream = generate_xyz_movement(x, y, z)
+
+        try:
+            with self.connection as conn:
+                conn.write(byte_stream)
+        except SerialException:
+            print("There is no suitable connection with the device")
+        else:
+            print("X, Y, Z values successfully sent to device")
+
 
 
 
