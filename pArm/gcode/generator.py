@@ -11,12 +11,16 @@ def generate_theta_movement(theta1, theta2, theta3):
 
 def generate_send_to_origin(onX, onY, onZ):
 
-    gcode = "G28 "
+    gcode = ['G28']
 
     if onX:
-        gcode += "X "
+        gcode.append('X0')
     if onY:
-        gcode += "Y "
+        gcode.append('Y0')
     if onZ:
-        gcode += "Z"
+        gcode.append('Z0')
 
+    axis = ' '.join(gcode[1:]).replace("0", "")
+    gcode = ' '.join(gcode)
+
+    return gcode, axis

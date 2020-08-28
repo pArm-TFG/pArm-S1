@@ -16,7 +16,7 @@ log = getLogger("Roger")
 
 class Control:
 
-    def __init__(self,x = 0,y = 0,z = 0,theta1 = 0,theta2 = 0,theta3 = 0):
+    def __init__(self, x=0, y=0, z=0, theta1=0, theta2=0, theta3=0):
         self.x = x
         self.y = y
         self.z = z
@@ -85,7 +85,16 @@ class Control:
             log.debug("theta1, theta2, theta3 values successfully sent to device")
 
     def send_to_origin(self, onX, onY, onZ):
-        generate_send_to_origin(onX, onY, onZ)
+
+        byte_stream, axis = generate_send_to_origin(onX, onY, onZ)
+
+        try:
+            with self.connection as conn:
+                conn.write(byte_stream)
+        except SerialException:
+            log.warning("There is no suitable connection with the device")
+        else:
+            log.debug(f"Device sent to origin on {axis}")
 
 
 
