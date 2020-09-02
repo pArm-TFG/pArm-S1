@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QGraphicsView" name="XY">
+   <widget class="QGraphicsView" name="xy_viewer">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -41,7 +41,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
-            <widget class="QSlider" name="horizontalSlider">
+            <widget class="QSlider" name="x_slider">
              <property name="baseSize">
               <size>
                <width>0</width>
@@ -54,14 +54,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox"/>
+            <widget class="QSpinBox" name="x_spin"/>
            </item>
           </layout>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
-            <widget class="QSlider" name="horizontalSlider_2">
+            <widget class="QSlider" name="y_slider">
              <property name="baseSize">
               <size>
                <width>0</width>
@@ -74,14 +74,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_2"/>
+            <widget class="QSpinBox" name="y_spin"/>
            </item>
           </layout>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QSlider" name="horizontalSlider_3">
+            <widget class="QSlider" name="z_slide">
              <property name="baseSize">
               <size>
                <width>0</width>
@@ -94,7 +94,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_3"/>
+            <widget class="QSpinBox" name="z_spin"/>
            </item>
           </layout>
          </item>
@@ -105,7 +105,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QSlider" name="horizontalSlider_4">
+            <widget class="QSlider" name="theta1_slider">
              <property name="baseSize">
               <size>
                <width>0</width>
@@ -118,14 +118,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_4"/>
+            <widget class="QSpinBox" name="theta1_spin"/>
            </item>
           </layout>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QSlider" name="horizontalSlider_5">
+            <widget class="QSlider" name="theta2_slider">
              <property name="baseSize">
               <size>
                <width>0</width>
@@ -138,14 +138,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_5"/>
+            <widget class="QSpinBox" name="theta2_spin"/>
            </item>
           </layout>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
-            <widget class="QSlider" name="horizontalSlider_6">
+            <widget class="QSlider" name="theta3_slider">
              <property name="baseSize">
               <size>
                <width>0</width>
@@ -158,7 +158,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_6"/>
+            <widget class="QSpinBox" name="theta3_spin"/>
            </item>
           </layout>
          </item>

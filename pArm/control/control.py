@@ -95,11 +95,3 @@ class Control:
             log.warning("There is no suitable connection with the device")
         else:
             log.debug(f"Device sent to origin on {axis}")
-
-
-
-
-
-
-
-
