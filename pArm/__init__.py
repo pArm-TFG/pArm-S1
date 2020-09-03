@@ -17,4 +17,5 @@ from .logger import init_logging
 from .communications import Connection
 from .gcode import *
 from .security import RSA
+from .gui import Ui_MainWindow
 

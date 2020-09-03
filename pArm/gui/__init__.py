@@ -1,1 +1,2 @@
-from ..gui/MainWindow
+from ..gui.MainWindow import Ui_MainWindow
+
