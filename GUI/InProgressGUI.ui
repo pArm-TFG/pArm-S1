@@ -66,7 +66,7 @@
    <string>p-Arm GUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="TitleLabel">
     <property name="geometry">
      <rect>
       <x>310</x>
@@ -127,7 +127,7 @@
      <string>p-Arm Movement Control GUI</string>
     </property>
    </widget>
-   <widget class="QSlider" name="horizontalSlider">
+   <widget class="QSlider" name="Slider1">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -156,7 +156,7 @@
      <enum>Qt::Vertical</enum>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QLabel" name="SubtitleLeftLabel">
     <property name="geometry">
      <rect>
       <x>160</x>
@@ -211,7 +211,7 @@
      <string>Position Control Sliders</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="SubtitleRightLabel">
     <property name="geometry">
      <rect>
       <x>670</x>
@@ -266,7 +266,7 @@
      <string>Graphic Position Control</string>
     </property>
    </widget>
-   <widget class="QSlider" name="horizontalSlider_2">
+   <widget class="QSlider" name="Slider2">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -282,7 +282,7 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="QSlider" name="horizontalSlider_3">
+   <widget class="QSlider" name="Slider3">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -298,7 +298,7 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="QSpinBox" name="spinBox">
+   <widget class="QSpinBox" name="spinBox1">
     <property name="geometry">
      <rect>
       <x>430</x>
@@ -308,7 +308,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QSpinBox" name="spinBox_2">
+   <widget class="QSpinBox" name="spinBox2">
     <property name="geometry">
      <rect>
       <x>430</x>
@@ -318,7 +318,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QSpinBox" name="spinBox_3">
+   <widget class="QSpinBox" name="spinBox3">
     <property name="geometry">
      <rect>
       <x>430</x>
@@ -328,11 +328,11 @@
      </rect>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBox">
+   <widget class="QComboBox" name="comboBoxCoordinates">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>510</y>
+      <y>490</y>
       <width>151</width>
       <height>41</height>
      </rect>
@@ -351,11 +351,11 @@
      </property>
     </item>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="ExecuteButton">
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>510</y>
+      <y>490</y>
       <width>121</width>
       <height>41</height>
      </rect>
@@ -373,7 +373,7 @@
      <string>Execute Movement</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_4">
+   <widget class="QLabel" name="SliderLabel1">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -386,7 +386,7 @@
      <string>Base Servo</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_5">
+   <widget class="QLabel" name="SliderLabel2">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -399,7 +399,7 @@
      <string>Elbow Servo</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_6">
+   <widget class="QLabel" name="SliderLabel3">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -455,7 +455,7 @@
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>520</y>
+      <y>500</y>
       <width>118</width>
       <height>23</height>
      </rect>
@@ -477,6 +477,12 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuPort_Selection">
+    <property name="title">
+     <string>Port Selection</string>
+    </property>
+   </widget>
+   <addaction name="menuPort_Selection"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
