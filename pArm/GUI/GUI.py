@@ -16,6 +16,7 @@ from interface import *
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
+
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1000, 600)
         MainWindow.setMinimumSize(QtCore.QSize(1000, 600))
@@ -64,11 +65,10 @@ class Ui_MainWindow(object):
         self.Slider1.setCursor(QtGui.QCursor(QtCore.Qt.SizeHorCursor))
         self.Slider1.setOrientation(QtCore.Qt.Horizontal)
         self.Slider1.setObjectName("Slider1")
-        self.Slider1.setMaximum(180)
+        self.Slider1.setMaximum(151)
         self.Slider1.setMinimum(0)
-        self.Slider1.setTickInterval(45)
+        self.Slider1.setTickInterval(38)
         self.Slider1.setTickPosition(3)
-        self.Slider1.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider1, self.spinBox1))
 
         self.Slider2 = QtWidgets.QSlider(self.centralwidget)
         self.Slider2.setGeometry(QtCore.QRect(50, 290, 361, 22))
@@ -79,7 +79,6 @@ class Ui_MainWindow(object):
         self.Slider2.setMinimum(0)
         self.Slider2.setTickInterval(34)
         self.Slider2.setTickPosition(3)
-        self.Slider2.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider2, self.spinBox2))
 
         self.Slider3 = QtWidgets.QSlider(self.centralwidget)
         self.Slider3.setGeometry(QtCore.QRect(50, 410, 361, 22))
@@ -90,7 +89,6 @@ class Ui_MainWindow(object):
         self.Slider3.setMinimum(0)
         self.Slider3.setTickInterval(30)
         self.Slider3.setTickPosition(3)
-        self.Slider3.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider3, self.spinBox3))
 
         self.line = QtWidgets.QFrame(self.centralwidget)
         self.line.setGeometry(QtCore.QRect(493, 80, 20, 481))
@@ -136,20 +134,17 @@ class Ui_MainWindow(object):
         self.spinBox1 = QtWidgets.QSpinBox(self.centralwidget)
         self.spinBox1.setGeometry(QtCore.QRect(430, 160, 61, 31))
         self.spinBox1.setObjectName("spinBox1")
-        self.spinBox1.setRange(0, 180)
-        self.spinBox1.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider1, self.spinBox1))
+        self.spinBox1.setRange(0, 151)
 
         self.spinBox2 = QtWidgets.QSpinBox(self.centralwidget)
         self.spinBox2.setGeometry(QtCore.QRect(430, 280, 61, 31))
         self.spinBox2.setObjectName("spinBox2")
         self.spinBox2.setRange(0, 135)
-        self.spinBox2.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider2, self.spinBox2))
 
         self.spinBox3 = QtWidgets.QSpinBox(self.centralwidget)
         self.spinBox3.setGeometry(QtCore.QRect(430, 400, 61, 31))
         self.spinBox3.setObjectName("spinBox3")
         self.spinBox3.setRange(0, 120)
-        self.spinBox3.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider3, self.spinBox3))
 
         self.comboBoxCoordinates = QtWidgets.QComboBox(self.centralwidget)
         self.comboBoxCoordinates.setGeometry(QtCore.QRect(20, 490, 151, 41))
@@ -157,7 +152,7 @@ class Ui_MainWindow(object):
         self.comboBoxCoordinates.setObjectName("comboBoxCoordinates")
         self.comboBoxCoordinates.addItem("")
         self.comboBoxCoordinates.addItem("")
-        self.comboBoxCoordinates.currentIndexChanged.connect(lambda: swapCoordinates(self.comboBoxCoordinates))
+        
 
         self.ExecuteButton = QtWidgets.QPushButton(self.centralwidget)
         self.ExecuteButton.setGeometry(QtCore.QRect(210, 490, 121, 41))
@@ -177,6 +172,7 @@ class Ui_MainWindow(object):
         self.SliderLabel3 = QtWidgets.QLabel(self.centralwidget)
         self.SliderLabel3.setGeometry(QtCore.QRect(50, 370, 120, 16))
         self.SliderLabel3.setObjectName("SliderLabel3")
+
 
         self.line_2 = QtWidgets.QFrame(self.centralwidget)
         self.line_2.setGeometry(QtCore.QRect(20, 210, 471, 20))
@@ -216,6 +212,25 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        # Grouped widgets in order to ease parameter passing
+
+        sliders = [self.Slider1,self.Slider2, self.Slider3]
+        spinBoxes = [self.spinBox1, self.spinBox2, self.spinBox3]
+        slidersLabels = [self.SliderLabel1, self.SliderLabel2, self.SliderLabel3]
+
+        # Signal treatment for each widget
+
+        self.Slider1.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider1, self.spinBox1))
+        self.Slider2.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider2, self.spinBox2))
+        self.Slider3.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider3, self.spinBox3))
+
+        self.spinBox1.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider1, self.spinBox1))
+        self.spinBox2.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider2, self.spinBox2))
+        self.spinBox3.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider3, self.spinBox3))
+
+        self.comboBoxCoordinates.currentIndexChanged.connect(lambda index:swapCoordinatesConfirm(self.comboBoxCoordinates, slidersLabels, sliders, spinBoxes, index))
+        self.comboBoxCoordinates.highlighted.connect(lambda index: swapCoordinatesHighlight(self.comboBoxCoordinates, slidersLabels, sliders, spinBoxes, index))
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "p-Arm GUI"))
@@ -226,8 +241,8 @@ class Ui_MainWindow(object):
         self.comboBoxCoordinates.setItemText(1, _translate("MainWindow", "Cartesian Position Control"))
         self.ExecuteButton.setText(_translate("MainWindow", "Execute Movement"))
         self.SliderLabel1.setText(_translate("MainWindow", "Base Servo Angle"))
-        self.SliderLabel2.setText(_translate("MainWindow", "Elbow Servo Angle"))
-        self.SliderLabel3.setText(_translate("MainWindow", "Shoulder Servo Angle"))
+        self.SliderLabel2.setText(_translate("MainWindow", "Shoulder Servo Angle"))
+        self.SliderLabel3.setText(_translate("MainWindow", "Elbow Servo Angle"))
         self.menuPort_Selection.setTitle(_translate("MainWindow", "Port Selection"))
 
 
