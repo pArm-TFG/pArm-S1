@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
         brush = QtGui.QBrush(QtGui.QColor(212, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(120, 120, 120))
+        brush = QtGui.QBrush(QtGui.QColor(212, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
         MainWindow.setPalette(palette)

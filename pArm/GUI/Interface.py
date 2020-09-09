@@ -1,6 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-import time
 
 def adjustWidgetValue(type, slider: QtWidgets.QSlider, spinBoxDouble: QtWidgets.QDoubleSpinBox):
     if type == "slider":
