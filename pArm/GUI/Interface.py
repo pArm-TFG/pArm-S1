@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
+import time
 
 def adjustWidgetValue(type, slider: QtWidgets.QSlider, spinBoxDouble: QtWidgets.QDoubleSpinBox):
     if type == "slider":
@@ -24,22 +25,22 @@ def setAngularHighlight(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSli
     slidersLabels[0].setText("Base Servo Angle")
     slidersLabels[1].setText("Shoulder Servo Angle")
     slidersLabels[2].setText("Elbow Servo Angle")   
-    labelColorChange(slidersLabels[0],0,180,0)
-    labelColorChange(slidersLabels[1],0,180,0)
-    labelColorChange(slidersLabels[2],0,180,0)
+    labelColorChange(slidersLabels[0],240,132,132)
+    labelColorChange(slidersLabels[1],240,132,132)
+    labelColorChange(slidersLabels[2],240,132,132)
 
 def setCartesianHighLight(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):   
     slidersLabels[0].setText("X Coordinate")
     slidersLabels[1].setText("Y Coordinate")
     slidersLabels[2].setText("Z Coordinate")
-    labelColorChange(slidersLabels[0],230,50,255)
-    labelColorChange(slidersLabels[1],230,50,255)
-    labelColorChange(slidersLabels[2],230,50,255)
+    labelColorChange(slidersLabels[0],240,132,132)
+    labelColorChange(slidersLabels[1],240,132,132)
+    labelColorChange(slidersLabels[2],240,132,132)
 
 def setAngularMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):
-    labelColorChange(slidersLabels[0],255,0,0)
-    labelColorChange(slidersLabels[1],255,0,0)
-    labelColorChange(slidersLabels[2],255,0,0)
+    labelColorChange(slidersLabels[0],212,0,0)
+    labelColorChange(slidersLabels[1],212,0,0)
+    labelColorChange(slidersLabels[2],212,0,0)
 
     sliders[0].setMaximum(1510)
     sliders[0].setMinimum(0)
@@ -71,9 +72,9 @@ def setAngularMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
     slidersLabels[9].hide()
 
 def setCartesianMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):   
-    labelColorChange(slidersLabels[0],255,0,0)
-    labelColorChange(slidersLabels[1],255,0,0)
-    labelColorChange(slidersLabels[2],255,0,0)
+    labelColorChange(slidersLabels[0],212,0,0)
+    labelColorChange(slidersLabels[1],212,0,0)
+    labelColorChange(slidersLabels[2],212,0,0)
 
     sliders[0].setMaximum(3460)
     sliders[0].setMinimum(0)
@@ -101,7 +102,7 @@ def setCartesianMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider
     slidersLabels[5].setText("-346.0mm")
     slidersLabels[6].setText("346.0mm")
     slidersLabels[7].setText("0.0mm")
-    slidersLabels[8].setText("306.6mm")
+    slidersLabels[8].setText("360.6mm")
     slidersLabels[9].show()
 
 def CoordinatesHighlight(comboBox: QtWidgets.QComboBox, slidersLabels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, index):
@@ -115,6 +116,18 @@ def changeCoordinateMenu(comboBox: QtWidgets.QComboBox, slidersLabels: QtWidgets
         setCartesianMenu(slidersLabels, sliders, spinBoxes)
     elif index == 0 : 
         setAngularMenu(slidersLabels, sliders, spinBoxes)
-        
-        
+
+def show_popup(message: str):
+    msg = QMessageBox()
+    msg.setWindowTitle("Warning")
+    msg.setText(message)
+    msg.setIcon(1)
+    x = msg.exec_()   
+  
+def executeMovement():
+    show_popup("Movement is now in execution")
+  
+
+    
+
     
