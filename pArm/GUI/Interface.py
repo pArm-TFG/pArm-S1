@@ -21,17 +21,17 @@ def labelColorChange(label: QtWidgets.QLabel,r, g, b):
     label.setPalette(palette)
 
 def setAngularHighlight(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):
-    slidersLabels[0].setText("Base Servo Angle / Range (0.0º - 151.0º)")
-    slidersLabels[1].setText("Shoulder Servo Angle / Range (0.0º - 135.0º)")
-    slidersLabels[2].setText("Elbow Servo Angle / Range (0.0º - 120.0º)")   
+    slidersLabels[0].setText("Base Servo Angle")
+    slidersLabels[1].setText("Shoulder Servo Angle")
+    slidersLabels[2].setText("Elbow Servo Angle")   
     labelColorChange(slidersLabels[0],0,180,0)
     labelColorChange(slidersLabels[1],0,180,0)
     labelColorChange(slidersLabels[2],0,180,0)
 
 def setCartesianHighLight(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):   
-    slidersLabels[0].setText("X Coordinate / Range (0.0mm - 346.0mm)")
-    slidersLabels[1].setText("Y Coordinate / Range (-346.0mm - 346.0mm)")
-    slidersLabels[2].setText("Z Coordinate / Range (0.0mm - 306.6mm)")
+    slidersLabels[0].setText("X Coordinate")
+    slidersLabels[1].setText("Y Coordinate")
+    slidersLabels[2].setText("Z Coordinate")
     labelColorChange(slidersLabels[0],230,50,255)
     labelColorChange(slidersLabels[1],230,50,255)
     labelColorChange(slidersLabels[2],230,50,255)
@@ -62,6 +62,14 @@ def setAngularMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
     spinBoxes[0].setRange(0,120.0)
     spinBoxes[2].setValue(0.0)
 
+    slidersLabels[3].setText("0º")
+    slidersLabels[4].setText("151º")
+    slidersLabels[5].setText("0º")
+    slidersLabels[6].setText("135º")
+    slidersLabels[7].setText("0º")
+    slidersLabels[8].setText("120º")
+    slidersLabels[9].hide()
+
 def setCartesianMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):   
     labelColorChange(slidersLabels[0],255,0,0)
     labelColorChange(slidersLabels[1],255,0,0)
@@ -87,6 +95,14 @@ def setCartesianMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider
     sliders[2].setSliderPosition(0)
     spinBoxes[2].setRange(0,360.6)
     spinBoxes[2].setValue(0.0)
+
+    slidersLabels[3].setText("0.0mm")
+    slidersLabels[4].setText("346.0mm")
+    slidersLabels[5].setText("-346.0mm")
+    slidersLabels[6].setText("346.0mm")
+    slidersLabels[7].setText("0.0mm")
+    slidersLabels[8].setText("306.6mm")
+    slidersLabels[9].show()
 
 def CoordinatesHighlight(comboBox: QtWidgets.QComboBox, slidersLabels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, index):
     if index == 1 :

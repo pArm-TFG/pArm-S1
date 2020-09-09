@@ -65,6 +65,9 @@
   <property name="windowTitle">
    <string>p-Arm GUI</string>
   </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="TitleLabel">
     <property name="geometry">
@@ -482,7 +485,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="subLabel1">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -492,23 +495,23 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>0º</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QLabel" name="subLabel2">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>390</x>
       <y>200</y>
       <width>47</width>
       <height>13</height>
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>151º</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="subLabel3">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -518,23 +521,23 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>0º</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_4">
+   <widget class="QLabel" name="subLabel4">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>390</x>
       <y>320</y>
       <width>47</width>
       <height>13</height>
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>135º</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_5">
+   <widget class="QLabel" name="subLabel5">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -544,20 +547,33 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>0º</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_6">
+   <widget class="QLabel" name="subLabel6">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>390</x>
       <y>440</y>
       <width>47</width>
       <height>13</height>
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>120º</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="subLabel7">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>320</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0.0mm</string>
     </property>
    </widget>
   </widget>
