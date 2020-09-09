@@ -1,11 +1,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 
-def adjustWidgetValue(type, slider: QtWidgets.QSlider, spinBox: QtWidgets.QSpinBox):
+def adjustWidgetValue(type, slider: QtWidgets.QSlider, spinBoxDouble: QtWidgets.QDoubleSpinBox):
     if type == "slider":
-         spinBox.setValue(slider.value())
+         spinBoxDouble.setValue(slider.value()/10)
     elif type == "spinBox":
-        slider.setSliderPosition(spinBox.value())
+        slider.setSliderPosition(spinBoxDouble.value()*10)
 
 def labelColorChange(label: QtWidgets.QLabel,r, g, b):
         palette = QtGui.QPalette()
@@ -20,38 +20,85 @@ def labelColorChange(label: QtWidgets.QLabel,r, g, b):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
         label.setPalette(palette)
 
-def setAngularLayout(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QSpinBox):
-    slidersLabels[0].setText("Base Servo Angle")
-    slidersLabels[1].setText("Shoulder Servo Angle")
-    slidersLabels[2].setText("Elbow Servo Angle")   
+def setAngularHighlight(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):
+    slidersLabels[0].setText("Base Servo Angle / Range (0.0º - 151.0º)")
+    slidersLabels[1].setText("Shoulder Servo Angle / Range (0.0º - 135.0º)")
+    slidersLabels[2].setText("Elbow Servo Angle / Range (0.0º - 120.0º)")   
     labelColorChange(slidersLabels[0],0,180,0)
     labelColorChange(slidersLabels[1],0,180,0)
     labelColorChange(slidersLabels[2],0,180,0)
 
-def setCartesianLayout(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QSpinBox):   
-    slidersLabels[0].setText("X Coordinate")
-    slidersLabels[1].setText("Y Coordinate")
-    slidersLabels[2].setText("Z Coordinate")
+def setCartesianHighLight(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):   
+    slidersLabels[0].setText("X Coordinate / Range (0.0mm - 346.0mm)")
+    slidersLabels[1].setText("Y Coordinate / Range (-346.0mm - 346.0mm)")
+    slidersLabels[2].setText("Z Coordinate / Range (0.0mm - 306.6mm)")
     labelColorChange(slidersLabels[0],230,50,255)
     labelColorChange(slidersLabels[1],230,50,255)
     labelColorChange(slidersLabels[2],230,50,255)
 
-def swapCoordinatesHighlight(comboBox: QtWidgets.QComboBox, slidersLabels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QSpinBox, index):
+def setAngularMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):
+    labelColorChange(slidersLabels[0],255,0,0)
+    labelColorChange(slidersLabels[1],255,0,0)
+    labelColorChange(slidersLabels[2],255,0,0)
+
+    sliders[0].setMaximum(1510)
+    sliders[0].setMinimum(0)
+    sliders[0].setTickInterval(377)
+    sliders[0].setSliderPosition(0)
+    spinBoxes[0].setRange(0,151.0)
+    spinBoxes[0].setValue(0.0)
+
+    sliders[1].setMaximum(1350)
+    sliders[1].setMinimum(0)
+    sliders[1].setTickInterval(337)
+    sliders[1].setSliderPosition(0)
+    spinBoxes[1].setRange(0,135.0)
+    spinBoxes[1].setValue(0.0)
+
+    sliders[2].setMaximum(1200)
+    sliders[2].setMinimum(0)
+    sliders[2].setTickInterval(300)
+    sliders[2].setSliderPosition(0)
+    spinBoxes[0].setRange(0,120.0)
+    spinBoxes[2].setValue(0.0)
+
+def setCartesianMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):   
+    labelColorChange(slidersLabels[0],255,0,0)
+    labelColorChange(slidersLabels[1],255,0,0)
+    labelColorChange(slidersLabels[2],255,0,0)
+
+    sliders[0].setMaximum(3460)
+    sliders[0].setMinimum(0)
+    sliders[0].setTickInterval(865)
+    sliders[0].setSliderPosition(0)
+    spinBoxes[0].setRange(0,346.0)
+    spinBoxes[0].setValue(0.0)
+
+    sliders[1].setMaximum(3460)
+    sliders[1].setMinimum(-3460)
+    sliders[1].setTickInterval(1730)
+    sliders[1].setSliderPosition(0)
+    spinBoxes[1].setRange(-346.0,346.0)
+    spinBoxes[1].setValue(0.0)
+
+    sliders[2].setMaximum(3606)
+    sliders[2].setMinimum(0)
+    sliders[2].setTickInterval(901) 
+    sliders[2].setSliderPosition(0)
+    spinBoxes[2].setRange(0,360.6)
+    spinBoxes[2].setValue(0.0)
+
+def CoordinatesHighlight(comboBox: QtWidgets.QComboBox, slidersLabels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, index):
     if index == 1 :
-        setCartesianLayout(slidersLabels,sliders,spinBoxes) 
+        setCartesianHighLight(slidersLabels,sliders,spinBoxes) 
     elif index == 0 :
-        setAngularLayout(slidersLabels,sliders,spinBoxes)
+        setAngularHighlight(slidersLabels,sliders,spinBoxes)
         
-def swapCoordinatesConfirm(comboBox: QtWidgets.QComboBox, slidersLabels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QSpinBox, index):
-    if index == 1 :
-        setCartesianLayout(slidersLabels,sliders,spinBoxes) 
-        labelColorChange(slidersLabels[0],255,0,0)
-        labelColorChange(slidersLabels[1],255,0,0)
-        labelColorChange(slidersLabels[2],255,0,0)
-    elif index == 0 :
-        setAngularLayout(slidersLabels,sliders,spinBoxes)    
-        labelColorChange(slidersLabels[0],255,0,0)
-        labelColorChange(slidersLabels[1],255,0,0)
-        labelColorChange(slidersLabels[2],255,0,0)   
+def changeCoordinateMenu(comboBox: QtWidgets.QComboBox, slidersLabels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, index):
+    if index == 1 : 
+        setCartesianMenu(slidersLabels, sliders, spinBoxes)
+    elif index == 0 : 
+        setAngularMenu(slidersLabels, sliders, spinBoxes)
+        
         
     
