@@ -8,17 +8,17 @@ def adjustWidgetValue(type, slider: QtWidgets.QSlider, spinBoxDouble: QtWidgets.
         slider.setSliderPosition(spinBoxDouble.value()*10)
 
 def labelColorChange(label: QtWidgets.QLabel,r, g, b):
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(r, g, b))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 85, 120))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(120, 120, 120))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
-        label.setPalette(palette)
+    palette = QtGui.QPalette()
+    brush = QtGui.QBrush(QtGui.QColor(r, g, b))
+    brush.setStyle(QtCore.Qt.SolidPattern)
+    palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
+    brush = QtGui.QBrush(QtGui.QColor(0, 85, 120))
+    brush.setStyle(QtCore.Qt.SolidPattern)
+    palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
+    brush = QtGui.QBrush(QtGui.QColor(120, 120, 120))
+    brush.setStyle(QtCore.Qt.SolidPattern)
+    palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
+    label.setPalette(palette)
 
 def setAngularHighlight(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):
     slidersLabels[0].setText("Base Servo Angle / Range (0.0º - 151.0º)")
