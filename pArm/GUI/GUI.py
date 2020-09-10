@@ -8,7 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-from interface import *
+from Interface import *
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -17,13 +17,13 @@ class Ui_MainWindow(object):
         MainWindow.setMinimumSize(QtCore.QSize(1000, 600))
         MainWindow.setMaximumSize(QtCore.QSize(1000, 600))
         palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(212, 0, 0))
+        brush = QtGui.QBrush(QtGui.QColor(230, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(212, 0, 0))
+        brush = QtGui.QBrush(QtGui.QColor(230, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(212, 0, 0))
+        brush = QtGui.QBrush(QtGui.QColor(230, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
         MainWindow.setPalette(palette)

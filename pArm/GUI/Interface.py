@@ -24,17 +24,17 @@ def setAngularHighlight(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSli
     slidersLabels[0].setText("Base Servo Angle")
     slidersLabels[1].setText("Shoulder Servo Angle")
     slidersLabels[2].setText("Elbow Servo Angle")   
-    labelColorChange(slidersLabels[0],0,180,0)
-    labelColorChange(slidersLabels[1],0,180,0)
-    labelColorChange(slidersLabels[2],0,180,0)
+    labelColorChange(slidersLabels[0],245,110,110)
+    labelColorChange(slidersLabels[1],245,110,110)
+    labelColorChange(slidersLabels[2],245,110,110)
 
 def setCartesianHighLight(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):   
     slidersLabels[0].setText("X Coordinate")
     slidersLabels[1].setText("Y Coordinate")
     slidersLabels[2].setText("Z Coordinate")
-    labelColorChange(slidersLabels[0],230,50,255)
-    labelColorChange(slidersLabels[1],230,50,255)
-    labelColorChange(slidersLabels[2],230,50,255)
+    labelColorChange(slidersLabels[0],245,110,110)
+    labelColorChange(slidersLabels[1],245,110,110)
+    labelColorChange(slidersLabels[2],245,110,110)
 
 def setAngularMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):
     labelColorChange(slidersLabels[0],255,0,0)
