@@ -254,7 +254,11 @@ class Ui_MainWindow(object):
         self.comboBoxCoordinates.highlighted.connect(lambda index: CoordinatesHighlight(self.comboBoxCoordinates, slidersLabels, sliders, spinBoxes, index))
         self.comboBoxCoordinates.activated.connect(lambda index: changeCoordinateMenu(self.comboBoxCoordinates, slidersLabels, sliders, spinBoxes, index))
 
-        self.executeButton.clicked.connect(executeMovement)
+        if getattr(self.executeButton, "State", None) is None:
+            setattr(self.executeButton,"State", True)
+        self.executeButton.clicked.connect(lambda: executeMovement(self.executeButton))
+
+        
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
