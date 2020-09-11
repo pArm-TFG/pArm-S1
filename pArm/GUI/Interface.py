@@ -41,6 +41,14 @@ def setAngularMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
     labelColorChange(slidersLabels[1],255,0,0)
     labelColorChange(slidersLabels[2],255,0,0)
 
+    slidersLabels[3].setText("0º")
+    slidersLabels[4].setText("151º")
+    slidersLabels[5].setText("0º")
+    slidersLabels[6].setText("135º")
+    slidersLabels[7].setText("0º")
+    slidersLabels[8].setText("120º")
+    slidersLabels[9].hide()
+
     sliders[0].setMaximum(1510)
     sliders[0].setMinimum(0)
     sliders[0].setTickInterval(377)
@@ -59,13 +67,21 @@ def setAngularMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
     sliders[2].setMinimum(0)
     sliders[2].setTickInterval(300)
     sliders[2].setSliderPosition(0)
-    spinBoxes[0].setRange(0,120.0)
+    spinBoxes[2].setRange(0,120.0)
     spinBoxes[2].setValue(0.0)
 
 def setCartesianMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):   
     labelColorChange(slidersLabels[0],255,0,0)
     labelColorChange(slidersLabels[1],255,0,0)
     labelColorChange(slidersLabels[2],255,0,0)
+
+    slidersLabels[3].setText("0.0mm")
+    slidersLabels[4].setText("346.0mm")
+    slidersLabels[5].setText("-346.0mm")
+    slidersLabels[6].setText("346.0mm")
+    slidersLabels[7].setText("0.0mm")
+    slidersLabels[8].setText("360.6mm")
+    slidersLabels[9].show()
 
     sliders[0].setMaximum(3460)
     sliders[0].setMinimum(0)
@@ -107,14 +123,15 @@ def show_popup(message: str):
     msg.setIcon(2)
     x = msg.exec_()   
   
-def executeMovement(button : QtWidgets.QPushButton):
+def executeMovement(button : QtWidgets.QPushButton, logger: QtWidgets.QPlainTextEdit):
     if button.State is True :
         button.setText("Cancel movement")
         button.State = False
         #Execute movement Logic code here
     else:
         show_popup("Movement Cancelled")
-        print("Movement Cancelled")
+        logger.insertPlainText("Movement Cancelled\n")
+        logger.ensureCursorVisible()
         button.setText("Execute Movement")
         button.State = True  
         #Cancel movement Logic code here
