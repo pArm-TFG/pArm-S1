@@ -1,4 +1,4 @@
-# Grouped widgets in order to ease parameter passing
+        # Grouped widgets in order to ease parameter passing
 
         sliders = [self.Slider1,self.Slider2, self.Slider3]
         spinBoxes = [self.doubleSpinBox1, self.doubleSpinBox2, self.doubleSpinBox3]

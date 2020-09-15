@@ -37,10 +37,13 @@ def setCartesianHighLight(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QS
     labelColorChange(slidersLabels[2],245,110,110)
 
 def setAngularMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):
-    labelColorChange(slidersLabels[0],255,0,0)
-    labelColorChange(slidersLabels[1],255,0,0)
-    labelColorChange(slidersLabels[2],255,0,0)
+    labelColorChange(slidersLabels[0],212,0,0)
+    labelColorChange(slidersLabels[1],212,0,0)
+    labelColorChange(slidersLabels[2],212,0,0)
 
+    slidersLabels[0].setText("Base Servo Angle")
+    slidersLabels[1].setText("Shoulder Servo Angle")
+    slidersLabels[2].setText("Elbow Servo Angle")
     slidersLabels[3].setText("0º")
     slidersLabels[4].setText("151º")
     slidersLabels[5].setText("0º")
@@ -71,10 +74,13 @@ def setAngularMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
     spinBoxes[2].setValue(0.0)
 
 def setCartesianMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):   
-    labelColorChange(slidersLabels[0],255,0,0)
-    labelColorChange(slidersLabels[1],255,0,0)
-    labelColorChange(slidersLabels[2],255,0,0)
+    labelColorChange(slidersLabels[0],212,0,0)
+    labelColorChange(slidersLabels[1],212,0,0)
+    labelColorChange(slidersLabels[2],212,0,0)
 
+    slidersLabels[0].setText("X Coordinate")
+    slidersLabels[1].setText("Y Coordinate")
+    slidersLabels[2].setText("Z Coordinate")
     slidersLabels[3].setText("0.0mm")
     slidersLabels[4].setText("346.0mm")
     slidersLabels[5].setText("-346.0mm")
@@ -103,6 +109,8 @@ def setCartesianMenu(slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider
     sliders[2].setSliderPosition(0)
     spinBoxes[2].setRange(0,360.6)
     spinBoxes[2].setValue(0.0)
+
+    return "Cartesian"
 
 def CoordinatesHighlight(comboBox: QtWidgets.QComboBox, slidersLabels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, index):
     if index == 1 :
