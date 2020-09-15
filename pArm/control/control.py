@@ -25,7 +25,13 @@ class Control:
         self.theta2 = theta2
         self.theta3 = theta3
 
+        self.currentIndex = 0
+
         self.connection = Connection()
+
+    @property
+    def currentIndex(self):
+        return self.currentIndex
 
     @property
     def x(self):
@@ -55,10 +61,14 @@ class Control:
 
     @z.setter
     def z(self, z):
-        if LOWEST_Z_VALUE <= y <= HIGHEST_Z_VALUE:
+        if LOWEST_Z_VALUE <= z <= HIGHEST_Z_VALUE:
             self._z = z
         else:
             print("Z value out of bounds")
+
+    @currentIndex.setter
+    def currentIndex(self, currentIndex):
+        self._currentIndex = currentIndex
 
     def move_to_xyz(self, x, y, z):
 

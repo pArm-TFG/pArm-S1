@@ -15,7 +15,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 from . import init_logging
 from PyQt5 import uic, QtWidgets
-from . import Ui_MainWindow
+from .GUI import GUI
 import sys
 
 
@@ -25,12 +25,13 @@ class Ui(QtWidgets.QMainWindow):
         uic.loadUi('./pArm/gui/MainWindow.ui', self)
         self.show()
 
-        self.x_spin.setValue(20)
-
-
 if __name__ == '__main__':
     init_logging("Roger", log_file="p-Arm.log")
     app = QtWidgets.QApplication(sys.argv)
-    window = Ui()
+    MainWindow = QtWidgets.QMainWindow()
+    ui = GUI.Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+
     sys.exit(app.exec_())
     pass  # TODO
