@@ -1,4 +1,4 @@
-        # Grouped widgets in order to ease parameter passing
+# Grouped widgets in order to ease parameter passing
 
         sliders = [self.Slider1,self.Slider2, self.Slider3]
         spinBoxes = [self.doubleSpinBox1, self.doubleSpinBox2, self.doubleSpinBox3]
@@ -40,7 +40,7 @@
 
         self.subLabel7.hide()
 
-        self.comboBoxCoordinates.highlighted.connect(lambda index: CoordinatesHighlight(self.comboBoxCoordinates, slidersLabels, sliders, spinBoxes, index))
+        #self.comboBoxCoordinates.highlighted.connect(lambda index: CoordinatesHighlight(self.comboBoxCoordinates, slidersLabels, sliders, spinBoxes, index))
         self.comboBoxCoordinates.activated.connect(lambda index: changeCoordinateMenu(self.comboBoxCoordinates, slidersLabels, sliders, spinBoxes, index))
 
         if getattr(self.ExecuteButton, "State", None) is None:
@@ -48,7 +48,7 @@
         self.ExecuteButton.clicked.connect(lambda: executeMovement(self.ExecuteButton,self.loggerBox))
 
         self.loggerBox.setReadOnly(1)
-        self.loggerBox.insertPlainText("Welcome to the matrix, p-Arm is now being initialized\n")
+        self.loggerBox.insertPlainText("Welcome to the p-Arm GUI!!\nThe arm is now being initialized...\n")
         self.loggerBox.ensureCursorVisible()
 
         self.topView.setBackground("w")
