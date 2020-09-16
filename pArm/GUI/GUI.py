@@ -11,6 +11,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from Interface import *
 from pyqtgraph import PlotWidget
+import pyqtgraph
 
 
 class Ui_MainWindow(object):
@@ -253,6 +254,16 @@ class Ui_MainWindow(object):
 
         self.topView.setBackground("w")
         self.sideView.setBackground("w")
+
+        self.topView.setXRange(-400, 400, padding = 0)
+        self.topView.setYRange(400,0, padding = 0)
+        #self.topView.getPlotItem().hideAxis('bottom')
+        #self.topView.getPlotItem().hideAxis('left')
+        pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10)
+        self.topView.plot((-346,0), (0,0), pen = pen)
+        self.topView.setTitle("Top View")
+       
+
     
 
         #self.graphicsView.setBackground("w")
