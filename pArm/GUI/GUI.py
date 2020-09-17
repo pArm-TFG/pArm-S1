@@ -223,9 +223,9 @@ class Ui_MainWindow(object):
 
         # Extra setting initialization
 
-        self.Slider1.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider1, self.doubleSpinBox1))
-        self.Slider2.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider2, self.doubleSpinBox2))
-        self.Slider3.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider3, self.doubleSpinBox3))
+        self.Slider1.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider1, self.doubleSpinBox1,self.topView))
+        self.Slider2.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider2, self.doubleSpinBox2,self.topView))
+        self.Slider3.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider3, self.doubleSpinBox3,self.topView))
 
         self.doubleSpinBox1.setRange(0,151.0)
         self.doubleSpinBox1.setSingleStep(0.1)
@@ -234,9 +234,9 @@ class Ui_MainWindow(object):
         self.doubleSpinBox3.setRange(0,120.0)
         self.doubleSpinBox3.setSingleStep(0.1)
 
-        self.doubleSpinBox1.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider1, self.doubleSpinBox1))
-        self.doubleSpinBox2.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider2, self.doubleSpinBox2))
-        self.doubleSpinBox3.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider3, self.doubleSpinBox3))
+        self.doubleSpinBox1.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider1, self.doubleSpinBox1,self.topView))
+        self.doubleSpinBox2.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider2, self.doubleSpinBox2,self.topView))
+        self.doubleSpinBox3.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider3, self.doubleSpinBox3,self.topView))
 
         self.subLabel7.hide()
 

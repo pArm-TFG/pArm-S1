@@ -1,13 +1,17 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from ..control.control import Control
+import math
+import pyqtgraph
 
 
-def adjustWidgetValue(type, slider: QtWidgets.QSlider, spinBoxDouble: QtWidgets.QDoubleSpinBox):
+def adjustWidgetValue(type, slider: QtWidgets.QSlider, spinBoxDouble: QtWidgets.QDoubleSpinBox, screen: QtWidgets.QGraphicsView):
     if type == "slider":
          spinBoxDouble.setValue(slider.value()/10)
+         drawTopViewFromAngle(screen,spinBoxDouble)
     elif type == "spinBox":
         slider.setSliderPosition(spinBoxDouble.value()*10)
+        drawTopViewFromAngle(screen,spinBoxDouble)
 
 def labelColorChange(label: QtWidgets.QLabel,r, g, b):
     palette = QtGui.QPalette()
@@ -146,8 +150,13 @@ def executeMovement(button : QtWidgets.QPushButton, logger: QtWidgets.QPlainText
         button.State = True  
         #Cancel movement Logic code here
 
-#def drawTopViewFromAngle(screen: QtWidgets.QGraphicsView, sliders: QtWidgets.QSlider):
-#    pass
+def drawTopViewFromAngle(screen: QtWidgets.QGraphicsView, spinBox: QtWidgets.QDoubleSpinBox):
+    pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10)
+    x_f = 346*math.cos((180 - spinBox.value())*(math.pi/180))
+    y_f = 346*math.sin((180 - spinBox.value())*(math.pi/180))
+    screen.clear()
+    screen.plot((0, x_f),(0,y_f), pen=pen)
 
-#def drawSideViewFromAngle(screen: QtWidgets.QGraphicsView, sliders: QtWidgets.QSlider)
-#   pass
+
+def drawSideViewFromAngle(screen: QtWidgets.QGraphicsView, sliders: QtWidgets.QSlider):
+   pass

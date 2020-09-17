@@ -29,12 +29,5 @@ if __name__ == '__main__':
     MainWindow.show()
     sys_control = control.Control()
 
-    ui.ExecuteButton.clicked.connect(lambda: sys_control.execute_movement(
-            ui.doubleSpinBox1.value(),
-            ui.doubleSpinBox2.value(),
-            ui.doubleSpinBox3.value(),
-            ui.comboBoxCoordinates.currentIndex(),
-            ui.ExecuteButton.State))
-
     sys.exit(app.exec_())
     pass  # TODO
