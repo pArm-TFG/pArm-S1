@@ -25,13 +25,13 @@ class Control:
         self.theta2 = theta2
         self.theta3 = theta3
 
-        self.currentIndex = 0
+        self.current_index = 0
 
         self.connection = Connection()
 
     @property
-    def currentIndex(self):
-        return self.currentIndex
+    def current_index(self):
+        return self.current_index
 
     @property
     def x(self):
@@ -66,9 +66,9 @@ class Control:
         else:
             print("Z value out of bounds")
 
-    @currentIndex.setter
-    def currentIndex(self, currentIndex):
-        self._currentIndex = currentIndex
+    @current_index.setter
+    def current_index(self, current_index):
+        self._current_index = current_index
 
     def move_to_xyz(self, x, y, z):
 
@@ -94,9 +94,9 @@ class Control:
         else:
             log.debug("theta1, theta2, theta3 values successfully sent to device")
 
-    def send_to_origin(self, onX, onY, onZ):
+    def send_to_origin(self):
 
-        byte_stream, axis = generate_send_to_origin(onX, onY, onZ)
+        byte_stream = generate_send_to_origin()
 
         try:
             with self.connection as conn:
@@ -104,4 +104,17 @@ class Control:
         except SerialException:
             log.warning("There is no suitable connection with the device")
         else:
-            log.debug(f"Device sent to origin on {axis}")
+            log.debug(f"Device sent to origin")
+
+    def execute_movement(self, x_theta1, y_theta2, z_theta3, xyz_theta, is_execute):
+        if not is_execute:
+            if xyz_theta == 0:
+                self.x = x_theta1
+                self.y = y_theta2
+                self.z = z_theta3
+                self.move_to_xyz(x_theta1, y_theta2, z_theta3)
+            elif xyz_theta == 1:
+                self.theta1 = x_theta1
+                self.theta1 = y_theta2
+                self.theta3 = z_theta3
+                self.move_to_thetas(x_theta1, y_theta2, z_theta3)

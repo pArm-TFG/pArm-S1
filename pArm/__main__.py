@@ -16,6 +16,7 @@
 from . import init_logging
 from PyQt5 import uic, QtWidgets
 from .GUI import GUI
+from .control import control
 import sys
 
 
@@ -25,13 +26,23 @@ class Ui(QtWidgets.QMainWindow):
         uic.loadUi('./pArm/gui/MainWindow.ui', self)
         self.show()
 
+
 if __name__ == '__main__':
     init_logging("Roger", log_file="p-Arm.log")
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
+
     ui = GUI.Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
+    sys_control = control.Control()
+
+    ui.ExecuteButton.clicked.connect(lambda: sys_control.execute_movement(
+            ui.doubleSpinBox1.value(),
+            ui.doubleSpinBox2.value(),
+            ui.doubleSpinBox3.value(),
+            ui.comboBoxCoordinates.currentIndex(),
+            ui.ExecuteButton.State))
 
     sys.exit(app.exec_())
     pass  # TODO
