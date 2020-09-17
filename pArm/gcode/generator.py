@@ -12,3 +12,8 @@ def generate_theta_movement(theta1, theta2, theta3):
 def generate_send_to_origin():
     byte_stream = bytes("G28", encoding="utf-8")
     return byte_stream
+
+
+def generate_cancel_movement():
+    byte_stream = bytes("M0", encoding="utf-8")
+    return byte_stream

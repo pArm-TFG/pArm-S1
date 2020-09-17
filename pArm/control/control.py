@@ -1,7 +1,10 @@
-from .. import generate_xyz_movement, generate_theta_movement, generate_send_to_origin
+from .. import generate_xyz_movement, generate_theta_movement, generate_send_to_origin, generate_cancel_movement
 from .. import Connection
 from serial import SerialException
 from logging import getLogger
+from .control_interface import ControlInterface
+from ..gcode.interpreter import parse_g_order
+from time import sleep
 
 
 LOWEST_X_VALUE = 0
@@ -14,9 +17,10 @@ HIGHEST_Z_VALUE = 300
 log = getLogger("Roger")
 
 
-class Control:
+class Control(ControlInterface):
 
-    def __init__(self, x=0, y=0, z=0, theta1=0, theta2=0, theta3=0):
+    def __init__(self, x=0, y=0, z=0, theta1=0, theta2=0, theta3=0, port=''):
+        super(Control, self).__init__()
         self.x = x
         self.y = y
         self.z = z
@@ -25,13 +29,9 @@ class Control:
         self.theta2 = theta2
         self.theta3 = theta3
 
-        self.current_index = 0
+        self.port = port
 
         self.connection = Connection()
-
-    @property
-    def current_index(self):
-        return self.current_index
 
     @property
     def x(self):
@@ -44,6 +44,10 @@ class Control:
     @property
     def z(self):
         return self._z
+
+    @property
+    def port(self):
+        return self._port
 
     @x.setter
     def x(self, x):
@@ -66,14 +70,15 @@ class Control:
         else:
             print("Z value out of bounds")
 
-    @current_index.setter
-    def current_index(self, current_index):
-        self._current_index = current_index
+    @port.setter
+    def port(self, port):
+        self._port = port
 
     def move_to_xyz(self, x, y, z):
 
-        byte_stream = generate_xyz_movement(x, y, z)
+        self.connection.port = self.port
 
+        byte_stream = generate_xyz_movement(x, y, z)
         try:
             with self.connection as conn:
                 conn.write(byte_stream)
@@ -83,6 +88,8 @@ class Control:
             log.debug("X, Y, Z values successfully sent to device")
 
     def move_to_thetas(self, theta1, theta2, theta3):
+
+        self.connection.port = self.port
 
         byte_stream = generate_theta_movement(theta1, theta2, theta3)
 
@@ -105,6 +112,27 @@ class Control:
             log.warning("There is no suitable connection with the device")
         else:
             log.debug(f"Device sent to origin")
+
+    def cancel_movement(self):
+        byte_stream = generate_cancel_movement()
+
+        try:
+            with self.connection as conn:
+                conn.write(byte_stream)
+        except SerialException:
+            log.warning("There is no suitable connection with the device")
+        else:
+            log.debug(f"Device sent to origin")
+
+        line = self.connection.readline()
+
+        while line != 'M1':
+            line = self.connection.readline()
+
+        position = self.connection.readline()
+        
+        x, y, z = parse_g_order(position)
+
 
     def execute_movement(self, x_theta1, y_theta2, z_theta3, xyz_theta, is_execute):
         if not is_execute:

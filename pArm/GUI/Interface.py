@@ -146,10 +146,8 @@ def executeMovement(button : QtWidgets.QPushButton, logger: QtWidgets.QPlainText
         button.State = True  
         #Cancel movement Logic code here
 
-def drawTopViewFromAngle(screen: QtWidgets.QGraphicsView, sliders: QtWidgets.QSlider):
-    pass
+#def drawTopViewFromAngle(screen: QtWidgets.QGraphicsView, sliders: QtWidgets.QSlider):
+#    pass
 
-def drawSideViewFromAngle(screen: QtWidgets.QGraphicsView, sliders: QtWidgets.QSlider)
-   pass
-   
-      
+#def drawSideViewFromAngle(screen: QtWidgets.QGraphicsView, sliders: QtWidgets.QSlider)
+#   pass

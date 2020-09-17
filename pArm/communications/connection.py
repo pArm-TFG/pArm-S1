@@ -14,7 +14,6 @@
 #     You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 import serial
-from numpy import short
 
 
 class Connection:
@@ -93,3 +92,11 @@ class Connection:
     @property
     def is_open(self) -> bool:
         return self.ser.is_open
+
+    @property
+    def port(self):
+        return self.port
+
+    @port.setter
+    def port(self, port):
+        self.port = f"/dev/{port}"
