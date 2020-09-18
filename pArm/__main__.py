@@ -22,11 +22,10 @@ import sys
 if __name__ == '__main__':
     init_logging("Roger", log_file="p-Arm.log")
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
 
-    ui = GUI.Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    ui = GUI.Ui()
+    ui.setupGUI()
+    ui.show()
     sys_control = control.Control()
 
     sys.exit(app.exec_())
