@@ -1,4 +1,4 @@
-# Grouped widgets in order to ease parameter passing
+        # Grouped widgets in order to ease parameter passing
 
         sliders = [self.Slider1,self.Slider2, self.Slider3]
         spinBoxes = [self.doubleSpinBox1, self.doubleSpinBox2, self.doubleSpinBox3]
@@ -23,9 +23,9 @@
 
         # Extra setting initialization
 
-        self.Slider1.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider1, self.doubleSpinBox1))
-        self.Slider2.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider2, self.doubleSpinBox2))
-        self.Slider3.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider3, self.doubleSpinBox3))
+        self.Slider1.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider1, self.doubleSpinBox1,self.topView))
+        self.Slider2.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider2, self.doubleSpinBox2,self.topView))
+        self.Slider3.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider3, self.doubleSpinBox3,self.topView))
 
         self.doubleSpinBox1.setRange(0,151.0)
         self.doubleSpinBox1.setSingleStep(0.1)
@@ -34,9 +34,9 @@
         self.doubleSpinBox3.setRange(0,120.0)
         self.doubleSpinBox3.setSingleStep(0.1)
 
-        self.doubleSpinBox1.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider1, self.doubleSpinBox1))
-        self.doubleSpinBox2.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider2, self.doubleSpinBox2))
-        self.doubleSpinBox3.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider3, self.doubleSpinBox3))
+        self.doubleSpinBox1.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider1, self.doubleSpinBox1,self.topView))
+        self.doubleSpinBox2.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider2, self.doubleSpinBox2,self.topView))
+        self.doubleSpinBox3.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider3, self.doubleSpinBox3,self.topView))
 
         self.subLabel7.hide()
 
@@ -53,8 +53,15 @@
 
         self.topView.setBackground("w")
         self.sideView.setBackground("w")
-    
 
+        self.topView.setXRange(-400, 400, padding = 0)
+        self.topView.setYRange(400,0, padding = 0)
+        #self.topView.getPlotItem().hideAxis('bottom')
+        #self.topView.getPlotItem().hideAxis('left')
+        pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10)
+        self.topView.plot((-346,0), (0,0), pen = pen)
+        self.topView.setTitle("Top View")
+       
         #self.graphicsView.setBackground("w")
         #self.graphicsView_2.setBackground("w")
         #self.graphicsView.setXRange((-1,1))

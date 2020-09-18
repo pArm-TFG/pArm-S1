@@ -240,7 +240,7 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBoxCoordinates">
+   <widget class="QComboBox" name="ComboBoxCoordinates">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -289,9 +289,9 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>70</y>
+      <y>60</y>
       <width>291</width>
-      <height>16</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="font">
@@ -300,16 +300,16 @@
      </font>
     </property>
     <property name="text">
-     <string>Base Servo</string>
+     <string>Base Servo Angle</string>
     </property>
    </widget>
    <widget class="QLabel" name="SliderLabel2">
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>200</y>
+      <y>190</y>
       <width>291</width>
-      <height>16</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="font">
@@ -318,16 +318,16 @@
      </font>
     </property>
     <property name="text">
-     <string>Elbow Servo</string>
+     <string>Elbow Servo Angle</string>
     </property>
    </widget>
    <widget class="QLabel" name="SliderLabel3">
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>330</y>
+      <y>320</y>
       <width>301</width>
-      <height>16</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="font">
@@ -336,10 +336,10 @@
      </font>
     </property>
     <property name="text">
-     <string>Shoulder Servo</string>
+     <string>Shoulder Servo Angle</string>
     </property>
    </widget>
-   <widget class="QProgressBar" name="progressBar">
+   <widget class="QProgressBar" name="ProgressBar">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -355,7 +355,7 @@
      <number>24</number>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="doubleSpinBox1">
+   <widget class="QDoubleSpinBox" name="SpinBox1">
     <property name="geometry">
      <rect>
       <x>420</x>
@@ -365,7 +365,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="doubleSpinBox2">
+   <widget class="QDoubleSpinBox" name="SpinBox2">
     <property name="geometry">
      <rect>
       <x>420</x>
@@ -375,7 +375,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="doubleSpinBox3">
+   <widget class="QDoubleSpinBox" name="SpinBox3">
     <property name="geometry">
      <rect>
       <x>420</x>
@@ -385,7 +385,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="subLabel1">
+   <widget class="QLabel" name="LeftLabelSlider1">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -398,7 +398,7 @@
      <string>0º</string>
     </property>
    </widget>
-   <widget class="QLabel" name="subLabel2">
+   <widget class="QLabel" name="RightLabelSlider1">
     <property name="geometry">
      <rect>
       <x>380</x>
@@ -411,7 +411,7 @@
      <string>151º</string>
     </property>
    </widget>
-   <widget class="QLabel" name="subLabel3">
+   <widget class="QLabel" name="LeftLabelSlider2">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -424,7 +424,7 @@
      <string>0º</string>
     </property>
    </widget>
-   <widget class="QLabel" name="subLabel4">
+   <widget class="QLabel" name="RightLabelSlider2">
     <property name="geometry">
      <rect>
       <x>380</x>
@@ -437,7 +437,7 @@
      <string>135º</string>
     </property>
    </widget>
-   <widget class="QLabel" name="subLabel5">
+   <widget class="QLabel" name="LeftLabelSlider3">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -450,7 +450,7 @@
      <string>0º</string>
     </property>
    </widget>
-   <widget class="QLabel" name="subLabel6">
+   <widget class="QLabel" name="RightLabelSlider3">
     <property name="geometry">
      <rect>
       <x>380</x>
@@ -463,7 +463,7 @@
      <string>120º</string>
     </property>
    </widget>
-   <widget class="QLabel" name="subLabel7">
+   <widget class="QLabel" name="MidLabelSlider2">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -476,7 +476,7 @@
      <string>0.0mm</string>
     </property>
    </widget>
-   <widget class="PlotWidget" name="topView">
+   <widget class="PlotWidget" name="TopView">
     <property name="geometry">
      <rect>
       <x>580</x>
@@ -486,7 +486,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="PlotWidget" name="sideView">
+   <widget class="PlotWidget" name="SideView">
     <property name="geometry">
      <rect>
       <x>580</x>
@@ -532,7 +532,7 @@
      <string>Side View</string>
     </property>
    </widget>
-   <widget class="QPlainTextEdit" name="loggerBox">
+   <widget class="QPlainTextEdit" name="LoggerBox">
     <property name="geometry">
      <rect>
       <x>580</x>
