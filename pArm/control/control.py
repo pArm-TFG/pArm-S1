@@ -1,11 +1,11 @@
-from .. import generate_xyz_movement, generate_theta_movement, generate_send_to_origin, generate_cancel_movement
+from ..gcode import generator
+from ..gcode import interpreter
 from .. import Connection
 from serial import SerialException
 from logging import getLogger
 from .control_interface import ControlInterface
 from ..gcode.interpreter import parse_g_order
-from time import sleep
-
+import time
 
 LOWEST_X_VALUE = 0
 HIGHEST_X_VALUE = 300
@@ -78,7 +78,7 @@ class Control(ControlInterface):
 
         self.connection.port = self.port
 
-        byte_stream = generate_xyz_movement(x, y, z)
+        byte_stream = generator.generate_xyz_movement(x, y, z)
         try:
             with self.connection as conn:
                 conn.write(byte_stream)
@@ -91,7 +91,7 @@ class Control(ControlInterface):
 
         self.connection.port = self.port
 
-        byte_stream = generate_theta_movement(theta1, theta2, theta3)
+        byte_stream = generator.generate_theta_movement(theta1, theta2, theta3)
 
         try:
             with self.connection as conn:
@@ -103,7 +103,9 @@ class Control(ControlInterface):
 
     def send_to_origin(self):
 
-        byte_stream = generate_send_to_origin()
+        self.connection.port = self.port
+
+        byte_stream = generator.generate_send_to_origin()
 
         try:
             with self.connection as conn:
@@ -112,9 +114,51 @@ class Control(ControlInterface):
             log.warning("There is no suitable connection with the device")
         else:
             log.debug(f"Device sent to origin")
+
+    def request_cartesian_position(self):
+
+        self.connection.port = self.port
+
+        byte_stream = generator.generate_request_cartesian_position()
+
+        try:
+            with self.connection as conn:
+                conn.write(byte_stream)
+        except SerialException:
+            log.warning("There is no suitable connection with the device")
+        else:
+            log.debug(f"Cartesian position requested")
+
+    def request_angular_position(self):
+
+        self.connection.port = self.port
+
+        byte_stream = generator.generate_request_angular_position()
+
+        try:
+            with self.connection as conn:
+                conn.write(byte_stream)
+        except SerialException:
+            log.warning("There is no suitable connection with the device")
+        else:
+            log.debug(f"Angular position requested")
+
+    def read_cartesian_positions(self):
+        self.request_cartesian_position()
+        cartesian_positions = interpreter.parse_line()
+        self.x = cartesian_positions.x
+        self.y = cartesian_positions.y
+        self.z = cartesian_positions.z
+
+    def read_angular_positions(self):
+        self.request_angular_position()
+        angular_positions = interpreter.parse_line()
+        self.theta1 = angular_positions.t1
+        self.theta2 = angular_positions.t2
+        self.theta3 = angular_positions.t3
 
     def cancel_movement(self):
-        byte_stream = generate_cancel_movement()
+        byte_stream = generator.generate_cancel_movement()
 
         try:
             with self.connection as conn:
@@ -124,25 +168,12 @@ class Control(ControlInterface):
         else:
             log.debug(f"Device sent to origin")
 
-        line = self.connection.readline()
+        cancel_confirm = interpreter.parse_line()
+        timeout = time.time() + 5
 
-        while line != 'M1':
-            line = self.connection.readline()
+        while cancel_confirm is not True and time.time() > timeout:
+            cancel_confirm = interpreter.parse_line()
 
-        position = self.connection.readline()
-        
-        x, y, z = parse_g_order(position)
-
-
-    def execute_movement(self, x_theta1, y_theta2, z_theta3, xyz_theta, is_execute):
-        if not is_execute:
-            if xyz_theta == 0:
-                self.x = x_theta1
-                self.y = y_theta2
-                self.z = z_theta3
-                self.move_to_xyz(x_theta1, y_theta2, z_theta3)
-            elif xyz_theta == 1:
-                self.theta1 = x_theta1
-                self.theta1 = y_theta2
-                self.theta3 = z_theta3
-                self.move_to_thetas(x_theta1, y_theta2, z_theta3)
+        if cancel_confirm is True:
+            self.read_cartesian_positions()
+            self.read_angular_positions()

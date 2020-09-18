@@ -23,66 +23,66 @@ class Connection:
                  should_open: bool = False):
         self.ser = serial.Serial(baudrate=baudrate)
         self.ser.port = port
+        self._port = port
         if should_open:
             self.ser.open()
 
-    """ 
-    Sets port and a baudrate for a serial connection. Also opens the port 
-    with the current configuration.
+        """ 
+        Sets port and a baudrate for a serial connection. Also opens the port 
+        with the current configuration.
     
-    :param port: the port used for serial comunication
-    :param baudrate: the baudrate of the serial connection
-    :param should_open: if true, the port is opened 
-    
-    """
+        :param port: the port used for serial comunication
+        :param baudrate: the baudrate of the serial connection
+        :param should_open: if true, the port is opened 
+        """
 
     def __enter__(self):
         if not self.ser.is_open:
             self.ser.open()
         return self
 
-    """
-    If not open, it opens the serial port.
-    """
+        """
+        If not open, it opens the serial port.
+        """
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.ser.close()
 
-    """
-    Closes current port
-    """
+        """
+        Closes current port
+        """
 
     def write(self, data: bytes):
         self.ser.write(data)
 
-    """
-    Writes data of a specified size to serial port 
-    
-    :param data: data to be writen to the port  
-    """
+        """
+        Writes data of a specified size to serial port 
+        
+        :param data: data to be writen to the port  
+        """
 
     def read(self, size: int = 1) -> bytes:
         return self.ser.read(size)
 
-    """
-    Reads data from of a specified size to serial port
-    
-    :param size: the size to be read
-    """
+        """
+        Reads data from of a specified size to serial port
+        
+        :param size: the size to be read
+        """
 
     def readline(self) -> bytes:
         return self.ser.readline()
 
-    """
-    Reads a line from the serial buffer
-    """
+        """
+        Reads a line from the serial buffer
+        """
 
     def readall(self) -> bytes:
         return self.ser.readall()
 
-    """
-    Read all the serial buffer
-    """
+        """
+        Read all the serial buffer
+        """
 
 
     @property
@@ -95,8 +95,8 @@ class Connection:
 
     @property
     def port(self):
-        return self.port
+        return self._port
 
     @port.setter
     def port(self, port):
-        self.port = f"/dev/{port}"
+        self._port = f"/dev/{port}"
