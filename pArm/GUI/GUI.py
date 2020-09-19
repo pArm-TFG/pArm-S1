@@ -1,10 +1,11 @@
-from PyQt5 import QtWidgets, uic
-from pyqtgraph import PlotWidget
+import math
+import os
+
+import pyqtgraph
+from PyQt5 import QtCore, QtWidgets, uic
 #from .Interface import *
 from PyQt5.QtWidgets import QMessageBox
-import os
-import math
-import pyqtgraph
+from pyqtgraph import PlotWidget
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -105,9 +106,8 @@ class Ui(QtWidgets.QMainWindow):
 
         self.top_view.setXRange(-400, 400, padding = 0)
         self.top_view.setYRange(400,0, padding = 0)
-        pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10)
-        self.top_view.plot((-346,0), (0,0), pen = pen)
-        self.top_view.setTitle("Top View")
+        pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
+        self.top_view.plot((-346,0), (0,0), pen = pen, symbol='o', symbolSize=20, symbolBrush=('b'))
        
     def adjustWidgetValue(self,type, slider: QtWidgets.QSlider, spinBoxDouble: QtWidgets.QDoubleSpinBox, screen: QtWidgets.QGraphicsView):
         if type == "slider":
@@ -253,10 +253,8 @@ class Ui(QtWidgets.QMainWindow):
             #Cancel movement Logic code here
 
     def drawTopViewFromAngle(self,screen: QtWidgets.QGraphicsView, spinBox: QtWidgets.QDoubleSpinBox):
-        pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10)
+        pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
         x_f = 346*math.cos((180 - spinBox.value())*(math.pi/180))
         y_f = 346*math.sin((180 - spinBox.value())*(math.pi/180))
         screen.clear()
-        screen.plot((0, x_f),(0,y_f), pen=pen)    
-
-   
+        screen.plot((0, x_f),(0,y_f), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))    
