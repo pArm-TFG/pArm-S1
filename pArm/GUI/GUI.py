@@ -263,9 +263,9 @@ class Ui(QtWidgets.QMainWindow):
             button.State = False
             #Execute movement Logic code here
         else:
-            show_popup("Movement Cancelled")
-            logger.insertPlainText("Movement Cancelled\n")
-            logger.ensureCursorVisible()
+            self.show_popup("Movement Cancelled")
+            self.logger_box.insertPlainText("Movement Cancelled\n")
+            self.logger_box.ensureCursorVisible()
             button.setText("Execute Movement")
             button.State = True  
             #Cancel movement Logic code here
@@ -285,11 +285,11 @@ class Ui(QtWidgets.QMainWindow):
             pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
             x_f = spinBoxes[0].value()
             y_f = spinBoxes[1].value()
-            print(x_f)
-            print("\n")
-            print(y_f)
-            graphics[0].clear()
-            graphics[0].plot((0, y_f),(0,x_f), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))    
+            if not ((math.sqrt(x_f*x_f + y_f*y_f)) > 346):
+                graphics[0].clear()
+                graphics[0].plot((0, y_f),(0,x_f), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))   
+            else:
+                self.logger_box.insertPlainText("Unreachable position, please move the arm back to its range\n")   
         if id == 2 or id == 3 :
             pass
 
