@@ -10,8 +10,6 @@ from pyqtgraph import PlotWidget
 class Ui(QtWidgets.QMainWindow):
     
     def __init__(self):
-
-
         super(Ui, self).__init__()
         uic.loadUi(os.path.join(os.path.dirname(os.path.realpath(__file__)), "InProgressGUI.ui"), self)
 
@@ -52,10 +50,21 @@ class Ui(QtWidgets.QMainWindow):
     def setupGUI(self):
         # Grouped widgets in order to ease parameter passing
         sliders = [self.slider_1,self.slider_2, self.slider_3]
-        spinBoxes = [self.spin_box_1, self.spin_box_2, self.spin_box_3]
-        slidersLabels = [self.slider_1_label, self.slider_2_label, self.slider_3_label, self.slider_1_left_label, self.slider_1_right_label, self.slider_2_left_label, self.slider_2_right_label, self.slider_3_left_label, self.slider_3_right_label, self.slider_2_mid_label]
+        spin_boxes = [self.spin_box_1, self.spin_box_2, self.spin_box_3]
+        sliders_labels = [self.slider_1_label, self.slider_2_label, self.slider_3_label, self.slider_1_left_label, self.slider_1_right_label, self.slider_2_left_label, self.slider_2_right_label, self.slider_3_left_label, self.slider_3_right_label, self.slider_2_mid_label]
+        graphics = [self.top_view, self.side_view]
 
         # Extra setting initialization
+
+        if getattr(self.slider_1, "id", None) is None:
+            setattr(self.slider_1,"id", 1)
+
+        if getattr(self.slider_2, "id", None) is None:
+            setattr(self.slider_2,"id", 2) 
+
+        if getattr(self.slider_3, "id", None) is None:
+            setattr(self.slider_3,"id", 3)
+
         self.slider_1.setMaximum(1510)
         self.slider_1.setMinimum(0)
         self.slider_1.setTickInterval(377)
@@ -71,10 +80,18 @@ class Ui(QtWidgets.QMainWindow):
         self.slider_3.setTickInterval(300)
         self.slider_3.setTickPosition(3)
 
-        # Extra setting initialization
-        self.slider_1.valueChanged.connect(lambda: self.adjustWidgetValue("slider", self.slider_1, self.spin_box_1,self.top_view))
-        self.slider_2.valueChanged.connect(lambda: self.adjustWidgetValue("slider", self.slider_2, self.spin_box_2,self.top_view))
-        self.slider_3.valueChanged.connect(lambda: self.adjustWidgetValue("slider", self.slider_3, self.spin_box_3,self.top_view))
+        self.slider_1.valueChanged.connect(lambda: self.adjustWidgetValue("slider", sliders, spin_boxes, graphics, self.combo_box_coordinates.currentIndex(), 1))
+        self.slider_2.valueChanged.connect(lambda: self.adjustWidgetValue("slider", sliders, spin_boxes, graphics,self.combo_box_coordinates.currentIndex(), 2))
+        self.slider_3.valueChanged.connect(lambda: self.adjustWidgetValue("slider",  sliders, spin_boxes, graphics,self.combo_box_coordinates.currentIndex(), 3))
+
+        if getattr(self.spin_box_1, "id", None) is None:
+            setattr(self.spin_box_1,"id", 1)
+
+        if getattr(self.spin_box_2, "id", None) is None:
+            setattr(self.spin_box_2,"id", 2) 
+
+        if getattr(self.spin_box_3, "id", None) is None:
+            setattr(self.spin_box_3,"id", 3)
 
         self.spin_box_1.setRange(0,151.0)
         self.spin_box_1.setSingleStep(0.1)
@@ -83,14 +100,14 @@ class Ui(QtWidgets.QMainWindow):
         self.spin_box_3.setRange(0,120.0)
         self.spin_box_3.setSingleStep(0.1)
 
-        self.spin_box_1.valueChanged.connect(lambda: self.adjustWidgetValue("spinBox", self.slider_1, self.spin_box_1,self.top_view))
-        self.spin_box_2.valueChanged.connect(lambda: self.adjustWidgetValue("spinBox", self.slider_2, self.spin_box_2,self.top_view))
-        self.spin_box_3.valueChanged.connect(lambda: self.adjustWidgetValue("spinBox", self.slider_3, self.spin_box_3,self.top_view))
+        self.spin_box_1.valueChanged.connect(lambda: self.adjustWidgetValue("spinBox",  sliders, spin_boxes, graphics,self.combo_box_coordinates.currentIndex(),1 ))
+        self.spin_box_2.valueChanged.connect(lambda: self.adjustWidgetValue("spinBox",  sliders, spin_boxes, graphics,self.combo_box_coordinates.currentIndex(), 2))
+        self.spin_box_3.valueChanged.connect(lambda: self.adjustWidgetValue("spinBox",  sliders, spin_boxes, graphics,self.combo_box_coordinates.currentIndex(), 3))
 
         self.slider_2_mid_label.hide()
 
-        #self.comboBoxCoordinates.highlighted.connect(lambda index: CoordinatesHighlight(self.comboBoxCoordinates, slidersLabels, sliders, spinBoxes, index))
-        self.combo_box_coordinates.activated.connect(lambda index: self.changeCoordinateMenu(self.combo_box_coordinates, slidersLabels, sliders, spinBoxes, index))
+        #self.comboBoxCoordinates.highlighted.connect(lambda index: CoordinatesHighlight(self.comboBoxCoordinates, sliders_labels, sliders, spin_boxes, index))
+        self.combo_box_coordinates.activated.connect(lambda index: self.changeCoordinateMenu(self.combo_box_coordinates, sliders_labels, sliders, spin_boxes, index))
 
         if getattr(self.execute_button, "State", None) is None:
             setattr(self.execute_button,"State", True)
@@ -106,16 +123,18 @@ class Ui(QtWidgets.QMainWindow):
         self.top_view.setXRange(-400, 400, padding = 0)
         self.top_view.setYRange(400,0, padding = 0)
         pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
-        self.top_view.plot((-346,0), (0,0), pen = pen, symbol='o', symbolSize=20, symbolBrush=('b'))
+        self.top_view.plot((-346,0), (0,0), pen = pen, symbol='o', symbolSize=15, symbolBrush=('b'))
        
-    def adjustWidgetValue(self,type, slider: QtWidgets.QSlider, spinBoxDouble: QtWidgets.QDoubleSpinBox, screen: QtWidgets.QGraphicsView):
+    def adjustWidgetValue(self,type, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, graphics: QtWidgets.QGraphicsView, index: int, id):
         if type == "slider":
-            spinBoxDouble.setValue(slider.value()/10)
-            self.drawTopViewFromAngle(screen,spinBoxDouble)
+            if index == 0:
+                    self.drawViewFromAngle(graphics, spinBoxes, id)  
+            elif index == 1:
+                    self.drawViewFromCartesian(graphics, spinBoxes, id)
+            spinBoxes[id-1].setValue(sliders[id-1].value()/10)
         elif type == "spinBox":
-            slider.setSliderPosition(spinBoxDouble.value()*10)
-            self.drawTopViewFromAngle(screen,spinBoxDouble)
-
+            sliders[id-1].setSliderPosition(spinBoxes[id-1].value()*10)
+            
     def labelColorChange(self,label: QtWidgets.QLabel,r, g, b):
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(r, g, b))
@@ -129,107 +148,107 @@ class Ui(QtWidgets.QMainWindow):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
         label.setPalette(palette)
 
-    def setAngularHighlight(self,slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):
-        slidersLabels[0].setText("Base Servo Angle")
-        slidersLabels[1].setText("Shoulder Servo Angle")
-        slidersLabels[2].setText("Elbow Servo Angle")   
-        self.labelColorChange(slidersLabels[0],245,110,110)
-        self.labelColorChange(slidersLabels[1],245,110,110)
-        self.labelColorChange(slidersLabels[2],245,110,110)
+    def setAngularHighlight(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox):
+        sliders_labels[0].setText("Base Servo Angle")
+        sliders_labels[1].setText("Shoulder Servo Angle")
+        sliders_labels[2].setText("Elbow Servo Angle")   
+        self.labelColorChange(sliders_labels[0],245,110,110)
+        self.labelColorChange(sliders_labels[1],245,110,110)
+        self.labelColorChange(sliders_labels[2],245,110,110)
 
-    def setCartesianHighLight(self,slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):
-        slidersLabels[0].setText("X Coordinate")
-        slidersLabels[1].setText("Y Coordinate")
-        slidersLabels[2].setText("Z Coordinate")
-        self.labelColorChange(slidersLabels[0],245,110,110)
-        self.labelColorChange(slidersLabels[1],245,110,110)
-        self.labelColorChange(slidersLabels[2],245,110,110)
+    def setCartesianHighLight(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox):
+        sliders_labels[0].setText("X Coordinate")
+        sliders_labels[1].setText("Y Coordinate")
+        sliders_labels[2].setText("Z Coordinate")
+        self.labelColorChange(sliders_labels[0],245,110,110)
+        self.labelColorChange(sliders_labels[1],245,110,110)
+        self.labelColorChange(sliders_labels[2],245,110,110)
 
-    def setAngularMenu(self,slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):
-        self.labelColorChange(slidersLabels[0],212,0,0)
-        self.labelColorChange(slidersLabels[1],212,0,0)
-        self.labelColorChange(slidersLabels[2],212,0,0)
+    def setAngularMenu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox):
+        self.labelColorChange(sliders_labels[0],212,0,0)
+        self.labelColorChange(sliders_labels[1],212,0,0)
+        self.labelColorChange(sliders_labels[2],212,0,0)
 
-        slidersLabels[0].setText("Base Servo Angle")
-        slidersLabels[1].setText("Shoulder Servo Angle")
-        slidersLabels[2].setText("Elbow Servo Angle")
-        slidersLabels[3].setText("0º")
-        slidersLabels[4].setText("151º")
-        slidersLabels[5].setText("0º")
-        slidersLabels[6].setText("135º")
-        slidersLabels[7].setText("0º")
-        slidersLabels[8].setText("120º")
-        slidersLabels[9].hide()
+        sliders_labels[0].setText("Base Servo Angle")
+        sliders_labels[1].setText("Shoulder Servo Angle")
+        sliders_labels[2].setText("Elbow Servo Angle")
+        sliders_labels[3].setText("0º")
+        sliders_labels[4].setText("151º")
+        sliders_labels[5].setText("0º")
+        sliders_labels[6].setText("135º")
+        sliders_labels[7].setText("0º")
+        sliders_labels[8].setText("120º")
+        sliders_labels[9].hide()
 
         sliders[0].setMaximum(1510)
         sliders[0].setMinimum(0)
         sliders[0].setTickInterval(377)
         sliders[0].setSliderPosition(0)
-        spinBoxes[0].setRange(0,151.0)
-        spinBoxes[0].setValue(0.0)
+        spin_boxes[0].setRange(0,151.0)
+        spin_boxes[0].setValue(0.0)
 
         sliders[1].setMaximum(1350)
         sliders[1].setMinimum(0)
         sliders[1].setTickInterval(337)
         sliders[1].setSliderPosition(0)
-        spinBoxes[1].setRange(0,135.0)
-        spinBoxes[1].setValue(0.0)
+        spin_boxes[1].setRange(0,135.0)
+        spin_boxes[1].setValue(0.0)
 
         sliders[2].setMaximum(1200)
         sliders[2].setMinimum(0)
         sliders[2].setTickInterval(300)
         sliders[2].setSliderPosition(0)
-        spinBoxes[2].setRange(0,120.0)
-        spinBoxes[2].setValue(0.0)    
+        spin_boxes[2].setRange(0,120.0)
+        spin_boxes[2].setValue(0.0)    
 
-    def setCartesianMenu(self,slidersLabels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox):   
-        self.labelColorChange(slidersLabels[0],212,0,0)
-        self.labelColorChange(slidersLabels[1],212,0,0)
-        self.labelColorChange(slidersLabels[2],212,0,0)
+    def setCartesianMenu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox):   
+        self.labelColorChange(sliders_labels[0],212,0,0)
+        self.labelColorChange(sliders_labels[1],212,0,0)
+        self.labelColorChange(sliders_labels[2],212,0,0)
 
-        slidersLabels[0].setText("X Coordinate")
-        slidersLabels[1].setText("Y Coordinate")
-        slidersLabels[2].setText("Z Coordinate")
-        slidersLabels[3].setText("0.0mm")
-        slidersLabels[4].setText("346.0mm")
-        slidersLabels[5].setText("-346.0mm")
-        slidersLabels[6].setText("346.0mm")
-        slidersLabels[7].setText("0.0mm")
-        slidersLabels[8].setText("360.6mm")
-        slidersLabels[9].show()
+        sliders_labels[0].setText("X Coordinate")
+        sliders_labels[1].setText("Y Coordinate")
+        sliders_labels[2].setText("Z Coordinate")
+        sliders_labels[3].setText("0.0mm")
+        sliders_labels[4].setText("346.0mm")
+        sliders_labels[5].setText("-346.0mm")
+        sliders_labels[6].setText("346.0mm")
+        sliders_labels[7].setText("0.0mm")
+        sliders_labels[8].setText("360.6mm")
+        sliders_labels[9].show()
 
         sliders[0].setMaximum(3460)
         sliders[0].setMinimum(0)
         sliders[0].setTickInterval(865)
         sliders[0].setSliderPosition(0)
-        spinBoxes[0].setRange(0,346.0)
-        spinBoxes[0].setValue(0.0)
+        spin_boxes[0].setRange(0,346.0)
+        spin_boxes[0].setValue(0.0)
 
         sliders[1].setMaximum(3460)
         sliders[1].setMinimum(-3460)
         sliders[1].setTickInterval(1730)
         sliders[1].setSliderPosition(0)
-        spinBoxes[1].setRange(-346.0,346.0)
-        spinBoxes[1].setValue(0.0)
+        spin_boxes[1].setRange(-346.0,346.0)
+        spin_boxes[1].setValue(0.0)
 
         sliders[2].setMaximum(3606)
         sliders[2].setMinimum(0)
         sliders[2].setTickInterval(901) 
         sliders[2].setSliderPosition(0)
-        spinBoxes[2].setRange(0,360.6)
-        spinBoxes[2].setValue(0.0)    
+        spin_boxes[2].setRange(0,360.6)
+        spin_boxes[2].setValue(0.0)    
 
-    def CoordinatesHighlight(self,comboBox: QtWidgets.QComboBox, slidersLabels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, index):
+    def CoordinatesHighlight(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
         if index == 1 :
-            self.setCartesianHighLight(slidersLabels,sliders,spinBoxes) 
+            self.setCartesianHighLight(sliders_labels,sliders,spin_boxes) 
         elif index == 0 :
-            self.setAngularHighlight(slidersLabels,sliders,spinBoxes)
+            self.setAngularHighlight(sliders_labels,sliders,spin_boxes)
         
-    def changeCoordinateMenu(self,comboBox: QtWidgets.QComboBox, slidersLabels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, index):
+    def changeCoordinateMenu(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
         if index == 1 : 
-            self.setCartesianMenu(slidersLabels, sliders, spinBoxes)
+            self.setCartesianMenu(sliders_labels, sliders, spin_boxes)
         elif index == 0 : 
-            self.setAngularMenu(slidersLabels, sliders, spinBoxes)
+            self.setAngularMenu(sliders_labels, sliders, spin_boxes)
         
     def show_popup(self,message: str):
         msg = QMessageBox()
@@ -251,9 +270,27 @@ class Ui(QtWidgets.QMainWindow):
             button.State = True  
             #Cancel movement Logic code here
 
-    def drawTopViewFromAngle(self,screen: QtWidgets.QGraphicsView, spinBox: QtWidgets.QDoubleSpinBox):
-        pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
-        x_f = 346*math.cos((180 - spinBox.value())*(math.pi/180))
-        y_f = 346*math.sin((180 - spinBox.value())*(math.pi/180))
-        screen.clear()
-        screen.plot((0, x_f),(0,y_f), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))    
+    def drawViewFromAngle(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
+        if id == 1:
+            pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
+            x_f = 346*math.cos((180 - spinBoxes[id-1].value())*(math.pi/180))
+            y_f = 346*math.sin((180 - spinBoxes[id-1].value())*(math.pi/180))
+            graphics[0].clear()
+            graphics[0].plot((0, x_f),(0,y_f), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))    
+        elif id == 2 or  id == 3 :
+            pass
+
+    def drawViewFromCartesian(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
+        if id == 1 or id == 2:
+            pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
+            x_f = spinBoxes[0].value()
+            y_f = spinBoxes[1].value()
+            print(x_f)
+            print("\n")
+            print(y_f)
+            graphics[0].clear()
+            graphics[0].plot((0, y_f),(0,x_f), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))    
+        if id == 2 or id == 3 :
+            pass
+
+            
