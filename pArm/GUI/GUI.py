@@ -207,9 +207,6 @@ class Ui(QtWidgets.QMainWindow):
         spin_boxes[2].setValue(0.0)    
 
     def setCartesianMenu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox): 
-
-        print(self.x_coord)  
-
         self.labelColorChange(sliders_labels[0],212,0,0)
         self.labelColorChange(sliders_labels[1],212,0,0)
         self.labelColorChange(sliders_labels[2],212,0,0)
@@ -228,27 +225,26 @@ class Ui(QtWidgets.QMainWindow):
         sliders[0].setMaximum(3460)
         sliders[0].setMinimum(0)
         sliders[0].setTickInterval(865)
-        sliders[0].setSliderPosition(self.x_coord)
+        sliders[0].setSliderPosition(0)
         spin_boxes[0].setRange(0,346.0)
-        spin_boxes[0].setValue(0.0)
+        spin_boxes[0].setValue(self.x_coord)
 
 
         sliders[1].setMaximum(3460)
         sliders[1].setMinimum(-3460)
         sliders[1].setTickInterval(1730)
-        sliders[1].setSliderPosition(self.y_coord)
+        sliders[1].setSliderPosition(0)
         spin_boxes[1].setRange(-346.0,346.0)
-        spin_boxes[1].setValue(0.0)
+        spin_boxes[1].setValue(self.y_coord)
     
 
         sliders[2].setMaximum(3606)
         sliders[2].setMinimum(0)
         sliders[2].setTickInterval(901) 
-        sliders[2].setSliderPosition(self.z_coord)
+        sliders[2].setSliderPosition(0)
         spin_boxes[2].setRange(0,360.6)
-        spin_boxes[2].setValue(0.0)
-
-        pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine) 
+        spin_boxes[2].setValue(self.z_coord)
+ 
      
     def CoordinatesHighlight(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
         if index == 1 :
