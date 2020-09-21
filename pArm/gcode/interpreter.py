@@ -63,6 +63,5 @@ def parse_m_order(m_order):
     split_order = m_order.split(' ')
     order_number = int(split_order[0][1:])
 
-    if order_number == 1234:
-        pass
-        #TODO
+    if order_number == 1:
+        return True
