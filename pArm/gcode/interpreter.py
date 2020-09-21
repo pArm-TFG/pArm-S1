@@ -3,6 +3,7 @@ from serial import SerialException
 from logging import getLogger
 from typing import Tuple, Union
 from collections import namedtuple
+import time
 
 log = getLogger("Roger")
 
@@ -21,27 +22,33 @@ def read_buffer_line():
     return line
 
 
-def parse_line():
+def parse_line() -> Union[bool, Tuple[float, float, float]]:
     line = read_buffer_line()
     readable_line = line.decode("utf-8")
 
     if readable_line[0] == "I":
-        parse_i_order(readable_line)
+        return parse_i_order(readable_line)
     elif readable_line[0] == "G":
-        parse_g_order(readable_line)
+        return parse_g_order(readable_line)
     elif readable_line[0] == "M":
-        parse_m_order(readable_line)
+        return parse_m_order(readable_line)
 
 
 def parse_i_order(i_order):
+    split_order = i_order.split(' ')
     order_number = int(i_order[0][1:])
 
-    if order_number == 1:
-        pass
-        # TODO
+    if order_number == 2:
+        return split_order[1]
+    elif order_number == 3:
+        return split_order[1]
+    elif order_number == 4:
+        return split_order[1]
+    elif order_number == 5:
+        return True
 
 
-def parse_g_order(g_order) -> Union[float, str, Tuple[float, float, float]]:
+def parse_g_order(g_order) -> Tuple[float, float, float]:
     split_order = g_order.split(' ')
     order_number = int(split_order[0][1:])
 
@@ -65,3 +72,20 @@ def parse_m_order(m_order):
 
     if order_number == 1:
         return True
+
+
+def wait_for(self, gcode: str, timer: int = 5) -> Tuple[bool,
+                                                        list[str],
+                                                        str]:
+    missed_inst = []
+    timeout = time.time() + timer
+
+    line = connection.readline()
+
+    while line.split(' ')[0] != gcode and time.time() <= timeout:
+        if line != '':
+            missed_inst.append(line)
+        line = self.connection.readline()
+        time.sleep(0.1)
+
+    return timeout < time.time(), missed_inst, line
