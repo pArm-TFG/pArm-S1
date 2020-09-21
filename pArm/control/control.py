@@ -1,11 +1,10 @@
 from ..gcode import generator
 from ..gcode import interpreter
-from ..security import rsa
+from ..security import RSA
 from .. import Connection
 from serial import SerialException
 from logging import getLogger
 from .control_interface import ControlInterface
-from ..gcode.interpreter import parse_g_order
 import time
 
 LOWEST_X_VALUE = 0
@@ -74,7 +73,7 @@ class Control(ControlInterface):
     @port.setter
     def port(self, port):
         self._port = port
-        self.connection.port = self._port
+        #self.connection.port = self._port
 
     def move_to_xyz(self, x, y, z):
 
@@ -135,6 +134,19 @@ class Control(ControlInterface):
         else:
             log.debug(f"Angular position requested")
 
+    def request_recalculate_keys(self):
+
+        byte_stream = generator.generate_recaculate_keys()
+
+        try:
+            with self.connection as conn:
+                conn.write(byte_stream)
+        except SerialException:
+            log.warning("There is no suitable connection with the device")
+        else:
+            log.debug(f"Key recalculation requested")
+
+
     def read_cartesian_positions(self):
         self.request_cartesian_position()
         cartesian_positions = interpreter.parse_line()
@@ -170,13 +182,16 @@ class Control(ControlInterface):
             self.read_cartesian_positions()
             self.read_angular_positions()
 
-    def obtain_n(self):
-        return interpreter.parse_line()
+    #def read_n(self):
 
-    def obtain_e(self):
-        return interpreter.parse_line()
+    #def read_e(self):
 
-    def handshake(self):
+    #def read_signed_value(self):
+
+    #def
+
+
+    def do_handshake(self):
 
         byte_stream = generator.generate_request_n_e()
 
@@ -184,7 +199,30 @@ class Control(ControlInterface):
             with self.connection as conn:
                 conn.write(byte_stream)
 
-            interpreter.wait_for(self, 'I2')
+            found, missed_instructions, line = interpreter.wait_for(self, 'I2')
+            if found:
+                n = interpreter.parse_line(line)
+
+            found, missed_instructions, line = interpreter.wait_for(self, 'I3')
+            if found:
+                e = interpreter.parse_line(line)
+
+            rsa = RSA(n,e)
+
+            found, missed_instructions, line = interpreter.wait_for(self, 'I4')
+            if found:
+                signed_value = interpreter.parse_line(line)
+
+            unsigned_value = rsa.verify(signed_value)
+
+            bunsigned_value = generator.generate_unsigned_string(unsigned_value)
+
+            conn.write(bunsigned_value)
+
+            found, missed_instructions, line = interpreter.wait_for(self, 'I5')
+
+
+
         except SerialException:
             log.warning("There is no suitable connection with the device")
         else:

@@ -3,6 +3,8 @@ from serial import SerialException
 from logging import getLogger
 from typing import Tuple, Union
 from collections import namedtuple
+from typing import Optional
+from typing import List
 import time
 
 log = getLogger("Roger")
@@ -22,9 +24,12 @@ def read_buffer_line():
     return line
 
 
-def parse_line() -> Union[bool, Tuple[float, float, float]]:
-    line = read_buffer_line()
-    readable_line = line.decode("utf-8")
+def parse_line(line: Optional[Union[str, bytes]] = None) -> Union[bool, Tuple[float, float, float]]:
+    if not line:
+        line = read_buffer_line()
+
+    if isinstance(line, bytes):
+        readable_line = line.decode("utf-8")
 
     if readable_line[0] == "I":
         return parse_i_order(readable_line)
@@ -75,17 +80,16 @@ def parse_m_order(m_order):
 
 
 def wait_for(self, gcode: str, timer: int = 5) -> Tuple[bool,
-                                                        list[str],
+                                                        List[str],
                                                         str]:
     missed_inst = []
     timeout = time.time() + timer
 
-    line = connection.readline()
+    line = connection.sreadline()
 
     while line.split(' ')[0] != gcode and time.time() <= timeout:
         if line != '':
             missed_inst.append(line)
-        line = self.connection.readline()
         time.sleep(0.1)
 
     return timeout < time.time(), missed_inst, line
