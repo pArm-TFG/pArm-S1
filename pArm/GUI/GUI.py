@@ -13,6 +13,11 @@ class Ui(QtWidgets.QMainWindow):
         super(Ui, self).__init__()
         uic.loadUi(os.path.join(os.path.dirname(os.path.realpath(__file__)), "InProgressGUI.ui"), self)
 
+        #Global variables
+        self.x_coord = 0
+        self.y_coord = -346
+        self.z_coord = 0
+
         #Left Window Section
         self.slider_1 = self.findChild(QtWidgets.QSlider, 'Slider1')
         self.slider_2 = self.findChild(QtWidgets.QSlider, 'Slider2')
@@ -122,8 +127,8 @@ class Ui(QtWidgets.QMainWindow):
 
         self.top_view.setXRange(-400, 400, padding = 0)
         self.top_view.setYRange(400,0, padding = 0)
-        pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
-        self.top_view.plot((-346,0), (0,0), pen = pen, symbol='o', symbolSize=15, symbolBrush=('b'))
+        pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
+        self.top_view.plot((self.y_coord,0), (self.x_coord,0), pen = pen, symbol='o', symbolSize=20, symbolBrush=('b'))
        
     def adjustWidgetValue(self,type, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, graphics: QtWidgets.QGraphicsView, index: int, id):
         if type == "slider":
@@ -201,7 +206,10 @@ class Ui(QtWidgets.QMainWindow):
         spin_boxes[2].setRange(0,120.0)
         spin_boxes[2].setValue(0.0)    
 
-    def setCartesianMenu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox):   
+    def setCartesianMenu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox): 
+
+        print(self.x_coord)  
+
         self.labelColorChange(sliders_labels[0],212,0,0)
         self.labelColorChange(sliders_labels[1],212,0,0)
         self.labelColorChange(sliders_labels[2],212,0,0)
@@ -220,24 +228,28 @@ class Ui(QtWidgets.QMainWindow):
         sliders[0].setMaximum(3460)
         sliders[0].setMinimum(0)
         sliders[0].setTickInterval(865)
-        sliders[0].setSliderPosition(0)
+        sliders[0].setSliderPosition(self.x_coord)
         spin_boxes[0].setRange(0,346.0)
         spin_boxes[0].setValue(0.0)
+
 
         sliders[1].setMaximum(3460)
         sliders[1].setMinimum(-3460)
         sliders[1].setTickInterval(1730)
-        sliders[1].setSliderPosition(0)
+        sliders[1].setSliderPosition(self.y_coord)
         spin_boxes[1].setRange(-346.0,346.0)
         spin_boxes[1].setValue(0.0)
+    
 
         sliders[2].setMaximum(3606)
         sliders[2].setMinimum(0)
         sliders[2].setTickInterval(901) 
-        sliders[2].setSliderPosition(0)
+        sliders[2].setSliderPosition(self.z_coord)
         spin_boxes[2].setRange(0,360.6)
-        spin_boxes[2].setValue(0.0)    
+        spin_boxes[2].setValue(0.0)
 
+        pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine) 
+     
     def CoordinatesHighlight(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
         if index == 1 :
             self.setCartesianHighLight(sliders_labels,sliders,spin_boxes) 
@@ -247,6 +259,7 @@ class Ui(QtWidgets.QMainWindow):
     def changeCoordinateMenu(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
         if index == 1 : 
             self.setCartesianMenu(sliders_labels, sliders, spin_boxes)
+            print(self.x_coord)
         elif index == 0 : 
             self.setAngularMenu(sliders_labels, sliders, spin_boxes)
         
@@ -272,23 +285,26 @@ class Ui(QtWidgets.QMainWindow):
 
     def drawViewFromAngle(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
         if id == 1:
-            pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
-            x_f = 346*math.cos((180 - spinBoxes[id-1].value())*(math.pi/180))
-            y_f = 346*math.sin((180 - spinBoxes[id-1].value())*(math.pi/180))
+            pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
+            self.x_coord = 346*math.cos((180 - spinBoxes[id-1].value())*(math.pi/180))
+            self.y_coord = 346*math.sin((180 - spinBoxes[id-1].value())*(math.pi/180))
             graphics[0].clear()
-            graphics[0].plot((0, x_f),(0,y_f), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))    
+            graphics[0].plot((0,self.x_coord),(0,self.y_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))    
         elif id == 2 or  id == 3 :
             pass
 
     def drawViewFromCartesian(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
         if id == 1 or id == 2:
-            pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
-            x_f = spinBoxes[0].value()
-            y_f = spinBoxes[1].value()
-            if not ((math.sqrt(x_f*x_f + y_f*y_f)) > 346):
+            self.x_coord = spinBoxes[0].value()
+            self.y_coord = spinBoxes[1].value()
+            if not ((math.sqrt(self.x_coord**2 + self.y_coord**2)) > 346):
+                pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
                 graphics[0].clear()
-                graphics[0].plot((0, y_f),(0,x_f), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))   
+                graphics[0].plot((0,self.y_coord),(0,self.x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))   
             else:
+                pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
+                graphics[0].clear()
+                graphics[0].plot((0, self.y_coord),(0,self.x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))   
                 self.logger_box.insertPlainText("Unreachable position, please move the arm back to its range\n")   
         if id == 2 or id == 3 :
             pass
