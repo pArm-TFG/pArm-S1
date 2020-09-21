@@ -1,5 +1,6 @@
 from ..gcode import generator
 from ..gcode import interpreter
+from ..security import rsa
 from .. import Connection
 from serial import SerialException
 from logging import getLogger
@@ -73,10 +74,9 @@ class Control(ControlInterface):
     @port.setter
     def port(self, port):
         self._port = port
+        self.connection.port = self._port
 
     def move_to_xyz(self, x, y, z):
-
-        self.connection.port = self.port
 
         byte_stream = generator.generate_xyz_movement(x, y, z)
         try:
@@ -88,8 +88,6 @@ class Control(ControlInterface):
             log.debug("X, Y, Z values successfully sent to device")
 
     def move_to_thetas(self, theta1, theta2, theta3):
-
-        self.connection.port = self.port
 
         byte_stream = generator.generate_theta_movement(theta1, theta2, theta3)
 
@@ -103,8 +101,6 @@ class Control(ControlInterface):
 
     def send_to_origin(self):
 
-        self.connection.port = self.port
-
         byte_stream = generator.generate_send_to_origin()
 
         try:
@@ -117,8 +113,6 @@ class Control(ControlInterface):
 
     def request_cartesian_position(self):
 
-        self.connection.port = self.port
-
         byte_stream = generator.generate_request_cartesian_position()
 
         try:
@@ -130,8 +124,6 @@ class Control(ControlInterface):
             log.debug(f"Cartesian position requested")
 
     def request_angular_position(self):
-
-        self.connection.port = self.port
 
         byte_stream = generator.generate_request_angular_position()
 
@@ -171,9 +163,31 @@ class Control(ControlInterface):
         cancel_confirm = interpreter.parse_line()
         timeout = time.time() + 5
 
-        while cancel_confirm is not True and time.time() > timeout:
+        while not cancel_confirm and time.time() > timeout:
             cancel_confirm = interpreter.parse_line()
 
         if cancel_confirm is True:
             self.read_cartesian_positions()
             self.read_angular_positions()
+
+    def obtain_n(self):
+        return interpreter.parse_line()
+
+    def obtain_e(self):
+        return interpreter.parse_line()
+
+    def handshake(self):
+
+        byte_stream = generator.generate_request_n_e()
+
+        try:
+            with self.connection as conn:
+                conn.write(byte_stream)
+
+            interpreter.wait_for(self, 'I2')
+        except SerialException:
+            log.warning("There is no suitable connection with the device")
+        else:
+            log.debug("Handshake started. Request sent")
+
+
