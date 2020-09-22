@@ -29,8 +29,6 @@ class Control(ControlInterface):
         self.theta2 = theta2
         self.theta3 = theta3
 
-        self.port = port
-
         self.connection = Connection()
 
     @property
@@ -47,7 +45,7 @@ class Control(ControlInterface):
 
     @property
     def port(self):
-        return self._port
+        return self.connection.port
 
     @x.setter
     def x(self, x):
@@ -72,9 +70,8 @@ class Control(ControlInterface):
 
     @port.setter
     def port(self, port):
-        self._port = port
-        #self.connection.port = self._port
-
+        self.connection.port = port
+        
     def move_to_xyz(self, x, y, z):
 
         byte_stream = generator.generate_xyz_movement(x, y, z)
@@ -146,7 +143,6 @@ class Control(ControlInterface):
         else:
             log.debug(f"Key recalculation requested")
 
-
     def read_cartesian_positions(self):
         self.request_cartesian_position()
         cartesian_positions = interpreter.parse_line()
@@ -182,14 +178,13 @@ class Control(ControlInterface):
             self.read_cartesian_positions()
             self.read_angular_positions()
 
-    #def read_n(self):
-
-    #def read_e(self):
-
-    #def read_signed_value(self):
-
-    #def
-
+    def read_handshake_values(self, order: str):
+        try:
+            found, missed_instructions, line = interpreter.wait_for(self, order)
+            if found:
+                return interpreter.parse_line(line)
+        except SerialException as e:
+            log.warning(str(e), exc_info=True)
 
     def do_handshake(self):
 
@@ -199,29 +194,19 @@ class Control(ControlInterface):
             with self.connection as conn:
                 conn.write(byte_stream)
 
-            found, missed_instructions, line = interpreter.wait_for(self, 'I2')
-            if found:
-                n = interpreter.parse_line(line)
+            n = self.read_handshake_values('I2')
+            e = self.read_handshake_values('I3')
 
-            found, missed_instructions, line = interpreter.wait_for(self, 'I3')
-            if found:
-                e = interpreter.parse_line(line)
+            rsa = RSA(n, e)
 
-            rsa = RSA(n,e)
+            signed_value = self.read_handshake_values('I4')
+            verified_value = rsa.verify(signed_value)
 
-            found, missed_instructions, line = interpreter.wait_for(self, 'I4')
-            if found:
-                signed_value = interpreter.parse_line(line)
-
-            unsigned_value = rsa.verify(signed_value)
-
-            bunsigned_value = generator.generate_unsigned_string(unsigned_value)
-
-            conn.write(bunsigned_value)
-
+            verified_value_bytes = generator.generate_unsigned_string(verified_value)
+            conn.write(verified_value_bytes)
             found, missed_instructions, line = interpreter.wait_for(self, 'I5')
-
-
+            if found:
+                log.info("Handshake done.")
 
         except SerialException:
             log.warning("There is no suitable connection with the device")
