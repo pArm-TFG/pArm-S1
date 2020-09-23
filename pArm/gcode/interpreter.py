@@ -5,11 +5,15 @@ from typing import Tuple, Union
 from collections import namedtuple
 from typing import Optional
 from typing import List
+from typing import Iterable
 import time
 
 log = getLogger("Roger")
 
 connection = Connection()
+
+XYZ = namedtuple('XYZ', 'x y z')
+Theta = namedtuple('Theta', 't1 t2 t3')
 
 
 def read_buffer_line():
@@ -24,19 +28,21 @@ def read_buffer_line():
     return line
 
 
-def parse_line(line: Optional[Union[str, bytes]] = None) -> Union[bool, Tuple[float, float, float]]:
+def parse_line(line: Optional[Union[str, bytes]] = None) -> Union[bool, XYZ, Theta, str]:
     if not line:
         line = read_buffer_line()
 
     if isinstance(line, bytes):
-        readable_line = line.decode("utf-8")
-
-    if readable_line[0] == "I":
-        return parse_i_order(readable_line)
-    elif readable_line[0] == "G":
-        return parse_g_order(readable_line)
-    elif readable_line[0] == "M":
-        return parse_m_order(readable_line)
+        line = line.decode("utf-8")
+        
+    if line[0] == "I":
+        return parse_i_order(line)
+    elif line[0] == "G":
+        return parse_g_order(line)
+    elif line[0] == "M":
+        return parse_m_order(line)
+    elif line[0] == "J":
+        return parse_j_order(line)
 
 
 def parse_i_order(i_order):
@@ -57,9 +63,6 @@ def parse_g_order(g_order) -> Tuple[float, float, float]:
     split_order = g_order.split(' ')
     order_number = int(split_order[0][1:])
 
-    XYZ = namedtuple('XYZ', 'x y z')
-    Theta = namedtuple('Theta', 't1 t2 t3')
-
     if order_number == 0:
         return XYZ(x=float(split_order[1][1:]),
                    y=float(split_order[2][1:]),
@@ -79,15 +82,29 @@ def parse_m_order(m_order):
         return True
 
 
-def wait_for(self, gcode: str, timer: int = 5) -> Tuple[bool,
-                                                        List[str],
-                                                        str]:
+def parse_j_order(j_order):
+    order_number = int(j_order[1:])
+
+    if order_number == 1:
+        return 'Ack'
+    if 2 <= order_number <= 20:
+        return f'Err {order_number}'
+    if order_number == 21:
+        return 'Arrived to position'
+
+
+def wait_for(self, gcode: Union[str, Iterable[str]], timer: int = 5) -> Tuple[bool,
+                                                                              List[str],
+                                                                              str]:
     missed_inst = []
     timeout = time.time() + timer
 
     line = connection.sreadline()
 
-    while line.split(' ')[0] != gcode and time.time() <= timeout:
+    def check_valid(c_line, gcode) -> bool:
+        return c_line in gcode if isinstance(gcode, Iterable) else c_line != gcode
+
+    while not check_valid(line.split()[0], gcode) and time.time() <= timeout:
         if line != '':
             missed_inst.append(line)
         time.sleep(0.1)

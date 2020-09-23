@@ -1,5 +1,5 @@
 
-def generate_xyz_movement(x,y,z):
+def generate_xyz_movement(x, y, z):
     return f"G0 X{x} Y{y} Z{z}".encode('utf-8')
 
 
@@ -31,7 +31,7 @@ def generate_unsigned_string(unsigned_string):
     return f'I5 {unsigned_string}'.encode('utf-8')
 
 
-def generate_recaculate_keys():
+def generate_recalculate_keys():
     return 'I6'.encode('utf-8')
 
 

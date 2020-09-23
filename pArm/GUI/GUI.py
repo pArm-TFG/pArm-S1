@@ -304,5 +304,3 @@ class Ui(QtWidgets.QMainWindow):
                 self.logger_box.insertPlainText("Unreachable position, please move the arm back to its range\n")   
         if id == 2 or id == 3 :
             pass
-
-            

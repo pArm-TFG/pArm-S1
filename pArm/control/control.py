@@ -5,6 +5,8 @@ from .. import Connection
 from serial import SerialException
 from logging import getLogger
 from .control_interface import ControlInterface
+from typing import Callable
+from ..communications import connection_management
 import time
 
 LOWEST_X_VALUE = 0
@@ -47,6 +49,10 @@ class Control(ControlInterface):
     def port(self):
         return self.connection.port
 
+    @property
+    def err_fn(self) -> Callable:
+        return self._err_fn
+
     @x.setter
     def x(self, x):
         if LOWEST_X_VALUE <= x <= HIGHEST_X_VALUE:
@@ -71,7 +77,7 @@ class Control(ControlInterface):
     @port.setter
     def port(self, port):
         self.connection.port = port
-        
+
     def move_to_xyz(self, x, y, z):
 
         byte_stream = generator.generate_xyz_movement(x, y, z)
@@ -80,8 +86,7 @@ class Control(ControlInterface):
                 conn.write(byte_stream)
         except SerialException:
             log.warning("There is no suitable connection with the device")
-        else:
-            log.debug("X, Y, Z values successfully sent to device")
+        connection_management.verify_movement_completed()
 
     def move_to_thetas(self, theta1, theta2, theta3):
 
@@ -94,6 +99,7 @@ class Control(ControlInterface):
             log.warning("There is no suitable connection with the device")
         else:
             log.debug("theta1, theta2, theta3 values successfully sent to device")
+        connection_management.verify_movement_completed()
 
     def send_to_origin(self):
 
@@ -106,56 +112,33 @@ class Control(ControlInterface):
             log.warning("There is no suitable connection with the device")
         else:
             log.debug(f"Device sent to origin")
-
-    def request_cartesian_position(self):
-
-        byte_stream = generator.generate_request_cartesian_position()
-
-        try:
-            with self.connection as conn:
-                conn.write(byte_stream)
-        except SerialException:
-            log.warning("There is no suitable connection with the device")
-        else:
-            log.debug(f"Cartesian position requested")
-
-    def request_angular_position(self):
-
-        byte_stream = generator.generate_request_angular_position()
-
-        try:
-            with self.connection as conn:
-                conn.write(byte_stream)
-        except SerialException:
-            log.warning("There is no suitable connection with the device")
-        else:
-            log.debug(f"Angular position requested")
-
-    def request_recalculate_keys(self):
-
-        byte_stream = generator.generate_recaculate_keys()
-
-        try:
-            with self.connection as conn:
-                conn.write(byte_stream)
-        except SerialException:
-            log.warning("There is no suitable connection with the device")
-        else:
-            log.debug(f"Key recalculation requested")
+        connection_management.verify_movement_completed()
 
     def read_cartesian_positions(self):
-        self.request_cartesian_position()
-        cartesian_positions = interpreter.parse_line()
-        self.x = cartesian_positions.x
-        self.y = cartesian_positions.y
-        self.z = cartesian_positions.z
+        connection_management.request_cartesian_position()
+
+        try:
+            found, missed_instructions, line = interpreter.wait_for(self, 'G0')
+            if found:
+                cartesian_positions = interpreter.parse_line(line)
+                self.x = cartesian_positions.x
+                self.y = cartesian_positions.y
+                self.z = cartesian_positions.z
+        except SerialException:
+            log.warning("There is no suitable connection with the device")
 
     def read_angular_positions(self):
-        self.request_angular_position()
-        angular_positions = interpreter.parse_line()
-        self.theta1 = angular_positions.t1
-        self.theta2 = angular_positions.t2
-        self.theta3 = angular_positions.t3
+        connection_management.request_angular_position()
+
+        try:
+            found, missed_instructions, line = interpreter.wait_for(self, 'G1')
+            if found:
+                angular_positions = interpreter.parse_line(line)
+                self.theta1 = angular_positions.t1
+                self.theta2 = angular_positions.t2
+                self.theta3 = angular_positions.t3
+        except SerialException:
+            log.warning("There is no suitable connection with the device")
 
     def cancel_movement(self):
         byte_stream = generator.generate_cancel_movement()
@@ -210,7 +193,3 @@ class Control(ControlInterface):
 
         except SerialException:
             log.warning("There is no suitable connection with the device")
-        else:
-            log.debug("Handshake started. Request sent")
-
-

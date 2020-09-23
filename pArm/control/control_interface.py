@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Callable
 
 
 class ControlInterface(ABC):
@@ -13,6 +14,11 @@ class ControlInterface(ABC):
 
     @abstractmethod
     def cancel_movement(self):
+        pass
+
+    @property
+    @abstractmethod
+    def err_fn(self) -> Callable:
         pass
 
     @property
@@ -53,4 +59,8 @@ class ControlInterface(ABC):
     @port.setter
     @abstractmethod
     def port(self, value):
+        pass
+
+    @err_fn.setter
+    def err_fn(self, fn: Callable):
         pass
