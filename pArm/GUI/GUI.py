@@ -127,6 +127,8 @@ class Ui(QtWidgets.QMainWindow):
 
         self.top_view.setXRange(-400, 400, padding = 0)
         self.top_view.setYRange(400,0, padding = 0)
+        self.side_view.setXRange(-300, 300, padding = 0)
+        self.side_view.setYRange(300,0, padding = 0)
         pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
         self.top_view.plot((self.y_coord,0), (self.x_coord,0), pen = pen, symbol='o', symbolSize=20, symbolBrush=('b'))
        
@@ -227,7 +229,7 @@ class Ui(QtWidgets.QMainWindow):
         sliders[0].setTickInterval(865)
         sliders[0].setSliderPosition(0)
         spin_boxes[0].setRange(0,346.0)
-        spin_boxes[0].setValue(self.x_coord)
+        spin_boxes[0].setValue(0)
 
 
         sliders[1].setMaximum(3460)
@@ -235,7 +237,7 @@ class Ui(QtWidgets.QMainWindow):
         sliders[1].setTickInterval(1730)
         sliders[1].setSliderPosition(0)
         spin_boxes[1].setRange(-346.0,346.0)
-        spin_boxes[1].setValue(self.y_coord)
+        spin_boxes[1].setValue(0)
     
 
         sliders[2].setMaximum(3606)
@@ -243,7 +245,7 @@ class Ui(QtWidgets.QMainWindow):
         sliders[2].setTickInterval(901) 
         sliders[2].setSliderPosition(0)
         spin_boxes[2].setRange(0,360.6)
-        spin_boxes[2].setValue(self.z_coord)
+        spin_boxes[2].setValue(0)
  
      
     def CoordinatesHighlight(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
@@ -282,25 +284,32 @@ class Ui(QtWidgets.QMainWindow):
     def drawViewFromAngle(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
         if id == 1:
             pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
-            self.x_coord = 346*math.cos((180 - spinBoxes[id-1].value())*(math.pi/180))
-            self.y_coord = 346*math.sin((180 - spinBoxes[id-1].value())*(math.pi/180))
+            x_coord = 346*math.cos((180 - spinBoxes[0].value())*(math.pi/180))
+            y_coord = 346*math.sin((180 - spinBoxes[0].value())*(math.pi/180))
             graphics[0].clear()
-            graphics[0].plot((0,self.x_coord),(0,self.y_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))    
+            graphics[0].plot((0,x_coord),(0,y_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))    
         elif id == 2 or  id == 3 :
+            pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
+            x_coord1  = 142*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
+            x_coord2  = x_coord1 + 158.8*math.sin((180 - spinBoxes[1].value() - (120 - spinBoxes[2].value()))*(math.pi/180))
+            z_coord1 = 142*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
+            z_coord2  = z_coord1 - 158.8*math.cos((180 - spinBoxes[1].value() - (120 - spinBoxes[2].value()))*(math.pi/180))
+            graphics[1].clear()
+            graphics[1].plot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))  
             pass
 
     def drawViewFromCartesian(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
         if id == 1 or id == 2:
-            self.x_coord = spinBoxes[0].value()
-            self.y_coord = spinBoxes[1].value()
-            if not ((math.sqrt(self.x_coord**2 + self.y_coord**2)) > 346):
+            x_coord = spinBoxes[0].value()
+            y_coord = spinBoxes[1].value()
+            if not ((math.sqrt(x_coord**2 + y_coord**2)) > 346):
                 pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
                 graphics[0].clear()
-                graphics[0].plot((0,self.y_coord),(0,self.x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))   
+                graphics[0].plot((0,y_coord),(0,x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))   
             else:
                 pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
                 graphics[0].clear()
-                graphics[0].plot((0, self.y_coord),(0,self.x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))   
+                graphics[0].plot((0, y_coord),(0,x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))   
                 self.logger_box.insertPlainText("Unreachable position, please move the arm back to its range\n")   
         if id == 2 or id == 3 :
             pass
