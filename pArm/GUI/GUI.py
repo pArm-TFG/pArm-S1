@@ -282,6 +282,7 @@ class Ui(QtWidgets.QMainWindow):
             #Cancel movement Logic code here
 
     def drawViewFromAngle(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
+
         if id == 1:
             pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
             x_coord = 346*math.cos((180 - spinBoxes[0].value())*(math.pi/180))
@@ -291,9 +292,9 @@ class Ui(QtWidgets.QMainWindow):
         elif id == 2 or  id == 3 :
             pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
             x_coord1  = 142*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
-            x_coord2  = x_coord1 + 158.8*math.sin((180 - spinBoxes[1].value() - (120 - spinBoxes[2].value()))*(math.pi/180))
+            x_coord2  = x_coord1 + 158.8*math.cos((180 - (135 - spinBoxes[1].value()) - (120 - spinBoxes[2].value()))*(math.pi/180))
             z_coord1 = 142*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
-            z_coord2  = z_coord1 - 158.8*math.cos((180 - spinBoxes[1].value() - (120 - spinBoxes[2].value()))*(math.pi/180))
+            z_coord2  = z_coord1 - 158.8*math.sin((180 - (135 - spinBoxes[1].value()) - (120 - spinBoxes[2].value()))*(math.pi/180))
             graphics[1].clear()
             graphics[1].plot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))  
             pass
