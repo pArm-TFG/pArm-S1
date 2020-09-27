@@ -3,22 +3,24 @@ import os
 
 import pyqtgraph
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QMenu
 from pyqtgraph import PlotWidget
+from ..control.control_interface import ControlInterface
+import serial.tools.list_ports
 
 
 class Ui(QtWidgets.QMainWindow):
     
-    def __init__(self):
+    def __init__(self, control: ControlInterface):
         super(Ui, self).__init__()
-        uic.loadUi(os.path.join(os.path.dirname(os.path.realpath(__file__)), "InProgressGUI.ui"), self)
+        uic.loadUi(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'InProgressGUI.ui'), self)
 
-        #Global variables
-        self.x_coord = 0
-        self.y_coord = -346
-        self.z_coord = 0
-
+        #Logic interface
+        self.handler = control
+    
         #Left Window Section
+        self.menu_port = self.findChild(QtWidgets.QMenu, 'menuPort_Selection')
+
         self.slider_1 = self.findChild(QtWidgets.QSlider, 'Slider1')
         self.slider_2 = self.findChild(QtWidgets.QSlider, 'Slider2')
         self.slider_3 = self.findChild(QtWidgets.QSlider, 'Slider3')
@@ -116,7 +118,7 @@ class Ui(QtWidgets.QMainWindow):
 
         if getattr(self.execute_button, "State", None) is None:
             setattr(self.execute_button,"State", True)
-        self.execute_button.clicked.connect(lambda: self.executeMovement(self.execute_button,self.logger_box))
+        self.execute_button.clicked.connect(lambda: self.executeMovement(self.execute_button,self.logger_box, spin_boxes,self.combo_box_coordinates.currentIndex()))
 
         self.logger_box.setReadOnly(1)
         self.logger_box.insertPlainText("Welcome to the p-Arm GUI!!\nThe arm is now being initialized...\n")
@@ -129,8 +131,8 @@ class Ui(QtWidgets.QMainWindow):
         self.top_view.setYRange(400,0, padding = 0)
         self.side_view.setXRange(-300, 300, padding = 0)
         self.side_view.setYRange(300,0, padding = 0)
-        pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
-        self.top_view.plot((self.y_coord,0), (self.x_coord,0), pen = pen, symbol='o', symbolSize=20, symbolBrush=('b'))
+
+        self.scanComPorts(self.menu_port)
        
     def adjustWidgetValue(self,type, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, graphics: QtWidgets.QGraphicsView, index: int, id):
         if type == "slider":
@@ -257,7 +259,6 @@ class Ui(QtWidgets.QMainWindow):
     def changeCoordinateMenu(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
         if index == 1 : 
             self.setCartesianMenu(sliders_labels, sliders, spin_boxes)
-            print(self.x_coord)
         elif index == 0 : 
             self.setAngularMenu(sliders_labels, sliders, spin_boxes)
         
@@ -268,25 +269,29 @@ class Ui(QtWidgets.QMainWindow):
         msg.setIcon(2)
         x = msg.exec_()   
   
-    def executeMovement(self,button : QtWidgets.QPushButton, logger: QtWidgets.QPlainTextEdit):
+    def executeMovement(self,button : QtWidgets.QPushButton, logger: QtWidgets.QPlainTextEdit, spin_boxes: QtWidgets.QDoubleSpinBox, index: int):
         if button.State is True :
             button.setText("Cancel movement")
             button.State = False
-            #Execute movement Logic code here
+            if index == 0:
+                #self.handler.move_to_thetas(spin_boxes[0].value(),spin_boxes[1].value(),spin_boxes[2].value())
+                self.logger_box.insertPlainText('Sending joints to PCB: ' + str((spin_boxes[0].value(),spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
+            elif index == 1:
+                #self.handler.move_to_xyz(spin_boxes[0].value(),spin_boxes[1].value(),spin_boxes[2].value())    
+                self.logger_box.insertPlainText('Sending coordinates to PCB: ' + str((spin_boxes[0].value(),spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
         else:
+            #self.handler.cancel_movement()
             self.show_popup("Movement Cancelled")
             self.logger_box.insertPlainText("Movement Cancelled\n")
             self.logger_box.ensureCursorVisible()
             button.setText("Execute Movement")
             button.State = True  
-            #Cancel movement Logic code here
-
+            
     def drawViewFromAngle(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
-
         if id == 1:
             pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
-            x_coord = 346*math.cos((180 - spinBoxes[0].value())*(math.pi/180))
-            y_coord = 346*math.sin((180 - spinBoxes[0].value())*(math.pi/180))
+            x_coord = 346*math.cos((151 - spinBoxes[0].value())*(math.pi/180))
+            y_coord = 346*math.sin((151 - spinBoxes[0].value())*(math.pi/180))
             graphics[0].clear()
             graphics[0].plot((0,x_coord),(0,y_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))    
         elif id == 2 or  id == 3 :
@@ -314,3 +319,18 @@ class Ui(QtWidgets.QMainWindow):
                 self.logger_box.insertPlainText("Unreachable position, please move the arm back to its range\n")   
         if id == 2 or id == 3 :
             pass
+
+    def scanComPorts(self, menu: QMenu):
+        port_list = serial.tools.list_ports.comports()
+
+        if len(port_list) == 0:
+            menu.addAction('No ports available')    
+            self.logger_box.insertPlainText('No ports detected yet, please checkout  devices connections')
+
+        for port in port_list:
+            menu.addAction(port.device)
+            self.logger_box.insertPlainText('Port ' + port.device + ' detected & ready. \n')
+
+        
+
+
