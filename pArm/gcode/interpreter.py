@@ -6,6 +6,8 @@ from collections import namedtuple
 from typing import Optional
 from typing import List
 from typing import Iterable
+from ..utils.error_data import ErrorData
+import logging
 import time
 
 log = getLogger("Roger")
@@ -14,6 +16,10 @@ connection = Connection()
 
 XYZ = namedtuple('XYZ', 'x y z')
 Theta = namedtuple('Theta', 't1 t2 t3')
+
+errors = {
+    2: ErrorData(logging.ERROR, 'Javier esta xd')
+}
 
 
 def read_buffer_line():
@@ -34,7 +40,7 @@ def parse_line(line: Optional[Union[str, bytes]] = None) -> Union[bool, XYZ, The
 
     if isinstance(line, bytes):
         line = line.decode("utf-8")
-        
+
     if line[0] == "I":
         return parse_i_order(line)
     elif line[0] == "G":
@@ -88,14 +94,14 @@ def parse_j_order(j_order):
     if order_number == 1:
         return 'Ack'
     if 2 <= order_number <= 20:
-        return f'Err {order_number}'
+        return errors[order_number]
     if order_number == 21:
         return 'Arrived to position'
 
 
-def wait_for(self, gcode: Union[str, Iterable[str]], timer: int = 5) -> Tuple[bool,
-                                                                              List[str],
-                                                                              str]:
+def wait_for(gcode: Union[str, Iterable[str]], timer: int = 5) -> Tuple[bool,
+                                                                        List[str],
+                                                                        str]:
     missed_inst = []
     timeout = time.time() + timer
 

@@ -1,8 +1,20 @@
 from abc import ABC, abstractmethod
 from typing import Callable
+from concurrent.futures import ThreadPoolExecutor
 
 
 class ControlInterface(ABC):
+
+    @abstractmethod
+    def __init__(self, executor: ThreadPoolExecutor, x=0, y=0, z=0, theta1=0, theta2=0, theta3=0, port=''):
+        self.executor = executor
+        self.x = x
+        self.y = y
+        self.z = z
+
+        self.theta1 = theta1
+        self.theta2 = theta2
+        self.theta3 = theta3
 
     @abstractmethod
     def move_to_xyz(self, x, y, z):
@@ -18,7 +30,7 @@ class ControlInterface(ABC):
 
     @property
     @abstractmethod
-    def err_fn(self) -> Callable:
+    def err_fn(self) -> Callable[[int, str], None]:
         pass
 
     @property
@@ -62,5 +74,6 @@ class ControlInterface(ABC):
         pass
 
     @err_fn.setter
-    def err_fn(self, fn: Callable):
+    @abstractmethod
+    def err_fn(self, fn: Callable[[int, str], None]):
         pass

@@ -7,6 +7,8 @@ from logging import getLogger
 from .control_interface import ControlInterface
 from typing import Callable
 from ..communications import connection_management
+from concurrent.futures import ThreadPoolExecutor
+
 import time
 
 LOWEST_X_VALUE = 0
@@ -21,15 +23,10 @@ log = getLogger("Roger")
 
 class Control(ControlInterface):
 
-    def __init__(self, x=0, y=0, z=0, theta1=0, theta2=0, theta3=0, port=''):
-        super(Control, self).__init__()
-        self.x = x
-        self.y = y
-        self.z = z
+    def __init__(self, executor: ThreadPoolExecutor, x=0, y=0, z=0, theta1=0, theta2=0, theta3=0, port=''):
+        super(Control, self).__init__(executor, x, y, z, theta1, theta2, theta3, port)
 
-        self.theta1 = theta1
-        self.theta2 = theta2
-        self.theta3 = theta3
+        self._err_fn = None
 
         self.connection = Connection()
 
@@ -50,8 +47,12 @@ class Control(ControlInterface):
         return self.connection.port
 
     @property
-    def err_fn(self) -> Callable:
+    def err_fn(self) -> Callable[[int, str], None]:
         return self._err_fn
+
+    @err_fn.setter
+    def err_fn(self, fn: Callable[[int, str], None]):
+        self._err_fn = fn
 
     @x.setter
     def x(self, x):
@@ -80,26 +81,40 @@ class Control(ControlInterface):
 
     def move_to_xyz(self, x, y, z):
 
-        byte_stream = generator.generate_xyz_movement(x, y, z)
-        try:
-            with self.connection as conn:
-                conn.write(byte_stream)
-        except SerialException:
-            log.warning("There is no suitable connection with the device")
-        connection_management.verify_movement_completed()
+        def fn():
+            byte_stream = generator.generate_xyz_movement(x, y, z)
+            try:
+                with self.connection as conn:
+                    conn.write(byte_stream)
+            except SerialException:
+                log.warning("There is no suitable connection with the device")
+            err = connection_management.verify_movement_completed()
+            if err:
+                return err
+            self.read_cartesian_positions()
+            self.read_angular_positions()
+
+            return self
+
+        return self.executor.submit(fn)
 
     def move_to_thetas(self, theta1, theta2, theta3):
 
         byte_stream = generator.generate_theta_movement(theta1, theta2, theta3)
 
-        try:
-            with self.connection as conn:
-                conn.write(byte_stream)
-        except SerialException:
-            log.warning("There is no suitable connection with the device")
-        else:
-            log.debug("theta1, theta2, theta3 values successfully sent to device")
-        connection_management.verify_movement_completed()
+        def fn():
+            try:
+                with self.connection as conn:
+                    conn.write(byte_stream)
+            except SerialException:
+                log.warning("There is no suitable connection with the device")
+            else:
+                log.debug("theta1, theta2, theta3 values successfully sent to device")
+            connection_management.verify_movement_completed()
+            self.read_cartesian_positions()
+            self.read_angular_positions()
+
+        return self.executor.submit(fn)
 
     def send_to_origin(self):
 
