@@ -3,7 +3,7 @@ import os
 
 import pyqtgraph
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QMessageBox, QMenu
+from PyQt5.QtWidgets import QMessageBox, QMenu, QAction
 from pyqtgraph import PlotWidget
 from ..control.control_interface import ControlInterface
 import serial.tools.list_ports
@@ -17,7 +17,10 @@ class Ui(QtWidgets.QMainWindow):
 
         #Logic interface
         self.handler = control
-    
+
+        #Serial Port used to send data to PCB
+        self.port = 'null'
+
         #Left Window Section
         self.menu_port = self.findChild(QtWidgets.QMenu, 'menuPort_Selection')
 
@@ -116,6 +119,8 @@ class Ui(QtWidgets.QMainWindow):
         #self.comboBoxCoordinates.highlighted.connect(lambda index: CoordinatesHighlight(self.comboBoxCoordinates, sliders_labels, sliders, spin_boxes, index))
         self.combo_box_coordinates.activated.connect(lambda index: self.changeCoordinateMenu(self.combo_box_coordinates, sliders_labels, sliders, spin_boxes, index))
 
+        self.menu_port.triggered.connect(lambda portID: self.setSerialPort(portID))
+
         if getattr(self.execute_button, "State", None) is None:
             setattr(self.execute_button,"State", True)
         self.execute_button.clicked.connect(lambda: self.executeMovement(self.execute_button,self.logger_box, spin_boxes,self.combo_box_coordinates.currentIndex()))
@@ -132,7 +137,7 @@ class Ui(QtWidgets.QMainWindow):
         self.side_view.setXRange(-300, 300, padding = 0)
         self.side_view.setYRange(300,0, padding = 0)
 
-        self.scanComPorts(self.menu_port)
+        self.scanSerialPorts(self.menu_port)
        
     def adjustWidgetValue(self,type, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, graphics: QtWidgets.QGraphicsView, index: int, id):
         if type == "slider":
@@ -320,17 +325,25 @@ class Ui(QtWidgets.QMainWindow):
         if id == 2 or id == 3 :
             pass
 
-    def scanComPorts(self, menu: QMenu):
+    def scanSerialPorts(self, menu: QMenu):
         port_list = serial.tools.list_ports.comports()
 
         if len(port_list) == 0:
             menu.addAction('No ports available')    
-            self.logger_box.insertPlainText('No ports detected yet, please checkout  devices connections')
+            self.logger_box.insertPlainText('No ports detected yet, please checkout devices connections \n')
 
         for port in port_list:
             menu.addAction(port.device)
             self.logger_box.insertPlainText('Port ' + port.device + ' detected & ready. \n')
 
         
+    def setSerialPort(self, portID:QAction):   
+        self.port = portID.iconText()
+        self.handler.port = self.port
+        if  not (self.port == 'No ports available'):
+            self.logger_box.insertPlainText('Port ' + self.port + ' selected as serial output')
+        else:
+            self.logger_box.insertPlainText('No serial ports available, please checkout your usb cable')    
 
+        
 
