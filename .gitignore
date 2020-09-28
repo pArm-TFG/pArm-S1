@@ -214,3 +214,5 @@ fabric.properties
 
 # VSCode settings
 .vscode/settings.json
+
+*.gz
