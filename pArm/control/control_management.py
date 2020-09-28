@@ -1,9 +1,9 @@
 from serial import SerialException
-from ..communications.connection import Connection
-from ..gcode import interpreter
+from pArm.communications.connection import Connection
+from pArm.gcode import interpreter
 from logging import getLogger
-from ..gcode import generator
-from ..utils.error_data import ErrorData
+from pArm.gcode import generator
+from pArm.utils.error_data import ErrorData
 import logging
 
 log = getLogger()
@@ -36,9 +36,11 @@ def verify_movement_completed():
 
 
 def request_cartesian_position():
-
-
-
+    """
+    This function sends a Gcode requesting the cartesian actual positions of the
+    arm
+    :return: no return
+    """
     byte_stream = generator.generate_request_cartesian_position()
 
     try:
@@ -51,7 +53,11 @@ def request_cartesian_position():
 
 
 def request_angular_position():
-
+    """
+    This function sends a Gcode requesting the angular positions of the
+    arm
+    :return: no return
+    """
     byte_stream = generator.generate_request_angular_position()
 
     try:
@@ -64,7 +70,12 @@ def request_angular_position():
 
 
 def request_recalculate_keys():
-
+    """
+    This function sends a Gcode requesting the arm controller to re-calculate
+    the keys used for the hand-shake. In the current state of the code and project
+    this function is not being used.
+    :return: no return
+    """
     byte_stream = generator.generate_recalculate_keys()
 
     try:

@@ -18,14 +18,37 @@ class ControlInterface(ABC):
 
     @abstractmethod
     def move_to_xyz(self, x, y, z):
+        """
+        Triggers the needed procedures to move the arm to the cartesian position
+        that is indicated in its parameters.
+        :param x: x position to which the end effector shall move
+        :param y: y position to which the end effector shall move
+        :param z: z position to which the end effector shall move
+        :return: the future object.
+        """
         pass
 
     @abstractmethod
     def move_to_thetas(self, theta1, theta2, theta3):
+        """
+        Triggers the needed procedures to move the arm to the angular position
+        that is indicated in its parameters.
+        :param theta1: theta1 angle to which the base motor shall move
+        :param theta2: theta2 angle to witch the shoulder motor shall move
+        :param theta3: theta3 angle to which the elbow motor shall move
+        :return: the future object.
+        """
         pass
 
     @abstractmethod
     def cancel_movement(self):
+        """
+        This function sends a request to the arm controller telling it to stop
+        the movement that is currently being made. If the controller confirms
+        that the movement has been canceled, this function also updates the
+        class position variables with the real physical ones.
+        :return: no return.
+        """
         pass
 
     @property
