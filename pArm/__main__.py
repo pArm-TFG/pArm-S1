@@ -16,17 +16,21 @@
 from . import init_logging
 from PyQt5 import QtWidgets
 from .GUI import GUI
-from .control import control
+from .control.control import Control
 import sys
+from concurrent.futures import ThreadPoolExecutor
 
 if __name__ == '__main__':
     init_logging("Roger", log_file="p-Arm.log")
     app = QtWidgets.QApplication(sys.argv)
 
-    ui = GUI.Ui()
+    executor = ThreadPoolExecutor()
+
+    sys_control = Control(executor)
+
+    ui = GUI.Ui(sys_control)
     ui.setupGUI()
     ui.show()
-    sys_control = control.Control()
 
     sys.exit(app.exec_())
     pass  # TODO
