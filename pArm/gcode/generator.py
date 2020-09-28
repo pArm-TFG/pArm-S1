@@ -63,17 +63,28 @@ def generate_request_angular_position():
 
 def generate_request_n_e():
     """
-    Generates a Gcode to request the arm controller to send "n" and "e"
+    Generates a Gcode to request the arm controller to send "n" and "e", values
+    needed to calculate the public key of the device.
     :return: the actual Gcode, ready to be sent.
     """
     return 'I1'.encode('utf-8')
 
 
 def generate_unsigned_string(unsigned_string):
+    """
+    Generates a Gcode with the unsigned string attached.
+    :param unsigned_string: unsigned string to be sent to the device
+    :return: the actual Gcode, ready to be sent.
+    """
     return f'I5 {unsigned_string}'.encode('utf-8')
 
 
 def generate_recalculate_keys():
+    """
+    Generates a Gcode to request that the device calculate new keys for the
+    authentication process.
+    :return: the actual Gcode, ready to be sent.
+    """
     return 'I6'.encode('utf-8')
 
 

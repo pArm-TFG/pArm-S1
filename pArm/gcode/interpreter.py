@@ -23,6 +23,10 @@ errors = {
 
 
 def read_buffer_line():
+    """
+    Reads a line from the UART.
+    :return: returns the first line read.
+    """
     try:
         with connection as conn:
             line = conn.readline()
@@ -35,6 +39,15 @@ def read_buffer_line():
 
 
 def parse_line(line: Optional[Union[str, bytes]] = None) -> Union[bool, XYZ, Theta, str]:
+    """
+    Parses the line passed as parameter looking for the kind of order that it is
+    If no line is passed as parameter, it reads the first line of the buffer.
+
+    Parsing means that this function will decide what kind of order it is and
+    will call the corresponding function to react accordingly.
+    :param line: The line that needs to be parsed
+    :return: calls the corresponding function.
+    """
     if not line:
         line = read_buffer_line()
 
@@ -52,6 +65,12 @@ def parse_line(line: Optional[Union[str, bytes]] = None) -> Union[bool, XYZ, The
 
 
 def parse_i_order(i_order):
+    """
+    This function its called when the order is an I order. It continue to parse
+    it to the number of the order and acts accordingly.
+    :param i_order:
+    :return:
+    """
     split_order = i_order.split(' ')
     order_number = int(i_order[0][1:])
 
