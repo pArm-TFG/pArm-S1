@@ -5,15 +5,18 @@ from logging import getLogger
 from pArm.gcode import generator
 from pArm.utils.error_data import ErrorData
 import logging
+from ..utils import AtomicFloat
+from typing import Optional
 
 log = getLogger()
 connection = Connection()
 
 
-def verify_movement_completed():
+def verify_movement_completed(time_object: Optional[AtomicFloat] = None):
     """
     Verifies that, after a movement order has been issued, it completes correctly.
     If not, this function takes care of the errors.
+    :param time_object: the atomic float holder value.
     :return: An ErrorData named tuple, in case of an error.
     """
     try:
@@ -21,7 +24,9 @@ def verify_movement_completed():
         found, missed_instructions, line = interpreter.wait_for(gcode)
         line_meaning = interpreter.parse_line(line)
 
-        if found and isinstance(line_meaning, str) and line_meaning == 'Ack':
+        if found and isinstance(line_meaning, float):
+            if time_object:
+                time_object.value = line_meaning
             found, missed_instructions, line = interpreter.wait_for('J21')
             if found:
                 log.info(line)
@@ -102,3 +107,15 @@ def request_cancel_movement():
         log.warning("There is no suitable connection with the device")
     else:
         log.debug(f"Requested move to origin")
+
+
+def request_handshake():
+
+    byte_stream = generator.generate_request_n_e()
+    try:
+        with connection as conn:
+            conn.write(byte_stream)
+    except SerialException:
+        log.warning("There is no suitable connection with the device")
+    else:
+        log.debug(f"Requested handshake start")
