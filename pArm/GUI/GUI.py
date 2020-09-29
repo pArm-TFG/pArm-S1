@@ -6,8 +6,10 @@ import serial.tools.list_ports
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QMessageBox, QMenu, QAction
 from pyqtgraph import PlotWidget
-from ..control.control_interface import ControlInterface
+from concurrent.futures import Future
 from ..utils import AtomicFloat
+from ..utils.error_data import ErrorData
+from ..control.control_interface import ControlInterface
 from .progress_widget import ProgressWidget
 
 
@@ -35,6 +37,7 @@ class Ui(QtWidgets.QMainWindow):
         self.spin_box_3 = self.findChild(QtWidgets.QDoubleSpinBox, 'SpinBox3')
 
         self.execute_button = self.findChild(QtWidgets.QPushButton, 'ExecuteButton')
+        self.origin_button = self.findChild(QtWidgets.QPushButton, 'origin_button')
 
         self.combo_box_coordinates = self.findChild(QtWidgets.QComboBox, 'ComboBoxCoordinates')
 
@@ -130,6 +133,7 @@ class Ui(QtWidgets.QMainWindow):
         if getattr(self.execute_button, "State", None) is None:
             setattr(self.execute_button,"State", True)
         self.execute_button.clicked.connect(lambda: self.executeMovement(self.execute_button,self.logger_box, spin_boxes,self.combo_box_coordinates.currentIndex()))
+        self.origin_button.clicked.connect(lambda: self.move_to_origin(self.origin_button, sliders, spin_boxes, self.combo_box_coordinates.currentIndex()))
 
         self.logger_box.setReadOnly(1)
         self.logger_box.insertPlainText("Welcome to the p-Arm GUI!!\nThe arm is now being initialized...\n")
@@ -286,18 +290,21 @@ class Ui(QtWidgets.QMainWindow):
             button.State = False
             time_holder_val = AtomicFloat(initial_value=-1)
             self.progress_bar.run_worker(time_holder_val)
+            ft = None
             if index == 0:
-                self.handler.move_to_thetas(spin_boxes[0].value(),
+                ft = self.handler.move_to_thetas(spin_boxes[0].value(),
                                             spin_boxes[1].value(),
                                             spin_boxes[2].value(),
                                             time_holder_val)
                 self.logger_box.insertPlainText('Sending joints to PCB: ' + str((spin_boxes[0].value(),spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
             elif index == 1:
-                self.handler.move_to_xyz(spin_boxes[0].value(),
+                ft = self.handler.move_to_xyz(spin_boxes[0].value(),
                                          spin_boxes[1].value(),
                                          spin_boxes[2].value(),
                                          time_holder_val)
                 self.logger_box.insertPlainText('Sending coordinates to PCB: ' + str((spin_boxes[0].value(),spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
+            if ft:
+                ft.add_done_callback(lambda future: self.future.callback(future))     
         else:
             #self.handler.cancel_movement()
             self.show_popup("Movement Cancelled")
@@ -359,5 +366,25 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.logger_box.insertPlainText('No serial ports available, please checkout your usb cable')
 
+    def future_callback(self, ft: Future):
+        res = ft.result()
+        if isinstance(res, ErrorData):
+            pass
+            #error logic
+        elif isinstance(res, ControlInterface):
+            pass
+            #recieve data from pcb
 
+    def move_to_origin(self, button: QtWidgets.QPushButton, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
+        #this way it is ez to stablish an origin position
+        if index == 0:
+            spin_boxes[0].setValue(0)
+            spin_boxes[1].setValue(0)
+            spin_boxes[2].setValue(0)
+        elif index == 1:
+            spin_boxes[0].setValue(0)
+            spin_boxes[1].setValue(0)
+            spin_boxes[2].setValue(0)
+
+        self.logger_box.insertPlainText("Arm has been moved back to its origin position \n")
 
