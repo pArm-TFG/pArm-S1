@@ -37,7 +37,7 @@ def verify_movement_completed():
 
 def request_cartesian_position():
     """
-    This function sends a Gcode requesting the cartesian actual positions of the
+    This function sends a Gcode requesting the cartesian positions of the
     arm
     :return: no return
     """
@@ -85,3 +85,20 @@ def request_recalculate_keys():
         log.warning("There is no suitable connection with the device")
     else:
         log.debug(f"Key recalculation requested")
+
+
+def request_cancel_movement():
+    """
+    This function sends a Gcode requesting the arm controller to cancel the
+    current movement being made.
+    :return: no return
+    """
+
+    byte_stream = generator.generate_cancel_movement()
+    try:
+        with connection as conn:
+            conn.write(byte_stream)
+    except SerialException:
+        log.warning("There is no suitable connection with the device")
+    else:
+        log.debug(f"Requested move to origin")

@@ -18,11 +18,23 @@ XYZ = namedtuple('XYZ', 'x y z')
 Theta = namedtuple('Theta', 't1 t2 t3')
 
 errors = {
-    2: ErrorData(logging.ERROR, 'Javier esta xd')
+    2: ErrorData(logging.ERROR, 'Error en la calibración'),
+    3: ErrorData(logging.ERROR, 'GCode desconocido'),
+    4: ErrorData(logging.ERROR, 'Posición fuera del rango'),
+    5: ErrorData(logging.ERROR, 'El brazo no puede cancelar un movimiento inexistente'),
+    6: ErrorData(logging.ERROR, 'Error en el handshake'),
+    7: ErrorData(logging.ERROR, 'El brazo ya se esta moviendo'),
+    8: ErrorData(logging.ERROR, 'No se han especificado coordenadas para el movimiento cartesiano'),
+    9: ErrorData(logging.ERROR, 'No se han especificado coordenadas para el movimiento angular.')
+
 }
 
 
 def read_buffer_line():
+    """
+    Reads a line from the UART.
+    :return: returns the first line read.
+    """
     try:
         with connection as conn:
             line = conn.readline()
@@ -35,6 +47,15 @@ def read_buffer_line():
 
 
 def parse_line(line: Optional[Union[str, bytes]] = None) -> Union[bool, XYZ, Theta, str]:
+    """
+    Parses the line passed as parameter looking for the kind of order that it is
+    If no line is passed as parameter, it reads the first line of the buffer.
+
+    Parsing means that this function will decide what kind of order it is and
+    will call the corresponding function to react accordingly.
+    :param line: The line that needs to be parsed
+    :return: calls the corresponding function.
+    """
     if not line:
         line = read_buffer_line()
 
@@ -52,6 +73,12 @@ def parse_line(line: Optional[Union[str, bytes]] = None) -> Union[bool, XYZ, The
 
 
 def parse_i_order(i_order):
+    """
+    This function is called when the order is an I order. It continue to parse
+    it to the number of the order and acts accordingly.
+    :param i_order: the I order that has to be parsed.
+    :return: returns the parameter of the order.
+    """
     split_order = i_order.split(' ')
     order_number = int(i_order[0][1:])
 
@@ -66,6 +93,13 @@ def parse_i_order(i_order):
 
 
 def parse_g_order(g_order) -> Tuple[float, float, float]:
+    """
+    This function is called when the order is an G order. It continue to parse
+    it to the number of the order and acts accordingly.
+    :param g_order: the G order that has to be parsed.
+    :return: a namedTuple that contains either the angular values or the
+    cartesian ones
+    """
     split_order = g_order.split(' ')
     order_number = int(split_order[0][1:])
 
@@ -81,6 +115,12 @@ def parse_g_order(g_order) -> Tuple[float, float, float]:
 
 
 def parse_m_order(m_order):
+    """
+    This function is called when the order is an M order. It continue to parse
+    it to the number of the order and acts accordingly.
+    :param m_order: the M order that has to be parsed.
+    :return: returns True if the order is type M1
+    """
     split_order = m_order.split(' ')
     order_number = int(split_order[0][1:])
 
@@ -89,6 +129,13 @@ def parse_m_order(m_order):
 
 
 def parse_j_order(j_order):
+    """
+    This function is called when the order is an J order. It continue to parse
+    it to the number of the order and acts accordingly.
+    :param j_order: the J order that has to be parsed.
+    :return: Either confirmation messages (For J1 and J21) or error codes
+    (from J2 to J20)
+    """
     order_number = int(j_order[1:])
 
     if order_number == 1:
@@ -102,6 +149,21 @@ def parse_j_order(j_order):
 def wait_for(gcode: Union[str, Iterable[str]], timer: int = 5) -> Tuple[bool,
                                                                         List[str],
                                                                         str]:
+    """
+    This function keeps reading the buffer until it finds the GCode that its
+    passed as parameter. It is also capable to wait for an order from within an
+    interval of order.
+
+    :param gcode: The order or interval of orders that the function has to
+    look for
+    :param timer: The time that has to elapse until the function reaches timeout
+    and stops looking for the specified order
+    :return: Boolean, to know if the funtion finished because it found the
+    order or because it reached timeout.
+    List, containing other orders that have been read that were not the one that
+    the function was specifically looking for.
+    String, contains the whole line where the order has been found.
+    """
     missed_inst = []
     timeout = time.time() + timer
 
