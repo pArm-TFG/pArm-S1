@@ -51,7 +51,11 @@ class Ui(QtWidgets.QMainWindow):
         self.slider_3_right_label = self.findChild(QtWidgets.QLabel, 'RightLabelSlider3')
         self.slider_2_mid_label = self.findChild(QtWidgets.QLabel, 'MidLabelSlider2')
 
-        self.progress_bar: ProgressWidget = self.findChild(ProgressWidget, 'ProgressBar')
+        self.progress_bar = ProgressWidget.from_bar(
+            self.findChild(QtWidgets.QProgressBar, 'ProgressBar')
+        )
+        # self.progress_bar = self.findChild(QtWidgets.QProgressBar, 'ProgressBar')
+        # self.progress_bar.__class__ = ProgressWidget
 
         #Right Window Section
         self.logger_box =  self.findChild(QtWidgets.QPlainTextEdit, 'LoggerBox')

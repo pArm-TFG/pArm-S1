@@ -31,8 +31,8 @@ class Atomic(ABC, Generic[T]):
                  step: Optional[T] = None):
         self.rlock = Lock()
 
-    @abstractmethod
     @property
+    @abstractmethod
     def value(self) -> T:
         """
         Atomically obtains the stored value.
@@ -40,8 +40,8 @@ class Atomic(ABC, Generic[T]):
         """
         pass
 
-    @abstractmethod
     @value.setter
+    @abstractmethod
     def value(self, val: T):
         """
         Atomically sets the stored value.
