@@ -74,7 +74,7 @@ def parse_line(line: Optional[Union[str, bytes]] = None) -> Union[bool, XYZ, The
 
 def parse_i_order(i_order):
     """
-    This function is called when the order is an I order. It continue to parse
+    This function is called when the order is an I order. It continues to parse
     it to the number of the order and acts accordingly.
     :param i_order: the I order that has to be parsed.
     :return: returns the parameter of the order.
@@ -139,7 +139,7 @@ def parse_j_order(j_order):
     order_number = int(j_order[1:])
 
     if order_number == 1:
-        return 'Ack'
+        return float(j_order.split()[1])
     if 2 <= order_number <= 20:
         return errors[order_number]
     if order_number == 21:

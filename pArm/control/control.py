@@ -5,11 +5,11 @@ from .. import Connection
 from serial import SerialException
 from logging import getLogger
 from .control_interface import ControlInterface
-from typing import Callable
+from typing import Callable, Optional
 from pArm.control import control_management
 from concurrent.futures import ThreadPoolExecutor
+from ..utils import AtomicFloat
 
-import time
 
 LOWEST_X_VALUE = 0
 HIGHEST_X_VALUE = 300
@@ -79,13 +79,14 @@ class Control(ControlInterface):
     def port(self, port):
         self.connection.port = port
 
-    def move_to_xyz(self, x, y, z):
+    def move_to_xyz(self, x, y, z, time_object: Optional[AtomicFloat] = None):
         """
         Triggers the needed procedures to move the arm to the cartesian position
         that is indicated in its parameters.
         :param x: x position to which the end effector shall move
         :param y: y position to which the end effector shall move
         :param z: z position to which the end effector shall move
+        :param time_object: the atomic float holder value.
         :return: the future object.
         """
 
@@ -96,7 +97,7 @@ class Control(ControlInterface):
                     conn.write(byte_stream)
             except SerialException:
                 log.warning("There is no suitable connection with the device")
-            err = control_management.verify_movement_completed()
+            err = control_management.verify_movement_completed(time_object)
             if err:
                 return err
             self.read_cartesian_positions()
@@ -106,13 +107,14 @@ class Control(ControlInterface):
 
         return self.executor.submit(fn)
 
-    def move_to_thetas(self, theta1, theta2, theta3):
+    def move_to_thetas(self, theta1, theta2, theta3, time_object: Optional[AtomicFloat] = None):
         """
         Triggers the needed procedures to move the arm to the angular position
         that is indicated in its parameters.
         :param theta1: theta1 angle to which the base motor shall move
         :param theta2: theta2 angle to witch the shoulder motor shall move
         :param theta3: theta3 angle to which the elbow motor shall move
+        :param time_object: the atomic float holder value.
         :return: the future object.
         """
 
@@ -126,16 +128,17 @@ class Control(ControlInterface):
                 log.warning("There is no suitable connection with the device")
             else:
                 log.debug("theta1, theta2, theta3 values successfully sent to device")
-            control_management.verify_movement_completed()
+            control_management.verify_movement_completed(time_object)
             self.read_cartesian_positions()
             self.read_angular_positions()
 
         return self.executor.submit(fn)
 
-    def send_to_origin(self):
+    def send_to_origin(self, time_object: Optional[AtomicFloat] = None):
         """
         This function send the arm to its initial position.
-        :return: no return.
+        :param time_object: the atomic float holder value.
+        :return: the future object.
         """
 
         byte_stream = generator.generate_send_to_origin()
@@ -148,7 +151,7 @@ class Control(ControlInterface):
                 log.warning("There is no suitable connection with the device")
             else:
                 log.debug(f"Device sent to origin")
-            control_management.verify_movement_completed()
+            control_management.verify_movement_completed(time_object)
             self.read_cartesian_positions()
             self.read_angular_positions()
 
@@ -163,7 +166,7 @@ class Control(ControlInterface):
         control_management.request_cartesian_position()
 
         try:
-            found, missed_instructions, line = interpreter.wait_for(self, 'G0')
+            found, missed_instructions, line = interpreter.wait_for('G0')
             if found:
                 cartesian_positions = interpreter.parse_line(line)
                 self.x = cartesian_positions.x
@@ -181,7 +184,7 @@ class Control(ControlInterface):
         control_management.request_angular_position()
 
         try:
-            found, missed_instructions, line = interpreter.wait_for(self, 'G1')
+            found, missed_instructions, line = interpreter.wait_for('G1')
             if found:
                 angular_positions = interpreter.parse_line(line)
                 self.theta1 = angular_positions.t1
@@ -220,7 +223,7 @@ class Control(ControlInterface):
         :return: the complete line where that instruction has been found.
         """
         try:
-            found, missed_instructions, line = interpreter.wait_for(self, order)
+            found, missed_instructions, line = interpreter.wait_for(order)
             if found:
                 return interpreter.parse_line(line)
         except SerialException as e:
@@ -231,24 +234,29 @@ class Control(ControlInterface):
         Starts the handshake procedure.
         :return: no return.
         """
-
-        byte_stream = generator.generate_request_n_e()
-
+        gcode = ["J{}".format(x) for x in range(2, 21)]
         try:
-            with self.connection as conn:
-                conn.write(byte_stream)
-
-            n = self.read_handshake_values('I2')
-            e = self.read_handshake_values('I3')
-
-            rsa = RSA(n, e)
-
-            signed_value = self.read_handshake_values('I4')
-            verified_value = rsa.verify(signed_value)
+            gcode.append('I2')
+            found, missed_instructions, n = interpreter.wait_for(gcode)
+            if found and isinstance(n, str):
+                gcode.append('I3')
+                found, missed_instructions, e = interpreter.wait_for(gcode)
+                if found and isinstance(m, str):
+                    rsa = RSA(int(n), int(e))
+                    gcode.append('I4')
+                    found, missed_instructions, signed_value = interpreter.wait_for(gcode)
+                    if found and isinstance(signed_value, str):
+                        verified_value = rsa.verify(signed_value)
+                    else:
+                        return signed_value
+                else:
+                    return e
+            else:
+                return n
 
             verified_value_bytes = generator.generate_unsigned_string(verified_value)
             conn.write(verified_value_bytes)
-            found, missed_instructions, line = interpreter.wait_for(self, 'I5')
+            found, missed_instructions, line = interpreter.wait_for( 'I5')
             if found:
                 log.info("Handshake done.")
 
