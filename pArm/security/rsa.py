@@ -22,6 +22,12 @@ class RSA:
         self.n = n
 
     def verify(self, message: Union[int, str]) -> str:
+        """
+        This function is used to "un-sign" the control string received from the
+        arm controller.
+        :param message: the string to be "un-signed"
+        :return: the unsigned string
+        """
         if self.n == 1:
             return ''
 
@@ -46,6 +52,11 @@ class RSA:
                 f'message must be int or str, not {type(message)}')
 
     def encrypt(self, message: str) -> str:
+        """
+        This function is used to sign a string. Its not currently used.
+        :param message: a string to be signed.
+        :return: signed string.
+        """
         if self.n == 1:
             return ''
 
@@ -58,6 +69,15 @@ class RSA:
 
 
 def right_to_left(number: int, exp: int, mod: int) -> int:
+    """
+    This function does the math of the encryption process.
+    :param number: A number to be encripted
+    :param exp: The exponent of the mathematical operation used to do the
+    actual encryption
+    :param mod: The module of the mathematical operation used to do the
+    actual encryption
+    :return: the encrypted number.
+    """
     ret: int = 1
     while exp > 0:
         if exp % 2 == 1:

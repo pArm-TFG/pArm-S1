@@ -140,14 +140,19 @@ class Control(ControlInterface):
 
         byte_stream = generator.generate_send_to_origin()
 
-        try:
-            with self.connection as conn:
-                conn.write(byte_stream)
-        except SerialException:
-            log.warning("There is no suitable connection with the device")
-        else:
-            log.debug(f"Device sent to origin")
-        control_management.verify_movement_completed()
+        def fn():
+            try:
+                with self.connection as conn:
+                    conn.write(byte_stream)
+            except SerialException:
+                log.warning("There is no suitable connection with the device")
+            else:
+                log.debug(f"Device sent to origin")
+            control_management.verify_movement_completed()
+            self.read_cartesian_positions()
+            self.read_angular_positions()
+
+        return self.executor(fn)
 
     def read_cartesian_positions(self):
         """
@@ -187,31 +192,25 @@ class Control(ControlInterface):
 
     def cancel_movement(self):
         """
-        This function sends a request to the arm controller telling it to stop
-        the movement that is currently being made. If the controller confirms
+        This function cancels the current movement. If the controller confirms
         that the movement has been canceled, this function also updates the
         class position variables with the real physical ones.
-        :return: no return.
+        :return: ErrorData if the cancellation could not complete successfully.
         """
-        byte_stream = generator.generate_cancel_movement()
+        control_management.request_cancel_movement()
+
+        gcode = ["J{}".format(x) for x in range(2, 21)]
+        gcode.append('M1')
 
         try:
-            with self.connection as conn:
-                conn.write(byte_stream)
+            found, missed_instructions, line = interpreter.wait_for(gcode)
+            if found and line is True:
+                self.read_angular_positions()
+                self.read_cartesian_positions()
+            else:
+                return line
         except SerialException:
             log.warning("There is no suitable connection with the device")
-        else:
-            log.debug(f"Device sent to origin")
-
-        cancel_confirm = interpreter.parse_line()
-        timeout = time.time() + 5
-
-        while not cancel_confirm and time.time() > timeout:
-            cancel_confirm = interpreter.parse_line()
-
-        if cancel_confirm is True:
-            self.read_cartesian_positions()
-            self.read_angular_positions()
 
     def read_handshake_values(self, order: str):
         """
