@@ -318,7 +318,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Elbow Servo Angle</string>
+     <string>Shoulder Servo Angle</string>
     </property>
    </widget>
    <widget class="QLabel" name="SliderLabel3">
@@ -336,7 +336,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Shoulder Servo Angle</string>
+     <string>Elbow Servo Angle</string>
     </property>
    </widget>
    <widget class="QProgressBar" name="ProgressBar">
@@ -447,7 +447,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>0º</string>
+     <string>10º</string>
     </property>
    </widget>
    <widget class="QLabel" name="RightLabelSlider3">
@@ -460,7 +460,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>120º</string>
+     <string>110º</string>
     </property>
    </widget>
    <widget class="QLabel" name="MidLabelSlider2">

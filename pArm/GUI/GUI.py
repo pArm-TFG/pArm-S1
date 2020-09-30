@@ -88,6 +88,7 @@ class Ui(QtWidgets.QMainWindow):
         self.slider_1.setMinimum(0)
         self.slider_1.setTickInterval(377)
         self.slider_1.setTickPosition(3)
+        self.slider_1.setSliderPosition(900)
 
         self.slider_2.setMaximum(1350)
         self.slider_2.setMinimum(0)
@@ -95,8 +96,8 @@ class Ui(QtWidgets.QMainWindow):
         self.slider_2.setTickPosition(3)
 
         self.slider_3.setMaximum(1200)
-        self.slider_3.setMinimum(0)
-        self.slider_3.setTickInterval(300)
+        self.slider_3.setMinimum(100)
+        self.slider_3.setTickInterval(275)
         self.slider_3.setTickPosition(3)
 
         self.slider_1.valueChanged.connect(lambda: self.adjustWidgetValue("slider", sliders, spin_boxes, graphics, self.combo_box_coordinates.currentIndex(), 1))
@@ -114,9 +115,10 @@ class Ui(QtWidgets.QMainWindow):
 
         self.spin_box_1.setRange(0,151.0)
         self.spin_box_1.setSingleStep(0.1)
+        self.spin_box_1.setValue(90.0)
         self.spin_box_2.setRange(0,135.0)
         self.spin_box_2.setSingleStep(0.1)
-        self.spin_box_3.setRange(0,120.0)
+        self.spin_box_3.setRange(10.0, 120.0)
         self.spin_box_3.setSingleStep(0.1)
 
         self.spin_box_1.valueChanged.connect(lambda: self.adjustWidgetValue("spinBox",  sliders, spin_boxes, graphics,self.combo_box_coordinates.currentIndex(),1 ))
@@ -144,8 +146,13 @@ class Ui(QtWidgets.QMainWindow):
 
         self.top_view.setXRange(-400, 400, padding = 0)
         self.top_view.setYRange(400,0, padding = 0)
+        pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
+        #self.top_view.plot((0,0),(0,346), pen=pen)
+        self.drawViewFromAngle(graphics, spin_boxes,1)
         self.side_view.setXRange(-300, 300, padding = 0)
-        self.side_view.setYRange(300,0, padding = 0)
+        self.side_view.setYRange(300, 0, padding = 0)
+        self.drawViewFromAngle(graphics, spin_boxes,3)
+        #self.side_view.plotplot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
 
         self.scanSerialPorts(self.menu_port)
 
@@ -200,7 +207,7 @@ class Ui(QtWidgets.QMainWindow):
         sliders_labels[4].setText("151º")
         sliders_labels[5].setText("0º")
         sliders_labels[6].setText("135º")
-        sliders_labels[7].setText("0º")
+        sliders_labels[7].setText("10º")
         sliders_labels[8].setText("120º")
         sliders_labels[9].hide()
 
@@ -219,10 +226,10 @@ class Ui(QtWidgets.QMainWindow):
         spin_boxes[1].setValue(0.0)
 
         sliders[2].setMaximum(1200)
-        sliders[2].setMinimum(0)
-        sliders[2].setTickInterval(300)
+        sliders[2].setMinimum(100)
+        sliders[2].setTickInterval(275)
         sliders[2].setSliderPosition(0)
-        spin_boxes[2].setRange(0,120.0)
+        spin_boxes[2].setRange(10.,110.0)
         spin_boxes[2].setValue(0.0)
 
     def setCartesianMenu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox):
@@ -315,17 +322,17 @@ class Ui(QtWidgets.QMainWindow):
 
     def drawViewFromAngle(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
         if id == 1:
-            pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
-            x_coord = 346*math.cos((151 - spinBoxes[0].value())*(math.pi/180))
-            y_coord = 346*math.sin((151 - spinBoxes[0].value())*(math.pi/180))
+            pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
+            x_coord = 346*math.cos((spinBoxes[0].value())*(math.pi/180))
+            y_coord = 346*math.sin((spinBoxes[0].value())*(math.pi/180))
             graphics[0].clear()
             graphics[0].plot((0,x_coord),(0,y_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
         elif id == 2 or  id == 3 :
-            pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
+            pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
             x_coord1  = 142*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
-            x_coord2  = x_coord1 + 158.8*math.cos((180 - (135 - spinBoxes[1].value()) - (120 - spinBoxes[2].value()))*(math.pi/180))
+            x_coord2  = x_coord1 + 158.8*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
             z_coord1 = 142*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
-            z_coord2  = z_coord1 - 158.8*math.sin((180 - (135 - spinBoxes[1].value()) - (120 - spinBoxes[2].value()))*(math.pi/180))
+            z_coord2  = z_coord1 - 158.8*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
             graphics[1].clear()
             graphics[1].plot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
             pass
@@ -335,11 +342,11 @@ class Ui(QtWidgets.QMainWindow):
             x_coord = spinBoxes[0].value()
             y_coord = spinBoxes[1].value()
             if not ((math.sqrt(x_coord**2 + y_coord**2)) > 346):
-                pen = pyqtgraph.mkPen(color=(0, 255, 0), width=10, style = QtCore.Qt.SolidLine)
+                pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
                 graphics[0].clear()
                 graphics[0].plot((0,y_coord),(0,x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
             else:
-                pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10, style = QtCore.Qt.SolidLine)
+                pen = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
                 graphics[0].clear()
                 graphics[0].plot((0, y_coord),(0,x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
                 self.logger_box.insertPlainText("Unreachable position, please move the arm back to its range\n")
@@ -378,7 +385,7 @@ class Ui(QtWidgets.QMainWindow):
     def move_to_origin(self, button: QtWidgets.QPushButton, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
         #this way it is ez to stablish an origin position
         if index == 0:
-            spin_boxes[0].setValue(0)
+            spin_boxes[0].setValue(90)
             spin_boxes[1].setValue(0)
             spin_boxes[2].setValue(0)
         elif index == 1:
