@@ -4,7 +4,6 @@ from concurrent.futures import ThreadPoolExecutor
 from ..utils import AtomicFloat
 
 
-
 class ControlInterface(ABC):
 
     @abstractmethod

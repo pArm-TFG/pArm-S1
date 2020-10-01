@@ -25,7 +25,8 @@ errors = {
     6: ErrorData(logging.ERROR, 'Error en el handshake'),
     7: ErrorData(logging.ERROR, 'El brazo ya se esta moviendo'),
     8: ErrorData(logging.ERROR, 'No se han especificado coordenadas para el movimiento cartesiano'),
-    9: ErrorData(logging.ERROR, 'No se han especificado coordenadas para el movimiento angular.')
+    9: ErrorData(logging.ERROR, 'No se han especificado coordenadas para el movimiento angular.'),
+    10:ErrorData(logging.ERROR, 'Dispositivo no identificado')
 
 }
 
@@ -158,7 +159,7 @@ def wait_for(gcode: Union[str, Iterable[str]], timer: int = 5) -> Tuple[bool,
     look for
     :param timer: The time that has to elapse until the function reaches timeout
     and stops looking for the specified order
-    :return: Boolean, to know if the funtion finished because it found the
+    :return: Boolean, to know if the function finished because it found the
     order or because it reached timeout.
     List, containing other orders that have been read that were not the one that
     the function was specifically looking for.

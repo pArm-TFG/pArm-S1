@@ -98,7 +98,6 @@ def request_cancel_movement():
     current movement being made.
     :return: no return
     """
-
     byte_stream = generator.generate_cancel_movement()
     try:
         with connection as conn:
@@ -110,7 +109,12 @@ def request_cancel_movement():
 
 
 def request_handshake():
-
+    """
+    This function sends a Gcode requesting to begin the handshake procedure.
+    If received correctly, the arm controller proceeds to also start the
+    handshaking procedure on it end.
+    :return: no return.
+    """
     byte_stream = generator.generate_request_n_e()
     try:
         with connection as conn:

@@ -15,6 +15,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 import serial
 from typing import Optional
+from threading import Lock
 
 
 class Connection:
@@ -51,6 +52,7 @@ class Connection:
         if self.__must_init:
             self.ser = serial.Serial(baudrate=baudrate)
             self.ser.port = port
+            self.lock = Lock()
             self._port = port
             if should_open:
                 self.ser.open()
@@ -76,7 +78,11 @@ class Connection:
         :param data: data to be writen to the port.
         :return: the length of the written data.
         """
-        return self.ser.write(data)
+
+        with self.lock:
+            length = self.ser.write(data)
+
+        return length
 
     def swrite(self, data: str, encoding: str = 'utf-8') -> Optional[int]:
         """
@@ -94,7 +100,11 @@ class Connection:
         :param size: the size to be read.
         :return: the read value in bytes.
         """
-        return self.ser.read(size)
+        
+        with self.lock:
+            byte = self.ser.read(size)
+        
+        return byte
 
     def sread(self, size: int = 1, encoding: str = 'utf-8') -> str:
         """
@@ -110,7 +120,11 @@ class Connection:
         Reads a line from the serial buffer
         :return: the read line in bytes.
         """
-        return self.ser.readline()
+
+        with self.lock:
+            line = self.ser.read()
+
+        return line
 
     def sreadline(self, encoding: str = 'utf-8') -> str:
         """
@@ -126,13 +140,17 @@ class Connection:
 
         :return: the entire buffer in bytes.
         """
-        return self.ser.readall()
+
+        with self.lock:
+            whole_buffer = self.ser.readall()
+
+        return whole_buffer
 
     def sreadall(self, encoding: str = 'utf-8') -> str:
         """
         Reads all the serial buffer.
 
-        :param encoding: the encoding in which the bytes is expected to be.
+        :param encoding: the encoding in which the bytes are expected to be.
         :return: the entire buffer as string.
         """
         return self.readall().decode(encoding)

@@ -79,12 +79,22 @@ def generate_unsigned_string(unsigned_string):
     return f'I5 {unsigned_string}'.encode('utf-8')
 
 
-def generate_recalculate_keys():
+def generate_recalculate_keys(encrypted_string):
     """
     Generates a Gcode to request that the device calculate new keys for the
     authentication process.
     :return: the actual Gcode, ready to be sent.
     """
-    return 'I6'.encode('utf-8')
+    return f'I6 {encrypted_string}'.encode('utf-8')
+
+
+def generate_heart_beat(beat):
+    """
+    Generates a Gcode to create a heartbeat.
+    :param beat: the message that goes into the heartbeat
+    :return: the actual GCode, ready to be sent.
+    """
+    return f'I7 {beat}'.encode('utf-8')
+
 
 
