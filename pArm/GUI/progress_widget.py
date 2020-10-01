@@ -13,14 +13,16 @@
 #
 #     You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
 from PyQt5 import QtCore
-from PySide2.QtWidgets import QProgressBar
+from PyQt5.QtCore import QObject
+from PyQt5.QtWidgets import QProgressBar
 from time import time, sleep
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union
 from ..utils import AtomicFloat
 
 
-class Worker(QtCore.QObject):
+class Worker(QObject):
     """
     Worker class for counting the remaining time until a given value. Provides
     three signals for handling when a new value is set, the lower and upper
@@ -34,7 +36,7 @@ class Worker(QtCore.QObject):
     update_progress = QtCore.pyqtSignal(float)
     """ Signal called when a new value is available """
 
-    limit_values = QtCore.pyqtSignal(Tuple[float, float])
+    limit_values = QtCore.pyqtSignal(tuple)
     """ Signal called when the limits are known """
 
     finished = QtCore.pyqtSignal(bool)
@@ -79,10 +81,29 @@ class ProgressWidget(QProgressBar):
     value stored in ``time_object``.
     """
 
-    def __init__(self):
+    @classmethod
+    def from_bar(cls,
+                 progress_bar: Union[QObject, QProgressBar]) -> ProgressWidget:
+        return cls(base=progress_bar)
+
+    def __init__(self, base: Optional[QProgressBar] = None):
         super().__init__()
+        self.__base = base
         self._worker: Optional[Worker] = None
         self._thread: Optional[QtCore.QThread] = None
+
+    def __getattr__(self, attr):
+        if self.__base:
+            return getattr(self.__base, attr)
+        return getattr(self, attr)
+
+    def __setattr__(self, attr, value):
+        if attr == '_ProgressWidget__base':
+            return object.__setattr__(self, attr, value)
+
+        if self.__base:
+            return setattr(self.__base, attr, value)
+        return setattr(self, attr, value)
 
     def create_worker(self, time_object: AtomicFloat):
         """

@@ -243,9 +243,9 @@
    <widget class="QComboBox" name="ComboBoxCoordinates">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>450</y>
-      <width>221</width>
+      <x>10</x>
+      <y>460</y>
+      <width>201</width>
       <height>41</height>
      </rect>
     </property>
@@ -266,9 +266,9 @@
    <widget class="QPushButton" name="ExecuteButton">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>450</y>
-      <width>221</width>
+      <x>320</x>
+      <y>460</y>
+      <width>201</width>
       <height>41</height>
      </rect>
     </property>
@@ -318,7 +318,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Elbow Servo Angle</string>
+     <string>Shoulder Servo Angle</string>
     </property>
    </widget>
    <widget class="QLabel" name="SliderLabel3">
@@ -336,15 +336,15 @@
      </font>
     </property>
     <property name="text">
-     <string>Shoulder Servo Angle</string>
+     <string>Elbow Servo Angle</string>
     </property>
    </widget>
    <widget class="QProgressBar" name="ProgressBar">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>10</x>
       <y>530</y>
-      <width>471</width>
+      <width>521</width>
       <height>21</height>
      </rect>
     </property>
@@ -447,7 +447,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>0º</string>
+     <string>10º</string>
     </property>
    </widget>
    <widget class="QLabel" name="RightLabelSlider3">
@@ -460,7 +460,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>120º</string>
+     <string>110º</string>
     </property>
    </widget>
    <widget class="QLabel" name="MidLabelSlider2">
@@ -485,6 +485,9 @@
       <height>171</height>
      </rect>
     </property>
+    <property name="cursor" stdset="0">
+     <cursorShape>ForbiddenCursor</cursorShape>
+    </property>
    </widget>
    <widget class="PlotWidget" name="SideView">
     <property name="geometry">
@@ -495,11 +498,14 @@
       <height>171</height>
      </rect>
     </property>
+    <property name="cursor" stdset="0">
+     <cursorShape>ForbiddenCursor</cursorShape>
+    </property>
    </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>580</x>
+      <x>720</x>
       <y>60</y>
       <width>61</width>
       <height>16</height>
@@ -517,7 +523,7 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>580</x>
+      <x>720</x>
       <y>260</y>
       <width>71</width>
       <height>16</height>
@@ -548,7 +554,7 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>580</x>
+      <x>720</x>
       <y>460</y>
       <width>71</width>
       <height>16</height>
@@ -561,6 +567,71 @@
     </property>
     <property name="text">
      <string>Output Log</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="origin_button">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>460</y>
+      <width>71</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Origin</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>80</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X axis</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>230</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Y axis</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>280</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Z axis</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>430</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X axis</string>
     </property>
    </widget>
   </widget>
@@ -578,9 +649,43 @@
      <string>Port Selection</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>Extra info</string>
+    </property>
+    <addaction name="actionGitHub_link_for_of_this_project"/>
+    <addaction name="actionDocumentation"/>
+    <addaction name="actionAbout_us"/>
+   </widget>
    <addaction name="menuPort_Selection"/>
+   <addaction name="menu_Tools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionGenerate_random_movement">
+   <property name="text">
+    <string>Generate random movement</string>
+   </property>
+  </action>
+  <action name="actionMove_arm_back_to_origin">
+   <property name="text">
+    <string>Move arm back to origin</string>
+   </property>
+  </action>
+  <action name="actionGitHub_link_for_of_this_project">
+   <property name="text">
+    <string>GitHub project</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>Documentation</string>
+   </property>
+  </action>
+  <action name="actionAbout_us">
+   <property name="text">
+    <string>About us</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
