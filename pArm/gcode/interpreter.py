@@ -26,8 +26,8 @@ errors = {
     7: ErrorData(logging.ERROR, 'El brazo ya se esta moviendo'),
     8: ErrorData(logging.ERROR, 'No se han especificado coordenadas para el movimiento cartesiano'),
     9: ErrorData(logging.ERROR, 'No se han especificado coordenadas para el movimiento angular.'),
-    10:ErrorData(logging.ERROR, 'Dispositivo no identificado')
-
+    10:ErrorData(logging.ERROR, 'Dispositivo no identificado'),
+    11:ErrorData(logging.ERROR, 'Desbordamiento del buffers')
 }
 
 
