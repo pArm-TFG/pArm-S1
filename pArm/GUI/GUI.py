@@ -11,6 +11,7 @@ from ..utils import AtomicFloat
 from ..utils.error_data import ErrorData
 from ..control.control_interface import ControlInterface
 from .progress_widget import ProgressWidget
+import webbrowser
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -23,7 +24,10 @@ class Ui(QtWidgets.QMainWindow):
         self.handler = control
 
         #Serial Port used to send data to PCB
-        self.port = 'null'
+        self.port = None
+
+        #Auxiliar Dirty Counter
+        self.counter = 500
 
         #Left Window Section
         self.menu_port = self.findChild(QtWidgets.QMenu, 'menuPort_Selection')
@@ -54,12 +58,8 @@ class Ui(QtWidgets.QMainWindow):
         self.slider_3_right_label = self.findChild(QtWidgets.QLabel, 'RightLabelSlider3')
         self.slider_2_mid_label = self.findChild(QtWidgets.QLabel, 'MidLabelSlider2')
 
-        self.progress_bar = ProgressWidget.from_bar(
-            self.findChild(QtWidgets.QProgressBar, 'ProgressBar')
-        )
-        # self.progress_bar = self.findChild(QtWidgets.QProgressBar, 'ProgressBar')
-        # self.progress_bar.__class__ = ProgressWidget
-
+        self.progress_bar = ProgressWidget.from_bar(self.findChild(QtWidgets.QProgressBar, 'ProgressBar'))
+    
         #Right Window Section
         self.logger_box =  self.findChild(QtWidgets.QPlainTextEdit, 'LoggerBox')
 
@@ -147,12 +147,10 @@ class Ui(QtWidgets.QMainWindow):
         self.top_view.setXRange(-400, 400, padding = 0)
         self.top_view.setYRange(400,0, padding = 0)
         pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
-        #self.top_view.plot((0,0),(0,346), pen=pen)
         self.drawViewFromAngle(graphics, spin_boxes,1)
         self.side_view.setXRange(-300, 300, padding = 0)
         self.side_view.setYRange(300, 0, padding = 0)
         self.drawViewFromAngle(graphics, spin_boxes,3)
-        #self.side_view.plotplot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
 
         self.scanSerialPorts(self.menu_port)
 
@@ -237,6 +235,9 @@ class Ui(QtWidgets.QMainWindow):
         self.labelColorChange(sliders_labels[1],212,0,0)
         self.labelColorChange(sliders_labels[2],212,0,0)
 
+        self.top_view.clear()
+        self.side_view.clear()
+
         sliders_labels[0].setText("X Coordinate")
         sliders_labels[1].setText("Y Coordinate")
         sliders_labels[2].setText("Z Coordinate")
@@ -255,7 +256,6 @@ class Ui(QtWidgets.QMainWindow):
         spin_boxes[0].setRange(0,346.0)
         spin_boxes[0].setValue(0)
 
-
         sliders[1].setMaximum(3460)
         sliders[1].setMinimum(-3460)
         sliders[1].setTickInterval(1730)
@@ -263,14 +263,12 @@ class Ui(QtWidgets.QMainWindow):
         spin_boxes[1].setRange(-346.0,346.0)
         spin_boxes[1].setValue(0)
 
-
         sliders[2].setMaximum(3606)
         sliders[2].setMinimum(0)
         sliders[2].setTickInterval(901)
         sliders[2].setSliderPosition(0)
         spin_boxes[2].setRange(0,360.6)
         spin_boxes[2].setValue(0)
-
 
     def CoordinatesHighlight(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
         if index == 1 :
@@ -311,7 +309,7 @@ class Ui(QtWidgets.QMainWindow):
                                          time_holder_val)
                 self.logger_box.insertPlainText('Sending coordinates to PCB: ' + str((spin_boxes[0].value(),spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
             if ft:
-                ft.add_done_callback(lambda future: self.future.callback(future))     
+                ft.add_done_callback(lambda future: self.future_callback(future))     
         else:
             #self.handler.cancel_movement()
             self.show_popup("Movement Cancelled")
@@ -335,8 +333,7 @@ class Ui(QtWidgets.QMainWindow):
             z_coord2  = z_coord1 - 158.8*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
             graphics[1].clear()
             graphics[1].plot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
-            pass
-
+            
     def drawViewFromCartesian(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
         if id == 1 or id == 2:
             x_coord = spinBoxes[0].value()
@@ -345,12 +342,19 @@ class Ui(QtWidgets.QMainWindow):
                 pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
                 graphics[0].clear()
                 graphics[0].plot((0,y_coord),(0,x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
+                self.disable_execute_button(True)
             else:
                 pen = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
                 graphics[0].clear()
                 graphics[0].plot((0, y_coord),(0,x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
-                self.logger_box.insertPlainText("Unreachable position, please move the arm back to its range\n")
+                if self.counter == 500:
+                    self.counter = 0
+                    self.logger_box.insertPlainText("Unreachable position, please move the arm back to its range\n")
+                else:
+                    self.counter+=1    
+                self.disable_execute_button(False)
         if id == 2 or id == 3 :
+
             pass
 
     def scanSerialPorts(self, menu: QMenu):
@@ -376,14 +380,22 @@ class Ui(QtWidgets.QMainWindow):
     def future_callback(self, ft: Future):
         res = ft.result()
         if isinstance(res, ErrorData):
-            pass
-            #error logic
+            self.show_popup(res.err_msg)
+            self.execute_button.State = 0
+            self.execute_button.setText("Execute Movement")
+            self.logger_box.insertPlainText("Error happened: " + res.err_msg + " \n")
         elif isinstance(res, ControlInterface):
-            pass
-            #recieve data from pcb
+            self.logger_box.insertPlainText("The movement has been completed succesfully. \n")
+            if self.combo_box_coordinates.currentIndex() == 0:
+               self.spin_box_1.setValue(res.theta1)
+               self.spin_box_2.setValue(res.theta2)
+               self.spin_box_3.setValue(res.theta3)
+            elif self.combo_box_coordinates.currentindex() == 1:
+               self.spin_box_1.setValue(res.x)
+               self.spin_box_2.setValue(res.y)
+               self.spin_box_3.setValue(res.z)
 
     def move_to_origin(self, button: QtWidgets.QPushButton, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
-        #this way it is ez to stablish an origin position
         if index == 0:
             spin_boxes[0].setValue(90)
             spin_boxes[1].setValue(0)
@@ -392,6 +404,14 @@ class Ui(QtWidgets.QMainWindow):
             spin_boxes[0].setValue(0)
             spin_boxes[1].setValue(0)
             spin_boxes[2].setValue(0)
-
         self.logger_box.insertPlainText("Arm has been moved back to its origin position \n")
 
+    def disable_execute_button(self, enabler):
+        if not enabler:
+            self.execute_button.setText("Unreachable position")
+            self.execute_button.setEnabled(False)
+        else:
+            self.execute_button.setText("Execute Movement")
+            self.execute_button.setEnabled(True)
+                
+         
