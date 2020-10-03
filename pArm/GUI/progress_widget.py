@@ -75,7 +75,7 @@ class ProgressWidget(QProgressBar):
     This class basically works the same as QProgressBar but with the addition
     of the two following methods:
      - ``create_worker(time_object: AtomicFloat)``
-     - run_worker(time_object: Optional[AtomicFloat])
+     - ``run_worker(time_object: Optional[AtomicFloat])``
 
     Those methods must be called in order to update the progress bar by the
     value stored in ``time_object``.
@@ -104,6 +104,13 @@ class ProgressWidget(QProgressBar):
         if self.__base:
             return setattr(self.__base, attr, value)
         return setattr(self, attr, value)
+
+    def __getattribute__(self, item):
+        if item == '_ProgressWidget__base':
+            return super(ProgressWidget, self).__getattribute__(item)
+        if hasattr(self.__base, item):
+            return object.__getattribute__(self.__base, item)
+        return super(ProgressWidget, self).__getattribute__(item)
 
     def create_worker(self, time_object: AtomicFloat):
         """
