@@ -57,8 +57,8 @@ class Ui(QtWidgets.QMainWindow):
         self.progress_bar = ProgressWidget.from_bar(
             self.findChild(QtWidgets.QProgressBar, 'ProgressBar')
         )
-        # self.progress_bar = self.findChild(QtWidgets.QProgressBar, 'ProgressBar')
-        # self.progress_bar.__class__ = ProgressWidget
+
+        self.progress_bar.hide()
 
         #Right Window Section
         self.logger_box =  self.findChild(QtWidgets.QPlainTextEdit, 'LoggerBox')
@@ -293,6 +293,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def executeMovement(self,button : QtWidgets.QPushButton, logger: QtWidgets.QPlainTextEdit, spin_boxes: QtWidgets.QDoubleSpinBox, index: int):
         if button.State:
+            self.progress_bar.show()
             button.setText("Cancel movement")
             button.State = False
             time_holder_val = AtomicFloat(initial_value=-1)
@@ -311,8 +312,9 @@ class Ui(QtWidgets.QMainWindow):
                                          time_holder_val)
                 self.logger_box.insertPlainText('Sending coordinates to PCB: ' + str((spin_boxes[0].value(),spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
             if ft:
-                ft.add_done_callback(lambda future: self.future.callback(future))     
+                ft.add_done_callback(lambda fut: self.future_callback(fut))
         else:
+            self.progress_bar.hide()
             #self.handler.cancel_movement()
             self.show_popup("Movement Cancelled")
             self.logger_box.insertPlainText("Movement Cancelled\n")
@@ -375,6 +377,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def future_callback(self, ft: Future):
         res = ft.result()
+        self.progress_bar.hide()
         if isinstance(res, ErrorData):
             pass
             #error logic
