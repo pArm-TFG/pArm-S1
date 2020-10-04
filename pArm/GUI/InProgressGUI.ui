@@ -460,7 +460,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>110º</string>
+     <string>120º</string>
     </property>
    </widget>
    <widget class="QLabel" name="MidLabelSlider2">

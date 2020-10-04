@@ -335,10 +335,10 @@ class Ui(QtWidgets.QMainWindow):
             print((x_coord,y_coord))
         elif id == 2 or  id == 3 :
             pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
-            x_coord1  = 142*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
-            x_coord2  = x_coord1 + 158.8*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
-            z_coord1 = 142*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
-            z_coord2  = z_coord1 - 158.8*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
+            x_coord1  = 142.07*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
+            x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
+            z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
+            z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
             print((x_coord2,z_coord2))
             graphics[1].clear()
             graphics[1].plot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
@@ -365,8 +365,45 @@ class Ui(QtWidgets.QMainWindow):
                     self.counter+=1    
                 self.disable_execute_button(False)
         if id == 2 or id == 3 or id==1 :
-            pass
-        
+
+            def ik(x_coord, y_coord, z_coord):
+                try:
+                    from math import acos, atan, atan2, pi, sqrt
+                    x_coord = 11.5 if x_coord < 11.5 else x_coord
+                    z_coord = 11.5 if z_coord < 11.5 else z_coord
+
+                    print((x_coord,z_coord))
+                    xz = (x_coord ** 2) + (z_coord ** 2)
+                    lxz = sqrt(xz)
+                    al = 142.07
+                    au = 158.08
+
+                    theta_0 = pi - atan2(x_coord, y_coord)
+                    theta_1 = acos((-1*(al ** 2) - xz + au ** 2) / (-2 * al * lxz))
+                    theta_2 = acos((-1*(al ** 2) - au ** 2 + xz) / (-2 * al * au))
+                    theta_1 += atan(z_coord / x_coord)
+
+                    theta_0 *= (180/pi)
+                    theta_1 *= (180/pi)
+                    theta_2 *= (180/pi)
+                    theta_1 = 135 - theta_1
+                    return theta_0,theta_1,theta_2
+                except ValueError:
+                    return None
+            angles = ik(x_coord,y_coord,z_coord) 
+            if angles :
+                theta_0,theta_1,theta_2 = angles
+                pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
+                x_coord1  = 142.07*math.cos((135 - theta_1)*(math.pi/180))
+                x_coord2  = x_coord1 + 158.08*math.cos((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
+                z_coord1 = 142.07*math.sin((135 - theta_1)*(math.pi/180))
+                z_coord2  = z_coord1 - 158.08*math.sin((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
+                print((x_coord2,z_coord2))
+                graphics[1].clear()
+                graphics[1].plot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
+            else:
+                self.logger_box.insertPlainText('SALIAO')    
+                
     def scanSerialPorts(self, menu: QMenu):
         port_list = serial.tools.list_ports.comports()
         if len(port_list) == 0:
