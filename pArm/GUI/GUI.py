@@ -12,6 +12,7 @@ from ..utils.error_data import ErrorData
 from ..control.control_interface import ControlInterface
 from .progress_widget import ProgressWidget
 import webbrowser
+from math import acos, asin, atan, atan2, pi, sqrt
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -346,64 +347,33 @@ class Ui(QtWidgets.QMainWindow):
     def drawViewFromCartesian(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
         x_coord = spinBoxes[0].value()
         y_coord = spinBoxes[1].value()
-        z_coord = spinBoxes[2].value()
-        if id == 1 or id == 2:
-            if not ((math.sqrt(x_coord**2 + y_coord**2)) > 346):
-                pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
-                graphics[0].clear()
-                graphics[0].plot((0,y_coord),(0,x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
-                self.disable_execute_button(True)
-            else:
+        z_coord = spinBoxes[2].value()    
+
+        angles = self.inverse_kinematics(x_coord,y_coord,z_coord) 
+       
+        if angles:
+            print(angles) 
+            theta_0, theta_1, theta_2 = angles 
+
+            if theta_0 < 29 or theta_1 > 135 or theta_1 < 0 or theta_2 < 10 or theta_2 > 120 or math.sqrt(x_coord**2 + y_coord**2) > 245.86 or math.sqrt(x_coord**2 + y_coord**2) > 245.86 :
                 pen = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
-                graphics[0].clear()
-                graphics[0].plot((0, y_coord),(0,x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
-                if self.counter == 500:
-                    self.counter = 0
-                    self.logger_box.insertPlainText("Unreachable position, please move the arm back to its range\n")
-                    self.logger_box.ensureCursorVisible()
-                else:
-                    self.counter+=1    
                 self.disable_execute_button(False)
-        if id == 2 or id == 3 or id==1 :
-
-            def ik(x_coord, y_coord, z_coord):
-                try:
-                    from math import acos, atan, atan2, pi, sqrt
-                    x_coord = 11.5 if x_coord < 11.5 else x_coord
-                    z_coord = 11.5 if z_coord < 11.5 else z_coord
-
-                    print((x_coord,z_coord))
-                    xz = (x_coord ** 2) + (z_coord ** 2)
-                    lxz = sqrt(xz)
-                    al = 142.07
-                    au = 158.08
-
-                    theta_0 = pi - atan2(x_coord, y_coord)
-                    theta_1 = acos((-1*(al ** 2) - xz + au ** 2) / (-2 * al * lxz))
-                    theta_2 = acos((-1*(al ** 2) - au ** 2 + xz) / (-2 * al * au))
-                    theta_1 += atan(z_coord / x_coord)
-
-                    theta_0 *= (180/pi)
-                    theta_1 *= (180/pi)
-                    theta_2 *= (180/pi)
-                    theta_1 = 135 - theta_1
-                    return theta_0,theta_1,theta_2
-                except ValueError:
-                    return None
-            angles = ik(x_coord,y_coord,z_coord) 
-            if angles :
-                theta_0,theta_1,theta_2 = angles
-                pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
-                x_coord1  = 142.07*math.cos((135 - theta_1)*(math.pi/180))
-                x_coord2  = x_coord1 + 158.08*math.cos((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
-                z_coord1 = 142.07*math.sin((135 - theta_1)*(math.pi/180))
-                z_coord2  = z_coord1 - 158.08*math.sin((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
-                print((x_coord2,z_coord2))
-                graphics[1].clear()
-                graphics[1].plot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
             else:
-                self.logger_box.insertPlainText('SALIAO')    
-                
+                pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
+                self.disable_execute_button(True)
+
+            graphics[0].clear()
+            graphics[0].plot((0,y_coord),(0,x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
+
+            x_coord1  = 142.07*math.cos((135 - theta_1)*(math.pi/180))
+            x_coord2  = x_coord1 + 158.08*math.cos((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
+            z_coord1 = 142.07*math.sin((135 - theta_1)*(math.pi/180))
+            z_coord2  = z_coord1 - 158.08*math.sin((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
+            graphics[1].clear()
+            graphics[1].plot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))         
+        else:
+            self.logger_box.insertPlainText('Unreachable position')
+
     def scanSerialPorts(self, menu: QMenu):
         port_list = serial.tools.list_ports.comports()
         if len(port_list) == 0:
@@ -437,7 +407,7 @@ class Ui(QtWidgets.QMainWindow):
                self.spin_box_1.setValue(res.theta1)
                self.spin_box_2.setValue(res.theta2)
                self.spin_box_3.setValue(res.theta3)
-            elif self.combo_box_coordinates.currentindex() == 1:
+            elif self.combo_box_coordinates.currentIndex() == 1:
                self.spin_box_1.setValue(res.x)
                self.spin_box_2.setValue(res.y)
                self.spin_box_3.setValue(res.z)
@@ -470,5 +440,28 @@ class Ui(QtWidgets.QMainWindow):
             webbrowser.open('https://www.linkedin.com/in/jose-alejandro-moya-blanco-78952a126/')  
             webbrowser.open('https://www.linkedin.com/in/javinator9889/')
             webbrowser.open('https://www.linkedin.com/in/mihai-octavian-34865419b/')
-                
-         
+    
+    def inverse_kinematics(self,x_coord, y_coord, z_coord):   
+        try:
+            from math import acos, atan, atan2, pi, sqrt
+            x_coord = 11.5 if x_coord < 11.5 else x_coord
+            z_coord = 11.5 if z_coord < 11.5 else z_coord
+
+            xz = (x_coord ** 2) + (z_coord ** 2)
+            lxz = sqrt(xz)
+            al = 142.07
+            au = 158.08
+
+            theta_0 = pi - atan2(x_coord, y_coord)
+            theta_1 = acos((-1*(al ** 2) - xz + au ** 2) / (-2 * al * lxz))
+            theta_2 = acos((-1*(al ** 2) - au ** 2 + xz) / (-2 * al * au))
+            theta_1 += atan(z_coord / x_coord)
+
+            theta_0 *= (180/pi)
+            theta_1 *= (180/pi)
+            theta_2 *= (180/pi)
+            theta_1 = 135 - theta_1
+            return theta_0,theta_1,theta_2
+        except ValueError:
+            return None            
+        
