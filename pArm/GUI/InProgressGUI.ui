@@ -649,16 +649,16 @@
      <string>Port Selection</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menu_Tools">
+   <widget class="QMenu" name="menu_info">
     <property name="title">
      <string>Extra info</string>
     </property>
-    <addaction name="actionGitHub_link_for_of_this_project"/>
-    <addaction name="actionDocumentation"/>
-    <addaction name="actionAbout_us"/>
+    <addaction name="action_git"/>
+    <addaction name="action_documentation"/>
+    <addaction name="action_about"/>
    </widget>
    <addaction name="menuPort_Selection"/>
-   <addaction name="menu_Tools"/>
+   <addaction name="menu_info"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionGenerate_random_movement">
@@ -671,17 +671,17 @@
     <string>Move arm back to origin</string>
    </property>
   </action>
-  <action name="actionGitHub_link_for_of_this_project">
+  <action name="action_git">
    <property name="text">
     <string>GitHub project</string>
    </property>
   </action>
-  <action name="actionDocumentation">
+  <action name="action_documentation">
    <property name="text">
     <string>Documentation</string>
    </property>
   </action>
-  <action name="actionAbout_us">
+  <action name="action_about">
    <property name="text">
     <string>About us</string>
    </property>

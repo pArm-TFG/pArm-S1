@@ -32,6 +32,8 @@ class Ui(QtWidgets.QMainWindow):
         #Left Window Section
         self.menu_port = self.findChild(QtWidgets.QMenu, 'menuPort_Selection')
 
+        self.menu_info = self.findChild(QtWidgets.QMenu, 'menu_info')
+
         self.slider_1 = self.findChild(QtWidgets.QSlider, 'Slider1')
         self.slider_2 = self.findChild(QtWidgets.QSlider, 'Slider2')
         self.slider_3 = self.findChild(QtWidgets.QSlider, 'Slider3')
@@ -59,8 +61,8 @@ class Ui(QtWidgets.QMainWindow):
         self.slider_2_mid_label = self.findChild(QtWidgets.QLabel, 'MidLabelSlider2')
 
         self.progress_bar = ProgressWidget.from_bar(self.findChild(QtWidgets.QProgressBar, 'ProgressBar'))
-   
-
+        self.progress_bar.hide()
+        
         #Right Window Section
         self.logger_box =  self.findChild(QtWidgets.QPlainTextEdit, 'LoggerBox')
 
@@ -132,6 +134,8 @@ class Ui(QtWidgets.QMainWindow):
         self.combo_box_coordinates.activated.connect(lambda index: self.changeCoordinateMenu(self.combo_box_coordinates, sliders_labels, sliders, spin_boxes, index))
 
         self.menu_port.triggered.connect(lambda portID: self.setSerialPort(portID))
+
+        self.menu_info.triggered.connect(lambda action: self.open_browser_info(action))
 
         if getattr(self.execute_button, "State", None) is None:
             setattr(self.execute_button,"State", True)
@@ -311,11 +315,7 @@ class Ui(QtWidgets.QMainWindow):
                                          time_holder_val)
                 self.logger_box.insertPlainText('Sending coordinates to PCB: ' + str((spin_boxes[0].value(),spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
             if ft:
-<<<<<<< HEAD
                 ft.add_done_callback(lambda future: self.future_callback(future))     
-=======
-                ft.add_done_callback(lambda fut: self.future_callback(fut))
->>>>>>> 155dd1e93ae6bf6c3b5e257c58171e4ed7611f4f
         else:
             self.progress_bar.hide()
             #self.handler.cancel_movement()
@@ -332,19 +332,22 @@ class Ui(QtWidgets.QMainWindow):
             y_coord = 346*math.sin((spinBoxes[0].value())*(math.pi/180))
             graphics[0].clear()
             graphics[0].plot((0,x_coord),(0,y_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
+            print((x_coord,y_coord))
         elif id == 2 or  id == 3 :
             pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
             x_coord1  = 142*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
             x_coord2  = x_coord1 + 158.8*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
             z_coord1 = 142*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
             z_coord2  = z_coord1 - 158.8*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
+            print((x_coord2,z_coord2))
             graphics[1].clear()
             graphics[1].plot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
-            
+        
     def drawViewFromCartesian(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
+        x_coord = spinBoxes[0].value()
+        y_coord = spinBoxes[1].value()
+        z_coord = spinBoxes[2].value()
         if id == 1 or id == 2:
-            x_coord = spinBoxes[0].value()
-            y_coord = spinBoxes[1].value()
             if not ((math.sqrt(x_coord**2 + y_coord**2)) > 346):
                 pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
                 graphics[0].clear()
@@ -357,16 +360,15 @@ class Ui(QtWidgets.QMainWindow):
                 if self.counter == 500:
                     self.counter = 0
                     self.logger_box.insertPlainText("Unreachable position, please move the arm back to its range\n")
+                    self.logger_box.ensureCursorVisible()
                 else:
                     self.counter+=1    
                 self.disable_execute_button(False)
-        if id == 2 or id == 3 :
-
+        if id == 2 or id == 3 or id==1 :
             pass
-
+        
     def scanSerialPorts(self, menu: QMenu):
         port_list = serial.tools.list_ports.comports()
-
         if len(port_list) == 0:
             menu.addAction('No ports available')
             self.logger_box.insertPlainText('No ports detected yet, please checkout devices connections \n')
@@ -421,5 +423,15 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.execute_button.setText("Execute Movement")
             self.execute_button.setEnabled(True)
+
+    def open_browser_info(self, action:QAction):
+        if action.iconText() ==  'GitHub project':
+            webbrowser.open("https://github.com/pArm-TFG")
+        elif action.iconText() == 'Documentation':
+            webbrowser.open('https://github.com/pArm-TFG/Memoria')
+        elif action.iconText() == 'About us':
+            webbrowser.open('https://www.linkedin.com/in/jose-alejandro-moya-blanco-78952a126/')  
+            webbrowser.open('https://www.linkedin.com/in/javinator9889/')
+            webbrowser.open('https://www.linkedin.com/in/mihai-octavian-34865419b/')
                 
          
