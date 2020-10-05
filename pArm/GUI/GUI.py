@@ -332,7 +332,8 @@ class Ui(QtWidgets.QMainWindow):
             x_coord = 346*math.cos((spinBoxes[0].value())*(math.pi/180))
             y_coord = 346*math.sin((spinBoxes[0].value())*(math.pi/180))
             graphics[0].clear()
-            graphics[0].plot((0,x_coord),(0,y_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
+            graphics[0].plot((0,x_coord),(0,y_coord), pen=pen, symbol='o',
+                             symbolSize=15, symbolBrush=('b'))
             print((x_coord,y_coord))
         elif id == 2 or  id == 3 :
             pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
@@ -349,7 +350,7 @@ class Ui(QtWidgets.QMainWindow):
                              (106.1, (z_coord1 + 106.1), (z_coord2 + 106.1)),
                              pen=pen,
                              symbol='o',
-                             symbolSize=5,
+                             symbolSize=15,
                              symbolBrush='b')
         
     def drawViewFromCartesian(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
@@ -379,7 +380,7 @@ class Ui(QtWidgets.QMainWindow):
             graphics[0].plot((0, y_coord), (0, x_coord2),
                              pen=pen,
                              symbol='o',
-                             symbolSize=20,
+                             symbolSize=15,
                              symbolBrush='b')
             graphics[1].clear()
             graphics[1].addItem(rect_item)
@@ -387,7 +388,7 @@ class Ui(QtWidgets.QMainWindow):
                              (106.1, (z_coord1 + 106.1), (z_coord2 + 106.1)),
                              pen=pen,
                              symbol='o',
-                             symbolSize=10,
+                             symbolSize=15,
                              symbolBrush='b')
         else:
             self.logger_box.insertPlainText('Unreachable position')
