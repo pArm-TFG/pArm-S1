@@ -154,7 +154,7 @@ class Ui(QtWidgets.QMainWindow):
         self.top_view.setYRange(400,0, padding = 0)
         pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
         self.drawViewFromAngle(graphics, spin_boxes,1)
-        self.side_view.setXRange(-300, 300, padding = 0)
+        self.side_view.setXRange(-420, 420, padding = 0)
         self.side_view.setYRange(400, 0, padding = 0)
         self.drawViewFromAngle(graphics, spin_boxes,3)
 
@@ -347,11 +347,11 @@ class Ui(QtWidgets.QMainWindow):
             graphics[1].addItem(rect_item)
             print(f'x: {(x_coord1, x_coord2)}; z: {(z_coord1, z_coord2)}')
             graphics[1].plot((0, x_coord1, x_coord2),
-                             (106.1, (z_coord1 + 106.1), (z_coord2 + 106.1)),
-                             pen=pen,
-                             symbol='o',
-                             symbolSize=15,
-                             symbolBrush='b')
+                            (106.1,z_coord1+106.1, z_coord2+106.1),
+                           pen=pen,
+                            symbol='o',
+                            symbolSize=15,
+                            symbolBrush='b')
         
     def drawViewFromCartesian(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
         x_coord = spinBoxes[0].value()
@@ -385,7 +385,7 @@ class Ui(QtWidgets.QMainWindow):
             graphics[1].clear()
             graphics[1].addItem(rect_item)
             graphics[1].plot((0, x_coord1, x_coord2),
-                             (106.1, (z_coord1 + 106.1), (z_coord2 + 106.1)),
+                             (106.1, (z_coord1 + 106.1), (z_coord2+106.1)),
                              pen=pen,
                              symbol='o',
                              symbolSize=15,
