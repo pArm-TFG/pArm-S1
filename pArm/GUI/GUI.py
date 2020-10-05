@@ -3,6 +3,7 @@ import os
 
 import pyqtgraph
 import serial.tools.list_ports
+import webbrowser
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QMessageBox, QMenu, QAction
 from pyqtgraph import PlotWidget
@@ -11,8 +12,7 @@ from ..utils import AtomicFloat
 from ..utils.error_data import ErrorData
 from ..control.control_interface import ControlInterface
 from .progress_widget import ProgressWidget
-import webbrowser
-from math import acos, asin, atan, atan2, pi, sqrt
+from .rect_item import RectItem
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -155,7 +155,7 @@ class Ui(QtWidgets.QMainWindow):
         pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
         self.drawViewFromAngle(graphics, spin_boxes,1)
         self.side_view.setXRange(-300, 300, padding = 0)
-        self.side_view.setYRange(300, 0, padding = 0)
+        self.side_view.setYRange(400, 0, padding = 0)
         self.drawViewFromAngle(graphics, spin_boxes,3)
 
         self.scanSerialPorts(self.menu_port)
@@ -341,19 +341,27 @@ class Ui(QtWidgets.QMainWindow):
             z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
             z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
             print((x_coord2,z_coord2))
+            rect_item = RectItem(QtCore.QRectF(-53.05, 0, 106.1, 106.1))
             graphics[1].clear()
-            graphics[1].plot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
+            graphics[1].addItem(rect_item)
+            print(f'x: {(x_coord1, x_coord2)}; z: {(z_coord1, z_coord2)}')
+            graphics[1].plot((0, x_coord1, x_coord2),
+                             (106.1, (z_coord1 + 106.1), (z_coord2 + 106.1)),
+                             pen=pen,
+                             symbol='o',
+                             symbolSize=5,
+                             symbolBrush='b')
         
     def drawViewFromCartesian(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
         x_coord = spinBoxes[0].value()
         y_coord = spinBoxes[1].value()
         z_coord = spinBoxes[2].value()    
 
-        angles = self.inverse_kinematics(x_coord,y_coord,z_coord) 
+        angles = self.inverse_kinematics(x_coord, y_coord, z_coord)
        
         if angles:
-            print(angles) 
-            theta_0, theta_1, theta_2 = angles 
+            theta_0, theta_1, theta_2 = angles
+            print(f'(θ⁰: {theta_0}, θ¹: {theta_1}, θ²: {theta_2})')
 
             if theta_0 < 29 or theta_1 > 135 or theta_1 < 0 or theta_2 < 10 or theta_2 > 120 or math.sqrt(x_coord**2 + y_coord**2) > 245.86 or math.sqrt(x_coord**2 + y_coord**2) > 245.86 :
                 pen = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
@@ -362,15 +370,25 @@ class Ui(QtWidgets.QMainWindow):
                 pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
                 self.disable_execute_button(True)
 
-            graphics[0].clear()
-            graphics[0].plot((0,y_coord),(0,x_coord), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))
-
             x_coord1  = 142.07*math.cos((135 - theta_1)*(math.pi/180))
             x_coord2  = x_coord1 + 158.08*math.cos((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
             z_coord1 = 142.07*math.sin((135 - theta_1)*(math.pi/180))
             z_coord2  = z_coord1 - 158.08*math.sin((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
+            rect_item = RectItem(QtCore.QRectF(-53.05, 0, 106.1, 106.1))
+            graphics[0].clear()
+            graphics[0].plot((0, y_coord), (0, x_coord2),
+                             pen=pen,
+                             symbol='o',
+                             symbolSize=20,
+                             symbolBrush='b')
             graphics[1].clear()
-            graphics[1].plot((0,x_coord1,x_coord2),(0,z_coord1,z_coord2), pen=pen, symbol='o', symbolSize=20, symbolBrush=('b'))         
+            graphics[1].addItem(rect_item)
+            graphics[1].plot((0, x_coord1, x_coord2),
+                             (106.1, (z_coord1 + 106.1), (z_coord2 + 106.1)),
+                             pen=pen,
+                             symbol='o',
+                             symbolSize=10,
+                             symbolBrush='b')
         else:
             self.logger_box.insertPlainText('Unreachable position')
 
@@ -400,17 +418,17 @@ class Ui(QtWidgets.QMainWindow):
             self.show_popup(res.err_msg)
             self.execute_button.State = 0
             self.execute_button.setText("Execute Movement")
-            self.logger_box.insertPlainText("Error happened: " + res.err_msg + " \n")
+            self.logger_box.insertPlainText(f"Error happened: {res.err_msg}\n")
         elif isinstance(res, ControlInterface):
             self.logger_box.insertPlainText("The movement has been completed succesfully. \n")
             if self.combo_box_coordinates.currentIndex() == 0:
-               self.spin_box_1.setValue(res.theta1)
-               self.spin_box_2.setValue(res.theta2)
-               self.spin_box_3.setValue(res.theta3)
+                self.spin_box_1.setValue(res.theta1)
+                self.spin_box_2.setValue(res.theta2)
+                self.spin_box_3.setValue(res.theta3)
             elif self.combo_box_coordinates.currentIndex() == 1:
-               self.spin_box_1.setValue(res.x)
-               self.spin_box_2.setValue(res.y)
-               self.spin_box_3.setValue(res.z)
+                self.spin_box_1.setValue(res.x)
+                self.spin_box_2.setValue(res.y)
+                self.spin_box_3.setValue(res.z)
 
     def move_to_origin(self, button: QtWidgets.QPushButton, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
         if index == 0:
@@ -464,4 +482,3 @@ class Ui(QtWidgets.QMainWindow):
             return theta_0,theta_1,theta_2
         except ValueError:
             return None            
-        
