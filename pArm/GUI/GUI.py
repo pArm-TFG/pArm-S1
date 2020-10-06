@@ -17,7 +17,7 @@ from .rect_item import RectItem
 
 def inverse_kinematics(x_coord, y_coord, z_coord):
     try:
-        from math import acos, atan, atan2, pi, sqrt, sin
+        from math import acos, atan, atan2, pi, sqrt, sin, cos
         x_coord = 11.5 if x_coord < 11.5 else x_coord
         z_coord = 11.5 if z_coord < 11.5 else z_coord
 
@@ -25,12 +25,11 @@ def inverse_kinematics(x_coord, y_coord, z_coord):
         au = 158.08
 
         theta_0 = pi - atan2(x_coord, y_coord)
-        x_coord /= sin(theta_0)
-        xz = (x_coord ** 2) + (z_coord ** 2)
+        xz = (x_coord ** 2) + (y_coord**2) + (z_coord ** 2)
         lxz = sqrt(xz)
         theta_1 = acos((-1*(al ** 2) - xz + au ** 2) / (-2 * al * lxz))
         theta_2 = acos((-1*(al ** 2) - au ** 2 + xz) / (-2 * al * au))
-        theta_1 += atan(z_coord / x_coord)
+        theta_1 += atan(z_coord/(sqrt(x_coord**2 + y_coord**2)))
 
         theta_0 *= (180/pi)
         theta_1 *= (180/pi)
@@ -384,13 +383,15 @@ class Ui(QtWidgets.QMainWindow):
         y_coord = spinBoxes[1].value()
         z_coord = spinBoxes[2].value()    
 
+        print((x_coord,y_coord,z_coord))
+
         angles = inverse_kinematics(x_coord, y_coord, z_coord)
-       
+
         if angles:
             theta_0, theta_1, theta_2 = angles
             print(f'(θ⁰: {theta_0}, θ¹: {theta_1}, θ²: {theta_2})')
 
-            if theta_0 < 29 or theta_1 > 135 or theta_1 < 0 or theta_2 < 10 or theta_2 > 120 or math.sqrt(x_coord**2 + y_coord**2) > 245.86 or math.sqrt(x_coord**2 + y_coord**2) > 245.86 :
+            if theta_0 < 29 or theta_1 > 135 or theta_1 < 0 or theta_2 < 10 or theta_2 > 120 or math.sqrt(x_coord**2 + y_coord**2) > 300 or math.sqrt(x_coord**2 + y_coord**2) > 300 :
                 pen = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
                 self.disable_execute_button(False)
             else:
@@ -402,8 +403,9 @@ class Ui(QtWidgets.QMainWindow):
             z_coord1 = 142.07*math.sin((135 - theta_1)*(math.pi/180))
             z_coord2  = z_coord1 - 158.08*math.sin((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
             rect_item = RectItem(QtCore.QRectF(-53.05, 0, 106.1, 106.1))
+            print((x_coord2, y_coord, z_coord2 + 106.1))
             graphics[0].clear()
-            graphics[0].plot((0, y_coord), (0, x_coord2),
+            graphics[0].plot((0, y_coord), (0, x_coord),
                              pen=pen,
                              symbol='o',
                              symbolSize=15,
