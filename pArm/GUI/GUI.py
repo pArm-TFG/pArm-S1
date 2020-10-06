@@ -15,6 +15,32 @@ from .progress_widget import ProgressWidget
 from .rect_item import RectItem
 
 
+def inverse_kinematics(x_coord, y_coord, z_coord):
+    try:
+        from math import acos, atan, atan2, pi, sqrt, sin
+        x_coord = 11.5 if x_coord < 11.5 else x_coord
+        z_coord = 11.5 if z_coord < 11.5 else z_coord
+
+        al = 142.07
+        au = 158.08
+
+        theta_0 = pi - atan2(x_coord, y_coord)
+        x_coord /= sin(theta_0)
+        xz = (x_coord ** 2) + (z_coord ** 2)
+        lxz = sqrt(xz)
+        theta_1 = acos((-1*(al ** 2) - xz + au ** 2) / (-2 * al * lxz))
+        theta_2 = acos((-1*(al ** 2) - au ** 2 + xz) / (-2 * al * au))
+        theta_1 += atan(z_coord / x_coord)
+
+        theta_0 *= (180/pi)
+        theta_1 *= (180/pi)
+        theta_2 *= (180/pi)
+        theta_1 = 135 - theta_1
+        return theta_0, theta_1, theta_2
+    except ValueError:
+        return None
+
+
 class Ui(QtWidgets.QMainWindow):
 
     def __init__(self, control: ControlInterface):
@@ -358,7 +384,7 @@ class Ui(QtWidgets.QMainWindow):
         y_coord = spinBoxes[1].value()
         z_coord = spinBoxes[2].value()    
 
-        angles = self.inverse_kinematics(x_coord, y_coord, z_coord)
+        angles = inverse_kinematics(x_coord, y_coord, z_coord)
        
         if angles:
             theta_0, theta_1, theta_2 = angles
@@ -459,27 +485,3 @@ class Ui(QtWidgets.QMainWindow):
             webbrowser.open('https://www.linkedin.com/in/jose-alejandro-moya-blanco-78952a126/')  
             webbrowser.open('https://www.linkedin.com/in/javinator9889/')
             webbrowser.open('https://www.linkedin.com/in/mihai-octavian-34865419b/')
-    
-    def inverse_kinematics(self,x_coord, y_coord, z_coord):   
-        try:
-            from math import acos, atan, atan2, pi, sqrt
-            x_coord = 11.5 if x_coord < 11.5 else x_coord
-            z_coord = 11.5 if z_coord < 11.5 else z_coord
-
-            xz = (x_coord ** 2) + (z_coord ** 2)
-            lxz = sqrt(xz)
-            al = 142.07
-            au = 158.08
-
-            theta_0 = pi - atan2(x_coord, y_coord)
-            theta_1 = acos((-1*(al ** 2) - xz + au ** 2) / (-2 * al * lxz))
-            theta_2 = acos((-1*(al ** 2) - au ** 2 + xz) / (-2 * al * au))
-            theta_1 += atan(z_coord / x_coord)
-
-            theta_0 *= (180/pi)
-            theta_1 *= (180/pi)
-            theta_2 *= (180/pi)
-            theta_1 = 135 - theta_1
-            return theta_0,theta_1,theta_2
-        except ValueError:
-            return None            
