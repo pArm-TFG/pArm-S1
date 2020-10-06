@@ -18,8 +18,6 @@ from .rect_item import RectItem
 def inverse_kinematics(x_coord, y_coord, z_coord):
     try:
         from math import acos, atan, atan2, pi, sqrt, sin, cos
-        x_coord = 11.5 if x_coord < 11.5 else x_coord
-        z_coord = 11.5 if z_coord < 11.5 else z_coord
 
         al = 142.07
         au = 158.08
@@ -276,7 +274,7 @@ class Ui(QtWidgets.QMainWindow):
         sliders_labels[4].setText("346.0mm")
         sliders_labels[5].setText("-346.0mm")
         sliders_labels[6].setText("346.0mm")
-        sliders_labels[7].setText("0.0mm")
+        sliders_labels[7].setText("-106.1mm")
         sliders_labels[8].setText("360.6mm")
         sliders_labels[9].show()
 
@@ -295,10 +293,10 @@ class Ui(QtWidgets.QMainWindow):
         spin_boxes[1].setValue(0)
 
         sliders[2].setMaximum(3606)
-        sliders[2].setMinimum(0)
+        sliders[2].setMinimum(-1061)
         sliders[2].setTickInterval(901)
         sliders[2].setSliderPosition(0)
-        spin_boxes[2].setRange(0,360.6)
+        spin_boxes[2].setRange(-106.1,360.6)
         spin_boxes[2].setValue(0)
 
     def CoordinatesHighlight(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
@@ -359,18 +357,16 @@ class Ui(QtWidgets.QMainWindow):
             graphics[0].clear()
             graphics[0].plot((0,x_coord),(0,y_coord), pen=pen, symbol='o',
                              symbolSize=15, symbolBrush=('b'))
-            print((x_coord,y_coord))
         elif id == 2 or  id == 3 :
             pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
             x_coord1  = 142.07*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
             x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
             z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
             z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
-            print((x_coord2,z_coord2))
             rect_item = RectItem(QtCore.QRectF(-53.05, 0, 106.1, 106.1))
+            print((x_coord2, z_coord2))
             graphics[1].clear()
             graphics[1].addItem(rect_item)
-            print(f'x: {(x_coord1, x_coord2)}; z: {(z_coord1, z_coord2)}')
             graphics[1].plot((0, x_coord1, x_coord2),
                             (106.1,z_coord1+106.1, z_coord2+106.1),
                            pen=pen,
@@ -419,7 +415,7 @@ class Ui(QtWidgets.QMainWindow):
                              symbolSize=15,
                              symbolBrush='b')
         else:
-            self.logger_box.insertPlainText('Unreachable position')
+            self.logger_box.insertPlainText('Unreachable position. \n')
 
     def scanSerialPorts(self, menu: QMenu):
         port_list = serial.tools.list_ports.comports()
