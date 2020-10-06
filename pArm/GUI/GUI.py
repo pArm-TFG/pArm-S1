@@ -180,7 +180,7 @@ class Ui(QtWidgets.QMainWindow):
         pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
         self.drawViewFromAngle(graphics, spin_boxes,1)
         self.side_view.setXRange(-420, 420, padding = 0)
-        self.side_view.setYRange(400, 0, padding = 0)
+        self.side_view.setYRange(294, -106, padding = 0)
         self.drawViewFromAngle(graphics, spin_boxes,3)
 
         self.scanSerialPorts(self.menu_port)
@@ -352,29 +352,35 @@ class Ui(QtWidgets.QMainWindow):
             button.State = True
 
     def drawViewFromAngle(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
-        if id == 1:
-            pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
-            x_coord = 346*math.cos((spinBoxes[0].value())*(math.pi/180))
-            y_coord = 346*math.sin((spinBoxes[0].value())*(math.pi/180))
-            graphics[0].clear()
-            graphics[0].plot((0,x_coord),(0,y_coord), pen=pen, symbol='o',
-                             symbolSize=15, symbolBrush=('b'))
-        elif id == 2 or  id == 3 :
-            pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
-            x_coord1  = 142.07*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
-            x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
-            z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
-            z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
-            rect_item = RectItem(QtCore.QRectF(-53.05, 0, 106.1, 106.1))
-            print((x_coord2, z_coord2))
-            graphics[1].clear()
-            graphics[1].addItem(rect_item)
-            graphics[1].plot((0, x_coord1, x_coord2),
-                            (106.1,z_coord1+106.1, z_coord2+106.1),
-                           pen=pen,
-                            symbol='o',
-                            symbolSize=15,
-                            symbolBrush='b')
+
+        x_coord1  = 142.07*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
+        x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
+        z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
+        z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
+
+        pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
+        x_coord = x_coord2*math.cos((spinBoxes[0].value())*(math.pi/180))
+        y_coord = x_coord2*math.sin((spinBoxes[0].value())*(math.pi/180))
+        x1_coord = x_coord1*math.cos((spinBoxes[0].value())*(math.pi/180))
+        y1_coord = x_coord1*math.cos((spinBoxes[0].value())*(math.pi/180))
+
+        graphics[0].clear()
+        graphics[0].plot((0,x_coord),(0,y_coord), pen=pen, symbol='o',symbolSize=15, symbolBrush=('b'))
+
+        pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
+        x_coord1  = 142.07*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
+        x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
+        z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
+        z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
+        rect_item = RectItem(QtCore.QRectF(-53.05, -106.1, 106.1, 106.1))
+        graphics[1].clear()
+        graphics[1].addItem(rect_item)
+        graphics[1].plot((0, x_coord1, x_coord2),
+                    (0,z_coord1, z_coord2),
+                    pen=pen,
+                    symbol='o',
+                    symbolSize=15,
+                    symbolBrush='b')
         
     def drawViewFromCartesian(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
         x_coord = spinBoxes[0].value()
@@ -401,7 +407,6 @@ class Ui(QtWidgets.QMainWindow):
             z_coord1 = 142.07*math.sin((135 - theta_1)*(math.pi/180))
             z_coord2  = z_coord1 - 158.08*math.sin((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
             rect_item = RectItem(QtCore.QRectF(-53.05, 0, 106.1, 106.1))
-            print((x_coord2, y_coord, z_coord2 + 106.1))
             graphics[0].clear()
             graphics[0].plot((0, y_coord), (0, x_coord),
                              pen=pen,
@@ -411,7 +416,7 @@ class Ui(QtWidgets.QMainWindow):
             graphics[1].clear()
             graphics[1].addItem(rect_item)
             graphics[1].plot((0, x_coord1, x_coord2),
-                             (106.1, (z_coord1 + 106.1), (z_coord2+106.1)),
+                             (106.1, (z_coord1), (z_coord2)),
                              pen=pen,
                              symbol='o',
                              symbolSize=15,
