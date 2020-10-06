@@ -245,9 +245,14 @@
      <rect>
       <x>10</x>
       <y>460</y>
-      <width>201</width>
+      <width>211</width>
       <height>41</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>8</pointsize>
+     </font>
     </property>
     <property name="cursor">
      <cursorShape>SizeVerCursor</cursorShape>
@@ -266,9 +271,9 @@
    <widget class="QPushButton" name="ExecuteButton">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>310</x>
       <y>460</y>
-      <width>201</width>
+      <width>211</width>
       <height>41</height>
      </rect>
     </property>

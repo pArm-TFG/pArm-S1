@@ -32,7 +32,7 @@ class RectItem(qtg.GraphicsObject):
     def _gen_picture(self):
         painter = QtGui.QPainter(self.picture)
         painter.setPen(qtg.mkPen('w'))
-        painter.setBrush(qtg.mkBrush('g'))
+        painter.setBrush(qtg.mkBrush((130,130,130)))
         painter.drawRect(self.rect)
         painter.end()
 
