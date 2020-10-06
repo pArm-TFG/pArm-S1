@@ -18,6 +18,8 @@ from .rect_item import RectItem
 def inverse_kinematics(x_coord, y_coord, z_coord):
     try:
         from math import acos, atan, atan2, pi, sqrt, sin, cos
+        
+        x_coord = 11.5 if x_coord < 11.5 else x_coord
 
         al = 142.07
         au = 158.08
