@@ -361,7 +361,7 @@ class Ui(QtWidgets.QMainWindow):
         z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
         z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
 
-        pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
+        pen = pyqtgraph.mkPen(color=(0, 255, 255), width=8, style = QtCore.Qt.SolidLine)
         x_coord = x_coord2*math.cos((spinBoxes[0].value())*(math.pi/180))
         y_coord = x_coord2*math.sin((spinBoxes[0].value())*(math.pi/180))
         x1_coord = x_coord1*math.cos((spinBoxes[0].value())*(math.pi/180))
@@ -370,7 +370,9 @@ class Ui(QtWidgets.QMainWindow):
         graphics[0].clear()
         rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
         graphics[0].addItem(rect_item)
-        graphics[0].plot((0,x1_coord,x_coord),(0,y1_coord,y_coord), pen=pen, symbol='o',symbolSize=15, symbolBrush=('b'))
+        graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen, symbol='o',symbolSize=15, symbolBrush=('b'))
+        pen = pyqtgraph.mkPen(color=(255, 255,0), width=8, style = QtCore.Qt.SolidLine)
+        graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen, symbol='o',symbolSize=15, symbolBrush=('b'))
 
         pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
         x_coord1  = 142.07*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
