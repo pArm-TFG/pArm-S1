@@ -361,7 +361,6 @@ class Ui(QtWidgets.QMainWindow):
         z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
         z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
 
-        pen = pyqtgraph.mkPen(color=(0, 255, 255), width=8, style = QtCore.Qt.SolidLine)
         x_coord = x_coord2*math.cos((spinBoxes[0].value())*(math.pi/180))
         y_coord = x_coord2*math.sin((spinBoxes[0].value())*(math.pi/180))
         x1_coord = x_coord1*math.cos((spinBoxes[0].value())*(math.pi/180))
@@ -370,8 +369,9 @@ class Ui(QtWidgets.QMainWindow):
         graphics[0].clear()
         rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
         graphics[0].addItem(rect_item)
+        pen = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
         graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen, symbol='o',symbolSize=15, symbolBrush=('b'))
-        pen = pyqtgraph.mkPen(color=(255, 255,0), width=8, style = QtCore.Qt.SolidLine)
+        pen = pyqtgraph.mkPen(color=(0, 240,220), width=8, style = QtCore.Qt.SolidLine)
         graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen, symbol='o',symbolSize=15, symbolBrush=('b'))
 
         pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
@@ -382,8 +382,16 @@ class Ui(QtWidgets.QMainWindow):
         rect_item2 = RectItem(QtCore.QRectF(-53.05, -106.1, 106.1, 106.1))
         graphics[1].clear()
         graphics[1].addItem(rect_item2)
-        graphics[1].plot((0, x_coord1, x_coord2),
-                    (0,z_coord1, z_coord2),
+        pen = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
+        graphics[1].plot((0, x_coord1),
+                    (0, z_coord1),
+                    pen=pen,
+                    symbol='o',
+                    symbolSize=15,
+                    symbolBrush='b')
+        pen = pyqtgraph.mkPen(color=(0, 240, 220), width=8, style = QtCore.Qt.SolidLine)
+        graphics[1].plot((x_coord1, x_coord2),
+                    (z_coord1, z_coord2),
                     pen=pen,
                     symbol='o',
                     symbolSize=15,
@@ -403,10 +411,12 @@ class Ui(QtWidgets.QMainWindow):
             print(f'(θ⁰: {theta_0}, θ¹: {theta_1}, θ²: {theta_2})')
 
             if theta_0 < 29 or theta_1 > 135 or theta_1 < 0 or theta_2 < 10 or theta_2 > 120 or math.sqrt(x_coord**2 + y_coord**2) > 300 or math.sqrt(x_coord**2 + y_coord**2) > 300 :
-                pen = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
+                pen1 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
+                pen2 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
                 self.disable_execute_button(False)
             else:
-                pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
+                pen1 = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
+                pen2 = pyqtgraph.mkPen(color=(0, 240, 220), width=8, style = QtCore.Qt.SolidLine)
                 self.disable_execute_button(True)
 
             x_coord1  = 142.07*math.cos((135 - theta_1)*(math.pi/180))
@@ -420,20 +430,31 @@ class Ui(QtWidgets.QMainWindow):
             graphics[0].clear()
             rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
             graphics[0].addItem(rect_item)
-            graphics[0].plot((0,mid_y, y_coord), (0,mid_x, x_coord),
-                             pen=pen,
+            graphics[0].plot((0,mid_y), (0,mid_x),
+                             pen=pen1,
                              symbol='o',
                              symbolSize=15,
                              symbolBrush='b')
+            graphics[0].plot((mid_y,y_coord), (mid_x,x_coord),
+                             pen=pen2,
+                             symbol='o',
+                             symbolSize=15,
+                             symbolBrush='b')                 
             graphics[1].clear()
             rect_item2 = RectItem(QtCore.QRectF(-53.05, -106.1, 106.1, 106.1))
             graphics[1].addItem(rect_item2)
-            graphics[1].plot((0, x_coord1, x_coord2),
-                             (0, (z_coord1), (z_coord2)),
-                             pen=pen,
+            graphics[1].plot((0, x_coord1),
+                             (0, z_coord1),
+                             pen=pen1,
                              symbol='o',
                              symbolSize=15,
                              symbolBrush='b')
+            graphics[1].plot((x_coord1, x_coord2),
+                             (z_coord1, z_coord2),
+                             pen=pen2,
+                             symbol='o',
+                             symbolSize=15,
+                             symbolBrush='b')                 
         else:
             self.logger_box.insertPlainText('Unreachable position. \n')
 
