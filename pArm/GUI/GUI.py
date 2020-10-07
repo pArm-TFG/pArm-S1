@@ -229,6 +229,9 @@ class Ui(QtWidgets.QMainWindow):
         self.labelColorChange(sliders_labels[1],212,0,0)
         self.labelColorChange(sliders_labels[2],212,0,0)
 
+        self.top_view.clear()
+        self.side_view.clear()
+
         sliders_labels[0].setText("Base Servo Angle")
         sliders_labels[1].setText("Shoulder Servo Angle")
         sliders_labels[2].setText("Elbow Servo Angle")
@@ -408,10 +411,14 @@ class Ui(QtWidgets.QMainWindow):
             x_coord2  = x_coord1 + 158.08*math.cos((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
             z_coord1 = 142.07*math.sin((135 - theta_1)*(math.pi/180))
             z_coord2  = z_coord1 - 158.08*math.sin((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
+
+            mid_x = x_coord1*math.sin(theta_0*(math.pi/180))
+            mid_y = x_coord1*(-1*math.cos(theta_0*(math.pi/180)))
+
             graphics[0].clear()
             rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
             graphics[0].addItem(rect_item)
-            graphics[0].plot((0, y_coord), (0, x_coord),
+            graphics[0].plot((0,mid_y, y_coord), (0,mid_x, x_coord),
                              pen=pen,
                              symbol='o',
                              symbolSize=15,
