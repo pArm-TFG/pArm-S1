@@ -39,8 +39,25 @@ def inverse_kinematics(x_coord, y_coord, z_coord):
     except ValueError:
         return None
 
+def check_list(theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
+    result = True
 
-class Ui(QtWidgets.QMainWindow):
+    if theta_0 < (180-151):
+        result = False
+    
+    if theta_1 > 135 or theta_1 < 0:
+        result = False
+
+    if theta_2 > 120:
+        result = False
+
+    if math.sqrt(x_coord**2 + y_coord**2 + z_coord**2) > 260:    
+        result = False
+            
+    return result
+
+
+class Ui(QtGui.QMainWindow):
 
     def __init__(self, control: ControlInterface):
         super(Ui, self).__init__()
@@ -355,7 +372,6 @@ class Ui(QtWidgets.QMainWindow):
             button.State = True
 
     def drawViewFromAngle(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
-
         x_coord1  = 142.07*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
         x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
         z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
@@ -369,12 +385,19 @@ class Ui(QtWidgets.QMainWindow):
         graphics[0].clear()
         rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
         graphics[0].addItem(rect_item)
-        pen = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
-        graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen, symbol='o',symbolSize=15, symbolBrush=('b'))
-        pen = pyqtgraph.mkPen(color=(0, 240,220), width=8, style = QtCore.Qt.SolidLine)
-        graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen, symbol='o',symbolSize=15, symbolBrush=('b'))
+        pen1 = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
+        pen2 = pyqtgraph.mkPen(color=(0, 220,215), width=8, style = QtCore.Qt.SolidLine)
 
-        pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
+        if(z_coord2 > z_coord1 and x_coord2 > x_coord1): # Upper arm above Lower arm
+            graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
+            graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))     
+        elif(z_coord2 < z_coord1 and x_coord2 < x_coord1): # Lowe arm above Upper arm
+            graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
+            graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
+        else: # neutral position
+            graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
+            graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
+
         x_coord1  = 142.07*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
         x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
         z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
@@ -382,17 +405,17 @@ class Ui(QtWidgets.QMainWindow):
         rect_item2 = RectItem(QtCore.QRectF(-53.05, -106.1, 106.1, 106.1))
         graphics[1].clear()
         graphics[1].addItem(rect_item2)
-        pen = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
+        pen1 = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
         graphics[1].plot((0, x_coord1),
                     (0, z_coord1),
-                    pen=pen,
+                    pen=pen1,
                     symbol='o',
                     symbolSize=15,
                     symbolBrush='b')
-        pen = pyqtgraph.mkPen(color=(0, 240, 220), width=8, style = QtCore.Qt.SolidLine)
+        pen2 = pyqtgraph.mkPen(color=(0, 240, 220), width=8, style = QtCore.Qt.SolidLine)
         graphics[1].plot((x_coord1, x_coord2),
                     (z_coord1, z_coord2),
-                    pen=pen,
+                    pen=pen2,
                     symbol='o',
                     symbolSize=15,
                     symbolBrush='b')
@@ -402,7 +425,6 @@ class Ui(QtWidgets.QMainWindow):
         y_coord = spinBoxes[1].value()
         z_coord = spinBoxes[2].value()    
 
-        print((x_coord,y_coord,z_coord))
 
         angles = inverse_kinematics(x_coord, y_coord, z_coord)
 
@@ -410,13 +432,13 @@ class Ui(QtWidgets.QMainWindow):
             theta_0, theta_1, theta_2 = angles
             print(f'(θ⁰: {theta_0}, θ¹: {theta_1}, θ²: {theta_2})')
 
-            if theta_0 < 29 or theta_1 > 135 or theta_1 < 0 or theta_2 < 10 or theta_2 > 120 or math.sqrt(x_coord**2 + y_coord**2) > 300 or math.sqrt(x_coord**2 + y_coord**2) > 300 :
+            if not check_list(theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
                 pen1 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
                 pen2 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
                 self.disable_execute_button(False)
             else:
                 pen1 = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
-                pen2 = pyqtgraph.mkPen(color=(0, 240, 220), width=8, style = QtCore.Qt.SolidLine)
+                pen2 = pyqtgraph.mkPen(color=(0, 220,215), width=8, style = QtCore.Qt.SolidLine)
                 self.disable_execute_button(True)
 
             x_coord1  = 142.07*math.cos((135 - theta_1)*(math.pi/180))
@@ -430,16 +452,18 @@ class Ui(QtWidgets.QMainWindow):
             graphics[0].clear()
             rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
             graphics[0].addItem(rect_item)
-            graphics[0].plot((0,mid_y), (0,mid_x),
-                             pen=pen1,
-                             symbol='o',
-                             symbolSize=15,
-                             symbolBrush='b')
-            graphics[0].plot((mid_y,y_coord), (mid_x,x_coord),
-                             pen=pen2,
-                             symbol='o',
-                             symbolSize=15,
-                             symbolBrush='b')                 
+
+            if(z_coord2 > z_coord1 and x_coord2 > x_coord1): # Upper arm above Lower arm
+                graphics[0].plot((0,mid_y),(0,mid_x), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
+                graphics[0].plot((mid_y,y_coord),(mid_x,x_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))     
+            elif(z_coord2 < z_coord1 and x_coord2 < x_coord1): # Lowe arm above Upper arm
+                graphics[0].plot((mid_y,y_coord),(mid_x,x_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
+                graphics[0].plot((0,mid_y),(0,mid_x), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
+            else: # neutral position
+                graphics[0].plot((0,mid_y),(0,mid_x), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
+                graphics[0].plot((mid_y,y_coord),(mid_x,x_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
+
+
             graphics[1].clear()
             rect_item2 = RectItem(QtCore.QRectF(-53.05, -106.1, 106.1, 106.1))
             graphics[1].addItem(rect_item2)
@@ -524,3 +548,24 @@ class Ui(QtWidgets.QMainWindow):
             webbrowser.open('https://www.linkedin.com/in/jose-alejandro-moya-blanco-78952a126/')  
             webbrowser.open('https://www.linkedin.com/in/javinator9889/')
             webbrowser.open('https://www.linkedin.com/in/mihai-octavian-34865419b/')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+            

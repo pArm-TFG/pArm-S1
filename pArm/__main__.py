@@ -14,7 +14,7 @@
 #     You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 from . import init_logging
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from .GUI import GUI
 from .control.control import Control
 import sys
@@ -23,6 +23,7 @@ from concurrent.futures import ThreadPoolExecutor
 if __name__ == '__main__':
     init_logging("Roger", log_file="p-Arm.log")
     app = QtWidgets.QApplication(sys.argv)
+    app.setWindowIcon(QtGui.QIcon("yo.jpg"))
 
     executor = ThreadPoolExecutor()
 
