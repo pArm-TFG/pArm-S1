@@ -388,7 +388,7 @@ class Ui(QtGui.QMainWindow):
         pen1 = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
         pen2 = pyqtgraph.mkPen(color=(0, 220,215), width=8, style = QtCore.Qt.SolidLine)
 
-        if(z_coord2 > z_coord1 and x_coord2 > x_coord1): # Upper arm above Lower arm
+        if(z_coord2 > z_coord1 and x_coord2 > x_coord1): # Upper arm above Lower Arm
             graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
             graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))     
         elif(z_coord2 < z_coord1 and x_coord2 < x_coord1): # Lowe arm above Upper arm
