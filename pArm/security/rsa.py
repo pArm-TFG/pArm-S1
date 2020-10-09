@@ -21,7 +21,7 @@ class RSA:
         self.e = e
         self.n = n
 
-    def verify(self, message: Union[int, str]) -> str:
+    def verify(self, message: Union[int, str]) -> Union[int, str]:
         """
         This function is used to "un-sign" the control string received from the
         arm controller.
@@ -32,7 +32,7 @@ class RSA:
             return ''
 
         if type(message) == int:
-            return chr(right_to_left(message, self.e, self.n))
+            return right_to_left(message, self.e, self.n)
         elif type(message) == str:
             verified_message = list()
             for msg_val in message.split():
@@ -51,21 +51,29 @@ class RSA:
             raise AttributeError(
                 f'message must be int or str, not {type(message)}')
 
-    def encrypt(self, message: str) -> str:
+    def encrypt(self, message: Union[int, str]) -> Union[int, str]:
         """
-        This function is used to sign a string. Its not currently used.
-        :param message: a string to be signed.
-        :return: signed string.
+        This function is used to encrypt either an integer or str. This is
+        used mainly for encrypting the signed message sent by S2.
+
+        :param message: a string or int to be encrypted.
+        :return: the encrypted message.
         """
         if self.n == 1:
             return ''
 
-        encrypted_message = list()
-        for char in message:
-            encrypted_message.append(
-                str(right_to_left(ord(char), self.e, self.n))
-            )
-        return ' '.join(encrypted_message)
+        if type(message) == int:
+            return right_to_left(message, self.e, self.n)
+        elif type(message) == str:
+            encrypted_message = list()
+            for char in message:
+                encrypted_message.append(
+                    str(right_to_left(ord(char), self.e, self.n))
+                )
+            return ' '.join(encrypted_message)
+        else:
+            raise AttributeError(
+                f'message must be int or str, not {type(message)}')
 
 
 def right_to_left(number: int, exp: int, mod: int) -> int:
