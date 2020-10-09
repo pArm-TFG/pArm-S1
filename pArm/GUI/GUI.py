@@ -1,9 +1,3 @@
-import math
-import os
-
-import pyqtgraph
-import serial.tools.list_ports
-import webbrowser
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
 from PyQt5.QtWidgets import QMessageBox, QMenu, QAction
 from pyqtgraph import PlotWidget
@@ -13,6 +7,12 @@ from ..utils.error_data import ErrorData
 from ..control.control_interface import ControlInterface
 from .progress_widget import ProgressWidget
 from .rect_item import RectItem
+import math
+import os
+import pyqtgraph
+import serial.tools.list_ports
+import webbrowser
+
 
 
 def inverse_kinematics(x_coord, y_coord, z_coord):
@@ -24,7 +24,7 @@ def inverse_kinematics(x_coord, y_coord, z_coord):
         al = 142.07
         au = 158.08
 
-        theta_0 = pi - atan2(x_coord, y_coord)
+        theta_0 = atan2(x_coord, y_coord)
         xz = (x_coord ** 2) + (y_coord**2) + (z_coord ** 2)
         lxz = sqrt(xz)
         theta_1 = acos((-1*(al ** 2) - xz + au ** 2) / (-2 * al * lxz))
@@ -42,19 +42,24 @@ def inverse_kinematics(x_coord, y_coord, z_coord):
 def check_list(theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
     result = True
 
-    if theta_0 < (180-151):
+    if theta_0 > (151):
+        print("Theta 0 is xd " + str(theta_0))
         result = False
     
     if theta_1 > 135 or theta_1 < 0:
+        print("Theta 1 is xd")
         result = False
 
     if theta_2 > 120:
+        print("Theta 2 is xd")
         result = False
 
     if math.sqrt(x_coord**2 + y_coord**2 + z_coord**2) > 261:    
+        print("Too long")
         result = False
 
     if theta_2 >(theta_1 + 55):
+        print("Physical danger")
         result = False
   
     return result
@@ -455,7 +460,7 @@ class Ui(QtGui.QMainWindow):
             z_coord2  = z_coord1 - 158.08*math.sin((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
 
             mid_x = x_coord1*math.sin(theta_0*(math.pi/180))
-            mid_y = x_coord1*(-1*math.cos(theta_0*(math.pi/180)))
+            mid_y = x_coord1*math.cos(theta_0*(math.pi/180))
 
             graphics[0].clear()
             rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
