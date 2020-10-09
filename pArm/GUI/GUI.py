@@ -13,7 +13,7 @@ import pyqtgraph
 import serial.tools.list_ports
 import webbrowser
 
-def inverse_kinematics(x_coord, y_coord, z_coord):
+def inverse_kinematics(x_coord, y_coord, z_coord): 
     try:
         from math import acos, atan, atan2, pi, sqrt, sin, cos
         
@@ -96,11 +96,13 @@ class Ui(QtGui.QMainWindow):
         # Grouped widgets in order to ease parameter passing
         sliders = [self.slider_1,self.slider_2, self.slider_3]
         spin_boxes = [self.spin_box_1, self.spin_box_2, self.spin_box_3]
-        sliders_labels = [self.slider_1_label, self.slider_2_label, self.slider_3_label, self.slider_1_left_label, self.slider_1_right_label, self.slider_2_left_label, self.slider_2_right_label, self.slider_3_left_label, self.slider_3_right_label, self.slider_2_mid_label]
+        sliders_labels = [self.slider_1_label, self.slider_2_label, self.slider_3_label, 
+                        self.slider_1_left_label, self.slider_1_right_label, self.slider_2_left_label, 
+                        self.slider_2_right_label, self.slider_3_left_label, self.slider_3_right_label, 
+                        self.slider_2_mid_label]
         graphics = [self.top_view, self.side_view]
 
         # Extra setting initialization
-
         if getattr(self.slider_1, "id", None) is None:
             setattr(self.slider_1,"id", 1)
 
@@ -126,9 +128,12 @@ class Ui(QtGui.QMainWindow):
         self.slider_3.setTickInterval(275)
         self.slider_3.setTickPosition(3)
 
-        self.slider_1.valueChanged.connect(lambda: self.adjustWidgetValue("slider", sliders, spin_boxes, graphics, self.combo_box_coordinates.currentIndex(), 1))
-        self.slider_2.valueChanged.connect(lambda: self.adjustWidgetValue("slider", sliders, spin_boxes, graphics,self.combo_box_coordinates.currentIndex(), 2))
-        self.slider_3.valueChanged.connect(lambda: self.adjustWidgetValue("slider",  sliders, spin_boxes, graphics,self.combo_box_coordinates.currentIndex(), 3))
+        self.slider_1.valueChanged.connect(lambda: self.adjust_widget_value("slider", sliders, spin_boxes, graphics, 
+                                            self.combo_box_coordinates.currentIndex(), 1))
+        self.slider_2.valueChanged.connect(lambda: self.adjust_widget_value("slider", sliders, spin_boxes, graphics, 
+                                            self.combo_box_coordinates.currentIndex(), 2))
+        self.slider_3.valueChanged.connect(lambda: self.adjust_widget_value("slider",  sliders, spin_boxes, graphics, 
+                                            self.combo_box_coordinates.currentIndex(), 3))
 
         if getattr(self.spin_box_1, "id", None) is None:
             setattr(self.spin_box_1,"id", 1)
@@ -147,23 +152,28 @@ class Ui(QtGui.QMainWindow):
         self.spin_box_3.setRange(10.0, 120.0)
         self.spin_box_3.setSingleStep(0.1)
 
-        self.spin_box_1.valueChanged.connect(lambda: self.adjustWidgetValue("spinBox",  sliders, spin_boxes, graphics,self.combo_box_coordinates.currentIndex(),1 ))
-        self.spin_box_2.valueChanged.connect(lambda: self.adjustWidgetValue("spinBox",  sliders, spin_boxes, graphics,self.combo_box_coordinates.currentIndex(), 2))
-        self.spin_box_3.valueChanged.connect(lambda: self.adjustWidgetValue("spinBox",  sliders, spin_boxes, graphics,self.combo_box_coordinates.currentIndex(), 3))
+        self.spin_box_1.valueChanged.connect(lambda: self.adjust_widget_value("spinBox",  sliders, spin_boxes, graphics, 
+                                            self.combo_box_coordinates.currentIndex(),1 ))
+        self.spin_box_2.valueChanged.connect(lambda: self.adjust_widget_value("spinBox",  sliders, spin_boxes, graphics, 
+                                            self.combo_box_coordinates.currentIndex(), 2))
+        self.spin_box_3.valueChanged.connect(lambda: self.adjust_widget_value("spinBox",  sliders, spin_boxes, graphics, 
+                                            self.combo_box_coordinates.currentIndex(), 3))
 
         self.slider_2_mid_label.hide()
 
-        #self.comboBoxCoordinates.highlighted.connect(lambda index: CoordinatesHighlight(self.comboBoxCoordinates, sliders_labels, sliders, spin_boxes, index))
-        self.combo_box_coordinates.activated.connect(lambda index: self.changeCoordinateMenu(self.combo_box_coordinates, sliders_labels, sliders, spin_boxes, index))
+        self.combo_box_coordinates.activated.connect(lambda index: self.switch_coordinate_menu(self.combo_box_coordinates, 
+                                                    sliders_labels, sliders, spin_boxes, index))
 
-        self.menu_port.triggered.connect(lambda portID: self.setSerialPort(portID))
+        self.menu_port.triggered.connect(lambda portID: self.set_serial_port(portID))
 
         self.menu_info.triggered.connect(lambda action: self.open_browser_info(action))
 
         if getattr(self.execute_button, "State", None) is None:
             setattr(self.execute_button,"State", True)
-        self.execute_button.clicked.connect(lambda: self.executeMovement(self.execute_button,self.logger_box, spin_boxes,self.combo_box_coordinates.currentIndex()))
-        self.origin_button.clicked.connect(lambda: self.move_to_origin(self.origin_button, sliders, spin_boxes, self.combo_box_coordinates.currentIndex()))
+        self.execute_button.clicked.connect(lambda: self.execute_movement(self.execute_button,self.logger_box, spin_boxes,
+                                            self.combo_box_coordinates.currentIndex()))
+        self.origin_button.clicked.connect(lambda: self.move_to_origin(self.origin_button, sliders, spin_boxes, 
+                                            self.combo_box_coordinates.currentIndex()))
 
         self.logger_box.setReadOnly(1)
         self.logger_box.insertPlainText("Welcome to the p-Arm GUI!!\nThe arm is now being initialized...\n")
@@ -175,24 +185,25 @@ class Ui(QtGui.QMainWindow):
         self.top_view.setXRange(-400, 400, padding = 0)
         self.top_view.setYRange(280,-120, padding = 0)
         pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
-        self.drawViewFromAngle(graphics, spin_boxes,1)
+        self.draw_view_from_angle(graphics, spin_boxes,1)
         self.side_view.setXRange(-420, 420, padding = 0)
         self.side_view.setYRange(294, -106, padding = 0)
-        self.drawViewFromAngle(graphics, spin_boxes,3)
+        self.draw_view_from_angle(graphics, spin_boxes,3)
 
-        self.scanSerialPorts(self.menu_port)
+        self.scan_serial_ports(self.menu_port)
 
-    def adjustWidgetValue(self,type, sliders: QtWidgets.QSlider, spinBoxes: QtWidgets.QDoubleSpinBox, graphics: QtWidgets.QGraphicsView, index: int, id):
+    def adjust_widget_value(self,type, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, 
+                        graphics: QtWidgets.QGraphicsView, index: int, id):                  
         if type == "slider":
             if index == 0:
-                    self.drawViewFromAngle(graphics, spinBoxes, id)
+                    self.draw_view_from_angle(graphics, spin_boxes, id)
             elif index == 1:
-                    self.drawViewFromCartesian(graphics, spinBoxes, id)
-            spinBoxes[id-1].setValue(sliders[id-1].value()/10)
+                    self.drawViewFromCartesian(graphics, spin_boxes, id)
+            spin_boxes[id-1].setValue(sliders[id-1].value()/10)
         elif type == "spinBox":
-            sliders[id-1].setSliderPosition(spinBoxes[id-1].value()*10)
+            sliders[id-1].setSliderPosition(spin_boxes[id-1].value()*10)
 
-    def labelColorChange(self,label: QtWidgets.QLabel,r, g, b):
+    def labe_color_change(self,label: QtWidgets.QLabel,r, g, b):
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(r, g, b))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -205,26 +216,29 @@ class Ui(QtGui.QMainWindow):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
         label.setPalette(palette)
 
-    def setAngularHighlight(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox):
+    def set_angular_highlight(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
+                            spin_boxes: QtWidgets.QDoubleSpinBox):
         sliders_labels[0].setText("Base Servo Angle")
         sliders_labels[1].setText("Shoulder Servo Angle")
         sliders_labels[2].setText("Elbow Servo Angle")
-        self.labelColorChange(sliders_labels[0],245,110,110)
-        self.labelColorChange(sliders_labels[1],245,110,110)
-        self.labelColorChange(sliders_labels[2],245,110,110)
+        self.labe_color_change(sliders_labels[0],245,110,110)
+        self.labe_color_change(sliders_labels[1],245,110,110)
+        self.labe_color_change(sliders_labels[2],245,110,110)
 
-    def setCartesianHighLight(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox):
+    def set_cartesian_highlight(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
+                            spin_boxes: QtWidgets.QDoubleSpinBox):
         sliders_labels[0].setText("X Coordinate")
         sliders_labels[1].setText("Y Coordinate")
         sliders_labels[2].setText("Z Coordinate")
-        self.labelColorChange(sliders_labels[0],245,110,110)
-        self.labelColorChange(sliders_labels[1],245,110,110)
-        self.labelColorChange(sliders_labels[2],245,110,110)
+        self.labe_color_change(sliders_labels[0],245,110,110)
+        self.labe_color_change(sliders_labels[1],245,110,110)
+        self.labe_color_change(sliders_labels[2],245,110,110)
 
-    def setAngularMenu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox):
-        self.labelColorChange(sliders_labels[0],212,0,0)
-        self.labelColorChange(sliders_labels[1],212,0,0)
-        self.labelColorChange(sliders_labels[2],212,0,0)
+    def set_angular_menu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
+                        spin_boxes: QtWidgets.QDoubleSpinBox):
+        self.labe_color_change(sliders_labels[0],212,0,0)
+        self.labe_color_change(sliders_labels[1],212,0,0)
+        self.labe_color_change(sliders_labels[2],212,0,0)
 
         self.top_view.clear()
         self.side_view.clear()
@@ -261,10 +275,11 @@ class Ui(QtGui.QMainWindow):
         spin_boxes[2].setRange(10.,110.0)
         spin_boxes[2].setValue(0.0)
 
-    def setCartesianMenu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox):
-        self.labelColorChange(sliders_labels[0],212,0,0)
-        self.labelColorChange(sliders_labels[1],212,0,0)
-        self.labelColorChange(sliders_labels[2],212,0,0)
+    def set_cartesian_menu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
+                        spin_boxes: QtWidgets.QDoubleSpinBox):
+        self.labe_color_change(sliders_labels[0],212,0,0)
+        self.labe_color_change(sliders_labels[1],212,0,0)
+        self.labe_color_change(sliders_labels[2],212,0,0)
 
         self.top_view.clear()
         self.side_view.clear()
@@ -301,17 +316,19 @@ class Ui(QtGui.QMainWindow):
         spin_boxes[2].setRange(-106.1,360.6)
         spin_boxes[2].setValue(0)
 
-    def CoordinatesHighlight(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
+    def coordinates_highlight(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,
+                            sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):            
         if index == 1 :
-            self.setCartesianHighLight(sliders_labels,sliders,spin_boxes)
+            self.set_cartesian_highlight(sliders_labels,sliders,spin_boxes)
         elif index == 0 :
-            self.setAngularHighlight(sliders_labels,sliders,spin_boxes)
+            self.set_angular_highlight(sliders_labels,sliders,spin_boxes)
 
-    def changeCoordinateMenu(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
+    def switch_coordinate_menu(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders:
+                             QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
         if index == 1 :
-            self.setCartesianMenu(sliders_labels, sliders, spin_boxes)
+            self.set_cartesian_menu(sliders_labels, sliders, spin_boxes)
         elif index == 0 :
-            self.setAngularMenu(sliders_labels, sliders, spin_boxes)
+            self.set_angular_menu(sliders_labels, sliders, spin_boxes)
 
     def show_popup(self,message: str):
         msg = QMessageBox()
@@ -320,7 +337,8 @@ class Ui(QtGui.QMainWindow):
         msg.setIcon(2)
         x = msg.exec_()
 
-    def executeMovement(self,button : QtWidgets.QPushButton, logger: QtWidgets.QPlainTextEdit, spin_boxes: QtWidgets.QDoubleSpinBox, index: int):
+    def execute_movement(self,button : QtWidgets.QPushButton, logger: QtWidgets.QPlainTextEdit, 
+                        spin_boxes: QtWidgets.QDoubleSpinBox, index: int):
         if button.State:
             self.progress_bar.show()
             button.setText("Cancel movement")
@@ -333,13 +351,15 @@ class Ui(QtGui.QMainWindow):
                                             spin_boxes[1].value(),
                                             spin_boxes[2].value(),
                                             time_holder_val)
-                self.logger_box.insertPlainText('Sending joints to PCB: ' + str((spin_boxes[0].value(),spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
+                self.logger_box.insertPlainText('Sending joints to PCB: ' + str((spin_boxes[0].value(),
+                                                spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
             elif index == 1:
                 ft = self.handler.move_to_xyz(spin_boxes[0].value(),
                                          spin_boxes[1].value(),
                                          spin_boxes[2].value(),
                                          time_holder_val)
-                self.logger_box.insertPlainText('Sending coordinates to PCB: ' + str((spin_boxes[0].value(),spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
+                self.logger_box.insertPlainText('Sending coordinates to PCB: ' + str((spin_boxes[0].value(), 
+                                                spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
             if ft:
                 ft.add_done_callback(lambda future: self.future_callback(future))     
         else:
@@ -351,20 +371,19 @@ class Ui(QtGui.QMainWindow):
             button.setText("Execute Movement")
             button.State = True
 
-    def drawViewFromAngle(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
+    def draw_view_from_angle(self,graphics: QtWidgets.QGraphicsView, spin_boxes: QtWidgets.QDoubleSpinBox, id):
 
-        theta_0, theta_1, theta_2 = spinBoxes[0].value(), spinBoxes[1].value(), spinBoxes[2].value()
-        x_coord1  = 142.07*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
-        x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
-        z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
-        z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
+        theta_0, theta_1, theta_2 = spin_boxes[0].value(), spin_boxes[1].value(), spin_boxes[2].value()
 
-        y_coord = x_coord2*math.cos((spinBoxes[0].value())*(math.pi/180))
-        x_coord = x_coord2*math.sin((spinBoxes[0].value())*(math.pi/180))
-        y1_coord = x_coord1*math.cos((spinBoxes[0].value())*(math.pi/180))
-        x1_coord = x_coord1*math.sin((spinBoxes[0].value())*(math.pi/180))
+        x_coord1  = 142.07*math.cos((135 - theta_1)*(math.pi/180))
+        x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
+        z_coord1 = 142.07*math.sin((135 - theta_1)*(math.pi/180))
+        z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
 
-        print((x_coord, y_coord, z_coord2))
+        y_coord = x_coord2*math.cos(theta_0*(math.pi/180))
+        x_coord = x_coord2*math.sin(theta_0*(math.pi/180))
+        y1_coord = x_coord1*math.cos(theta_0*(math.pi/180))
+        x1_coord = x_coord1*math.sin(theta_0*(math.pi/180))
 
         graphics[0].clear()
         rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
@@ -389,11 +408,8 @@ class Ui(QtGui.QMainWindow):
             graphics[0].plot((0,y1_coord),(0,x1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
             graphics[0].plot((y1_coord,y_coord),(x1_coord,x_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
 
-        x_coord1  = 142.07*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
-        x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
-        z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
-        z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
         rect_item2 = RectItem(QtCore.QRectF(-53.05, -106.1, 106.1, 106.1))
+
         graphics[1].clear()
         graphics[1].addItem(rect_item2)
         graphics[1].plot((0, x_coord1),
@@ -409,11 +425,10 @@ class Ui(QtGui.QMainWindow):
                     symbolSize=15,
                     symbolBrush='b')
         
-    def drawViewFromCartesian(self,graphics: QtWidgets.QGraphicsView, spinBoxes: QtWidgets.QDoubleSpinBox, id):
-        x_coord = spinBoxes[0].value()
-        y_coord = spinBoxes[1].value()
-        z_coord = spinBoxes[2].value()    
+    def drawViewFromCartesian(self, graphics: QtWidgets.QGraphicsView, spin_boxes: QtWidgets.QDoubleSpinBox, id):
 
+        x_coord, y_coord, z_coord = spin_boxes[0].value(), spin_boxes[1].value(), spin_boxes[2].value()    
+       
         angles = inverse_kinematics(x_coord, y_coord, z_coord)
 
         if angles:
@@ -467,7 +482,7 @@ class Ui(QtGui.QMainWindow):
                              symbolSize=15,
                              symbolBrush='b')                 
         
-    def scanSerialPorts(self, menu: QMenu):
+    def scan_serial_ports(self, menu: QMenu):
         port_list = serial.tools.list_ports.comports()
         if len(port_list) == 0:
             menu.addAction('No ports available')
@@ -478,7 +493,7 @@ class Ui(QtGui.QMainWindow):
             self.logger_box.insertPlainText('Port ' + port.device + ' detected & ready. \n')
 
 
-    def setSerialPort(self, portID:QAction):
+    def set_serial_port(self, portID:QAction):
         self.port = portID.iconText()
         self.handler.port = self.port
         if  not (self.port == 'No ports available'):
@@ -537,8 +552,6 @@ class Ui(QtGui.QMainWindow):
     def check_list(self,theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
         result = True
 
-        print((x_coord, y_coord, z_coord))
-    
         if theta_0 > (151):
             result = False
             if self.counter == 200:
@@ -581,8 +594,7 @@ class Ui(QtGui.QMainWindow):
                 self.logger_box.ensureCursorVisible()
                 self.counter = 0
             self.counter += 1    
-
-
+            
         return result        
 
 
