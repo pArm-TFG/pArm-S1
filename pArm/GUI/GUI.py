@@ -13,8 +13,6 @@ import pyqtgraph
 import serial.tools.list_ports
 import webbrowser
 
-
-
 def inverse_kinematics(x_coord, y_coord, z_coord):
     try:
         from math import acos, atan, atan2, pi, sqrt, sin, cos
@@ -39,32 +37,6 @@ def inverse_kinematics(x_coord, y_coord, z_coord):
     except ValueError:
         return None
 
-def check_list(theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
-    result = True
-
-    if theta_0 > (151):
-        print("Theta 0 is xd " + str(theta_0))
-        result = False
-    
-    if theta_1 > 135 or theta_1 < 0:
-        print("Theta 1 is xd")
-        result = False
-
-    if theta_2 > 120:
-        print("Theta 2 is xd")
-        result = False
-
-    if math.sqrt(x_coord**2 + y_coord**2 + z_coord**2) > 261:    
-        print("Too long")
-        result = False
-
-    if theta_2 >(theta_1 + 55):
-        print("Physical danger")
-        result = False
-  
-    return result
-
-
 class Ui(QtGui.QMainWindow):
 
     def __init__(self, control: ControlInterface):
@@ -78,7 +50,7 @@ class Ui(QtGui.QMainWindow):
         self.port = None
 
         #Auxiliar Dirty Counter
-        self.counter = 500
+        self.counter = 200
 
         #Left Window Section
         self.menu_port = self.findChild(QtWidgets.QMenu, 'menuPort_Selection')
@@ -387,31 +359,35 @@ class Ui(QtGui.QMainWindow):
         z_coord1 = 142.07*math.sin((135 - spinBoxes[1].value())*(math.pi/180))
         z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
 
-        x_coord = x_coord2*math.cos((spinBoxes[0].value())*(math.pi/180))
-        y_coord = x_coord2*math.sin((spinBoxes[0].value())*(math.pi/180))
-        x1_coord = x_coord1*math.cos((spinBoxes[0].value())*(math.pi/180))
-        y1_coord = x_coord1*math.sin((spinBoxes[0].value())*(math.pi/180))
+        y_coord = x_coord2*math.cos((spinBoxes[0].value())*(math.pi/180))
+        x_coord = x_coord2*math.sin((spinBoxes[0].value())*(math.pi/180))
+        y1_coord = x_coord1*math.cos((spinBoxes[0].value())*(math.pi/180))
+        x1_coord = x_coord1*math.sin((spinBoxes[0].value())*(math.pi/180))
+
+        print((x_coord, y_coord, z_coord2))
 
         graphics[0].clear()
         rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
         graphics[0].addItem(rect_item)
 
-        if check_list(theta_0, theta_1, theta_2, x_coord, y_coord, z_coord2):
+        if self.check_list(theta_0, theta_1, theta_2, x_coord, y_coord, z_coord2):
             pen1 = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
             pen2 = pyqtgraph.mkPen(color=(0, 220,215), width=8, style = QtCore.Qt.SolidLine)
+            self.disable_execute_button(True)
         else:
             pen1 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
-            pen2 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)   
+            pen2 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
+            self.disable_execute_button(False)   
 
         if(z_coord2 > z_coord1 and x_coord2 > x_coord1): # Upper arm above Lower Arm
-            graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
-            graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))     
+            graphics[0].plot((0,y1_coord),(0,x1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
+            graphics[0].plot((y1_coord,y_coord),(x1_coord,x_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))     
         elif(z_coord2 < z_coord1 and x_coord2 < x_coord1): # Lowe arm above Upper Arm
-            graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
-            graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
+            graphics[0].plot((y1_coord,y_coord),(x1_coord,x_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
+            graphics[0].plot((0,y1_coord),(0,x1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
         else: # neutral position
-            graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
-            graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
+            graphics[0].plot((0,y1_coord),(0,x1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
+            graphics[0].plot((y1_coord,y_coord),(x1_coord,x_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
 
         x_coord1  = 142.07*math.cos((135 - spinBoxes[1].value())*(math.pi/180))
         x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - spinBoxes[1].value()) - (spinBoxes[2].value()))*(math.pi/180))
@@ -438,14 +414,13 @@ class Ui(QtGui.QMainWindow):
         y_coord = spinBoxes[1].value()
         z_coord = spinBoxes[2].value()    
 
-
         angles = inverse_kinematics(x_coord, y_coord, z_coord)
 
         if angles:
             theta_0, theta_1, theta_2 = angles
             print(f'(θ⁰: {theta_0}, θ¹: {theta_1}, θ²: {theta_2})')
 
-            if not check_list(theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
+            if not self.check_list(theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
                 pen1 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
                 pen2 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
                 self.disable_execute_button(False)
@@ -491,9 +466,7 @@ class Ui(QtGui.QMainWindow):
                              symbol='o',
                              symbolSize=15,
                              symbolBrush='b')                 
-        else:
-            self.logger_box.insertPlainText('Unreachable position. \n')
-
+        
     def scanSerialPorts(self, menu: QMenu):
         port_list = serial.tools.list_ports.comports()
         if len(port_list) == 0:
@@ -560,6 +533,58 @@ class Ui(QtGui.QMainWindow):
             webbrowser.open('https://www.linkedin.com/in/jose-alejandro-moya-blanco-78952a126/')  
             webbrowser.open('https://www.linkedin.com/in/javinator9889/')
             webbrowser.open('https://www.linkedin.com/in/mihai-octavian-34865419b/')
+
+    def check_list(self,theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
+        result = True
+
+        print((x_coord, y_coord, z_coord))
+    
+        if theta_0 > (151):
+            result = False
+            if self.counter == 200:
+                self.logger_box.insertPlainText("Base joint (θ⁰) angle is over 151°\n")
+                self.logger_box.ensureCursorVisible()
+                self.counter = 0
+            self.counter += 1 
+
+        if theta_1 > 135:
+            result = False
+            if self.counter == 200:    
+                self.logger_box.insertPlainText("Shoulder joint (θ¹) angle is over 135°\n")
+                self.logger_box.ensureCursorVisible()
+                self.counter = 0
+            self.counter += 1 
+
+        if theta_2 > 120:
+            result = False
+            if self.counter == 200:
+                self.logger_box.insertPlainText("Elbow joint (θ²) angle is over 120°\n")
+                self.logger_box.ensureCursorVisible()
+                self.counter = 0
+            self.counter += 1 
+
+        if math.sqrt(x_coord**2 + y_coord**2 + z_coord**2) > 261:    
+            result = False
+            
+        if theta_2 >(theta_1 + 55):
+            result = False
+            if self.counter == 200:
+                self.logger_box.insertPlainText("Physical structure limitation\n")
+                self.logger_box.ensureCursorVisible()
+                self.counter = 0
+            self.counter += 1    
+
+        if x_coord < 53.0 and x_coord > -53.0 and z_coord <0 and y_coord < 53.0 and y_coord > -53.0:
+            result = False   
+            if self.counter == 200:
+                self.logger_box.insertPlainText("End effector colliding with arm base\n")
+                self.logger_box.ensureCursorVisible()
+                self.counter = 0
+            self.counter += 1    
+
+
+        return result        
+
 
 
 
