@@ -401,7 +401,7 @@ class Ui(QtGui.QMainWindow):
         if(z_coord2 > z_coord1 and x_coord2 > x_coord1): # Upper arm above Lower Arm
             graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
             graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))     
-        elif(z_coord2 < z_coord1 and x_coord2 < x_coord1): # Lowe arm above Upper arm
+        elif(z_coord2 < z_coord1 and x_coord2 < x_coord1): # Lowe arm above Upper Arm
             graphics[0].plot((x1_coord,x_coord),(y1_coord,y_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
             graphics[0].plot((0,x1_coord),(0,y1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
         else: # neutral position
