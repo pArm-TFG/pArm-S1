@@ -216,3 +216,5 @@ fabric.properties
 .vscode/settings.json
 
 *.gz
+
+build.sh
