@@ -83,7 +83,7 @@ class Control(ControlInterface):
 
     def move_to_xyz(self, x, y, z,
                     time_object: Optional[AtomicFloat] = None) -> \
-            Future[Union[ErrorData, ControlInterface]]:
+            Future:
         """
         Triggers the needed procedures to move the arm to the cartesian position
         that is indicated in its parameters.
@@ -116,7 +116,7 @@ class Control(ControlInterface):
                        theta2,
                        theta3,
                        time_object: Optional[AtomicFloat] = None) -> \
-            Future[Union[ErrorData, ControlInterface]]:
+            Future:
         """
         Triggers the needed procedures to move the arm to the angular position
         that is indicated in its parameters.
@@ -148,7 +148,7 @@ class Control(ControlInterface):
         return self.executor.submit(fn)
 
     def send_to_origin(self, time_object: Optional[AtomicFloat] = None) -> \
-            Future[Union[ErrorData, ControlInterface]]:
+            Future:
         """
         This function send the arm to its initial position.
         :param time_object: the atomic float holder value.
@@ -211,7 +211,7 @@ class Control(ControlInterface):
         except SerialException:
             log.warning("There is no suitable connection with the device")
 
-    def cancel_movement(self) -> Future[Union[ErrorData, ControlInterface]]:
+    def cancel_movement(self) -> Future:
         """
         This function cancels the current movement. If the controller confirms
         that the movement has been canceled, this function also updates the
