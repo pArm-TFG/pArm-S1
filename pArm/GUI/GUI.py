@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QMessageBox, QMenu, QAction
+from PyQt5.QtWidgets import QMessageBox, QMenu, QAction, QGraphicsView
 from pyqtgraph import PlotWidget
 from concurrent.futures import Future
 from ..utils import AtomicFloat
@@ -51,6 +51,8 @@ class Ui(QtGui.QMainWindow):
 
         #Auxiliar Dirty Counter
         self.counter = 200
+
+        self.green_light = False
 
         #Left Window Section
         self.menu_port = self.findChild(QtWidgets.QMenu, 'menuPort_Selection')
@@ -190,7 +192,69 @@ class Ui(QtGui.QMainWindow):
         self.side_view.setYRange(294, -106, padding = 0)
         self.draw_view_from_angle(graphics, spin_boxes,3)
 
+        self.top_view.mousePressEvent = self.enable_mouse_control
+        self.top_view.mouseMoveEvent = self.top_view_mouse_control
+        self.top_view.mouseReleaseEvent = self.disable_mouse_control
+
+        self.side_view.mousePressEvent = self.enable_mouse_control
+        self.side_view.mouseMoveEvent = self.side_view_mouse_control
+        self.side_view.mouseReleaseEvent = self.disable_mouse_control
+
         self.scan_serial_ports(self.menu_port)
+
+    def enable_mouse_control(self,event):   
+        print('enabled')
+        self.green_light = True
+
+    def top_view_mouse_control(self,event):   
+        if self.green_light:
+            y_coord = event.x()
+            x_coord = event.y()
+
+            x_coord = 106.75 - x_coord
+            x_coord *= (450/170)
+
+            y_coord =  y_coord - 197
+            y_coord *= (930/350)
+            print((x_coord, y_coord))
+
+            if self.combo_box_coordinates.currentIndex() == 1:
+                self.spin_box_1.setValue(x_coord)
+                self.spin_box_2.setValue(y_coord)
+            elif self.combo_box_coordinates.currentIndex() == 0:
+                angles = inverse_kinematics(x_coord, y_coord, self.spin_box_3.value())
+                if angles:
+                    thetas_0, theta_1, theta_2 = angles 
+                    self.spin_box_1.setValue(thetas_0)
+                else:
+                    pass    
+
+    def side_view_mouse_control(self,event):   
+        if self.green_light:
+            x2_coord = event.x()
+            z_coord = event.y()
+            
+            z_coord = 109.75 - z_coord
+            z_coord *= (450/170)
+
+            x2_coord =  x2_coord - 193
+            x2_coord *= (930/350)  
+
+            if self.combo_box_coordinates.currentIndex() == 1:
+                self.spin_box_1.setValue(x2_coord)
+                self.spin_box_3.setValue(z_coord)
+            elif self.combo_box_coordinates.currentIndex() == 0:
+                angles = inverse_kinematics(x2_coord,self.spin_box_2.value(), z_coord)
+                if angles:
+                    thetas_0, theta_1, theta_2 = angles 
+                    self.spin_box_2.setValue(theta_1)
+                    self.spin_box_3.setValue(theta_2)
+                else:
+                    pass     
+
+    def disable_mouse_control(self,event):   
+        print('disabled')        
+        self.green_light = False
 
     def adjust_widget_value(self,type, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, 
                         graphics: QtWidgets.QGraphicsView, index: int, id):                  
