@@ -286,17 +286,17 @@ class Control(ControlInterface):
         :return: The returns from the else statements are possible error codes
         that the arm controller could return.
         """
-        gcode = ["J{}".format(x) for x in range(2, 21)]
+        gcode = {"J{}".format(x) for x in range(2, 21)}
         control_management.request_handshake()
         try:
-            gcode.append('I2')
+            gcode.add('I2')
             found, missed_instructions, n = interpreter.wait_for(gcode)
             if found and isinstance(n, str):
-                gcode.append('I3')
+                gcode.add('I3')
                 found, missed_instructions, e = interpreter.wait_for(gcode)
                 if found and isinstance(e, str):
                     rsa = RSA(int(n), int(e))
-                    gcode.append('I4')
+                    gcode.add('I4')
                     found, missed_instructions, signed_value = \
                         interpreter.wait_for(gcode)
                     if found and isinstance(signed_value, str):
