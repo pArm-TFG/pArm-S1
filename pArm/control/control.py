@@ -5,12 +5,11 @@ from .. import Connection
 from serial import SerialException
 from logging import getLogger
 from .control_interface import ControlInterface
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 from pArm.control import control_management
-from concurrent.futures import ThreadPoolExecutor
-from ..utils import AtomicFloat
+from concurrent.futures import ThreadPoolExecutor, Future
+from ..utils import AtomicFloat, ErrorData
 from .heart_beat import Heart
-
 
 LOWEST_X_VALUE = 0
 HIGHEST_X_VALUE = 300
@@ -24,8 +23,10 @@ log = getLogger("Roger")
 
 class Control(ControlInterface):
 
-    def __init__(self, executor: ThreadPoolExecutor, x=0, y=0, z=0, theta1=0, theta2=0, theta3=0, port=''):
-        super(Control, self).__init__(executor, x, y, z, theta1, theta2, theta3, port)
+    def __init__(self, executor: ThreadPoolExecutor, x=0, y=0, z=0, theta1=0,
+                 theta2=0, theta3=0, port=''):
+        super(Control, self).__init__(executor, x, y, z, theta1, theta2, theta3,
+                                      port)
 
         self._err_fn = None
 
@@ -80,7 +81,9 @@ class Control(ControlInterface):
     def port(self, port):
         self.connection.port = port
 
-    def move_to_xyz(self, x, y, z, time_object: Optional[AtomicFloat] = None):
+    def move_to_xyz(self, x, y, z,
+                    time_object: Optional[AtomicFloat] = None) -> \
+            Future[Union[ErrorData, ControlInterface]]:
         """
         Triggers the needed procedures to move the arm to the cartesian position
         that is indicated in its parameters.
@@ -108,7 +111,12 @@ class Control(ControlInterface):
 
         return self.executor.submit(fn)
 
-    def move_to_thetas(self, theta1, theta2, theta3, time_object: Optional[AtomicFloat] = None):
+    def move_to_thetas(self,
+                       theta1,
+                       theta2,
+                       theta3,
+                       time_object: Optional[AtomicFloat] = None) -> \
+            Future[Union[ErrorData, ControlInterface]]:
         """
         Triggers the needed procedures to move the arm to the angular position
         that is indicated in its parameters.
@@ -128,14 +136,19 @@ class Control(ControlInterface):
             except SerialException:
                 log.warning("There is no suitable connection with the device")
             else:
-                log.debug("theta1, theta2, theta3 values successfully sent to device")
-            control_management.verify_movement_completed(time_object)
+                log.debug(
+                    "theta1, theta2, theta3 values successfully sent to device")
+            err = control_management.verify_movement_completed(time_object)
+            if err:
+                return err
             self.read_cartesian_positions()
             self.read_angular_positions()
+            return self
 
         return self.executor.submit(fn)
 
-    def send_to_origin(self, time_object: Optional[AtomicFloat] = None):
+    def send_to_origin(self, time_object: Optional[AtomicFloat] = None) -> \
+            Future[Union[ErrorData, ControlInterface]]:
         """
         This function send the arm to its initial position.
         :param time_object: the atomic float holder value.
@@ -152,11 +165,15 @@ class Control(ControlInterface):
                 log.warning("There is no suitable connection with the device")
             else:
                 log.debug(f"Device sent to origin")
-            control_management.verify_movement_completed(time_object)
+            err = control_management.verify_movement_completed(time_object)
+            if err:
+                return err
             self.read_cartesian_positions()
             self.read_angular_positions()
 
-        return self.executor(fn)
+            return self
+
+        return self.executor.submit(fn)
 
     def read_cartesian_positions(self):
         """
@@ -194,7 +211,7 @@ class Control(ControlInterface):
         except SerialException:
             log.warning("There is no suitable connection with the device")
 
-    def cancel_movement(self):
+    def cancel_movement(self) -> Future[Union[ErrorData, ControlInterface]]:
         """
         This function cancels the current movement. If the controller confirms
         that the movement has been canceled, this function also updates the
@@ -203,18 +220,23 @@ class Control(ControlInterface):
         """
         control_management.request_cancel_movement()
 
-        gcode = ["J{}".format(x) for x in range(2, 21)]
-        gcode.append('M1')
+        def fn():
+            gcode = ["J{}".format(x) for x in range(2, 21)]
+            gcode.append('M1')
 
-        try:
-            found, missed_instructions, line = interpreter.wait_for(gcode)
-            if found and line is True:
-                self.read_angular_positions()
-                self.read_cartesian_positions()
-            else:
-                return line
-        except SerialException:
-            log.warning("There is no suitable connection with the device")
+            try:
+                found, missed_instructions, line = interpreter.wait_for(gcode)
+                if found and line is True:
+                    self.read_angular_positions()
+                    self.read_cartesian_positions()
+                    return self
+                else:
+                    err_code = int(line[1:])
+                    return interpreter.errors[err_code]
+            except SerialException:
+                log.warning("There is no suitable connection with the device")
+
+        return self.executor.submit(fn)
 
     def read_handshake_values(self, order: str):
         """
@@ -235,20 +257,28 @@ class Control(ControlInterface):
         Starts the handshake procedure.
         The procedure is as follows:
         1. The control application (this software) requests the procedure to start
+
         2. The arm controller sends I2 {n} where n is the module needed to "un-sign"
         a string that will follow.
+
         3. The arm controller sends I3 {e} where e is the exponent needed to "un-sign"
         a string that will follow.
+
         4. The control application (this software) will proceed to create an instance
         of the RSA class with n and e.
+
         5. The arm controller sends I4 {signed integer} where the signed integer
         its a random integer that the arm controller has signed.
+
         6. Using the RSA object the control application (this software) first
         "un-sign" the integer. Then, using the same n and e we encrypt it.
+
         7. Then we use this new encrypted integer to generate the heartbeat
         and  send it back to the arm controller.
+
         8. The arm controller verifies the integer, and if it succeeds,
         it send an I5 to confirm the handshake has been done correctly.
+
         The control application (this software) can also receive an error code
         with the format Jx, where x its an integer between 2 and 21. This can happen
         if at any step, the arm controller receives an unexpected value. This event
@@ -256,26 +286,28 @@ class Control(ControlInterface):
         :return: The returns from the else statements are possible error codes
         that the arm controller could return.
         """
-        gcode = ["J{}".format(x) for x in range(2, 21)]
+        gcode = {"J{}".format(x) for x in range(2, 21)}
         control_management.request_handshake()
         try:
-            gcode.append('I2')
+            gcode.add('I2')
             found, missed_instructions, n = interpreter.wait_for(gcode)
             if found and isinstance(n, str):
-                gcode.append('I3')
+                gcode.add('I3')
                 found, missed_instructions, e = interpreter.wait_for(gcode)
                 if found and isinstance(e, str):
                     rsa = RSA(int(n), int(e))
-                    gcode.append('I4')
-                    found, missed_instructions, signed_value = interpreter.wait_for(gcode)
+                    gcode.add('I4')
+                    found, missed_instructions, signed_value = \
+                        interpreter.wait_for(gcode)
                     if found and isinstance(signed_value, str):
                         verified_value = rsa.verify(int(signed_value))
                         encrypted_value = rsa.encrypt(verified_value)
                         heart = Heart(int(encrypted_value))
                         with self.connection as conn:
-                            conn.write(generator.
-                                       generate_unsigned_string(encrypted_value))
-                            found, missed_instructions, line = interpreter.wait_for('I5')
+                            conn.write(generator
+                                       .generate_unsigned_string(encrypted_value))
+                            found, missed_instructions, line = \
+                                interpreter.wait_for('I5')
                             if found:
                                 log.info("Handshake done.")
                                 heart.start_beating = True

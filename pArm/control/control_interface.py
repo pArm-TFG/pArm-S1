@@ -44,13 +44,12 @@ class ControlInterface(ABC):
         pass
 
     @abstractmethod
-    def cancel_movement(self, time_object: Optional[AtomicFloat] = None):
+    def cancel_movement(self):
         """
         This function sends a request to the arm controller telling it to stop
         the movement that is currently being made. If the controller confirms
         that the movement has been canceled, this function also updates the
         class position variables with the real physical ones.
-        :param time_object: the atomic float holder value.
         :return: no return.
         """
         pass
