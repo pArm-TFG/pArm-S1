@@ -27,7 +27,8 @@ def inverse_kinematics(x_coord, y_coord, z_coord):
         lxz = sqrt(xz)
         theta_1 = acos((-1*(al ** 2) - xz + au ** 2) / (-2 * al * lxz))
         theta_2 = acos((-1*(al ** 2) - au ** 2 + xz) / (-2 * al * au))
-        theta_1 += atan(z_coord/(sqrt(x_coord**2 + y_coord**2)))
+        phi = atan2(z_coord, sqrt(x_coord ** 2 + y_coord ** 2))
+        theta_1 += phi
 
         theta_0 *= (180/pi)
         theta_1 *= (180/pi)
@@ -680,5 +681,4 @@ class Ui(QtGui.QMainWindow):
 
 
 
-            
             
