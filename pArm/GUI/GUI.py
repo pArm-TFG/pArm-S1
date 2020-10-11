@@ -12,6 +12,7 @@ import os
 import pyqtgraph
 import serial.tools.list_ports
 import webbrowser
+from time import sleep
 
 def inverse_kinematics(x_coord, y_coord, z_coord): 
     try:
@@ -53,7 +54,7 @@ class Ui(QtGui.QMainWindow):
         #Auxiliar Dirty Counter
         self.counter = 200
 
-        self.green_light = False
+        self.mouse_enabler = False
 
         #Left Window Section
         self.menu_port = self.findChild(QtWidgets.QMenu, 'menuPort_Selection')
@@ -203,12 +204,22 @@ class Ui(QtGui.QMainWindow):
 
         self.scan_serial_ports(self.menu_port)
 
+    def closeEvent(self, event):
+        ft = self.handler.cancel_movement()
+        msg = QMessageBox()
+        msg.setWindowTitle("Application Shut down")
+        msg.setText("The arm application will be closed and communications with the pArm will be stopped.")
+        msg.setIcon(QMessageBox.Information)
+        msg.setStandardButtons(QMessageBox.Close)
+        x = msg.exec_()
+        ft.add_done_callback(lambda _:  event.accept())
+      
     def enable_mouse_control(self,event):   
         print('enabled')
-        self.green_light = True
+        self.mouse_enabler = True
 
     def top_view_mouse_control(self,event):   
-        if self.green_light:
+        if self.mouse_enabler:
             y_coord = event.x()
             x_coord = event.y()
 
@@ -231,7 +242,7 @@ class Ui(QtGui.QMainWindow):
                     pass    
 
     def side_view_mouse_control(self,event):   
-        if self.green_light:
+        if self.mouse_enabler:
             x2_coord = event.x()
             z_coord = event.y()
             
@@ -255,7 +266,7 @@ class Ui(QtGui.QMainWindow):
 
     def disable_mouse_control(self,event):   
         print('disabled')        
-        self.green_light = False
+        self.mouse_enabler = False
 
     def adjust_widget_value(self,type, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, 
                         graphics: QtWidgets.QGraphicsView, index: int, id):                  
