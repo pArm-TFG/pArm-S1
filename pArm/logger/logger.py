@@ -19,6 +19,9 @@ from logging.handlers import RotatingFileHandler
 from typing import Optional
 
 
+__formatter = None
+
+
 def init_logging(logger_name: Optional[str] = None,
                  log_file: Optional[str] = None,
                  console_level: int = logging.DEBUG,
@@ -40,7 +43,8 @@ def init_logging(logger_name: Optional[str] = None,
 
     :return: the created logging instance
     """
-    formatter = logging.Formatter(log_format)
+    global __formatter
+    __formatter = logging.Formatter(log_format)
     logger = logging.getLogger(logger_name)
     if getattr(logger, 'created', False):
         return logger
@@ -48,7 +52,7 @@ def init_logging(logger_name: Optional[str] = None,
     for handler in logger.handlers:
         if type(handler) is logging.StreamHandler:
             handler.setLevel(console_level)
-            handler.formatter = formatter
+            handler.formatter = __formatter
 
     def file_rotator(source: str, dest: str):
         """
@@ -82,9 +86,32 @@ def init_logging(logger_name: Optional[str] = None,
         file_handler.rotator = file_rotator
         file_handler.namer = namer
         file_handler.setLevel(file_level)
-        file_handler.formatter = formatter
+        file_handler.formatter = __formatter
         if old_log:
             file_handler.doRollover()
         logger.addHandler(file_handler)
 
     return logger
+
+
+def add_handler(handler: logging.Handler,
+                logger_name: Optional[str] = None,
+                level: int = logging.DEBUG,
+                log_format: Optional[str] = None):
+    """
+    Adds a new handler to an existing logger, with the specified formatter
+    in ```init_logging```. If a new format is specified (is not None) then
+    it will be used for this handler.
+
+    :param handler: the new handler to be added.
+    :param logger_name: the logger name to which add the handler.
+    :param level: the logging level for that formatter.
+    :param log_format: the log format used if not formatter was created.
+    """
+    logger = logging.getLogger(logger_name)
+    global __formatter
+    fmt = logging.Formatter(log_format) if log_format else __formatter
+    handler.setFormatter(fmt)
+    handler.setLevel(level)
+
+    logger.addHandler(handler)

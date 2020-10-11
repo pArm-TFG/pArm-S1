@@ -7,12 +7,14 @@ from ..utils.error_data import ErrorData
 from ..control.control_interface import ControlInterface
 from .progress_widget import ProgressWidget
 from .rect_item import RectItem
+from ..logger import add_handler, QTextEditLogger
+import logging
 import math
 import os
 import pyqtgraph
 import serial.tools.list_ports
 import webbrowser
-from time import sleep
+
 
 def inverse_kinematics(x_coord, y_coord, z_coord): 
     try:
@@ -91,7 +93,13 @@ class Ui(QtGui.QMainWindow):
         self.progress_bar.hide()
         
         #Right Window Section
-        self.logger_box =  self.findChild(QtWidgets.QPlainTextEdit, 'LoggerBox')
+        self.logger_box = self.findChild(QtWidgets.QPlainTextEdit, 'LoggerBox')
+        qt_logger = QTextEditLogger(edit_text=self.logger_box)
+        add_handler(qt_logger,
+                    logger_name="Roger",
+                    level=logging.INFO,
+                    log_format="%(asctime)s | [%(""levelname)s]: %(message)s")
+        self.log = logging.getLogger("Roger")
 
         self.top_view = self.findChild(PlotWidget, 'TopView')
         self.side_view = self.findChild(PlotWidget, 'SideView')
@@ -179,9 +187,8 @@ class Ui(QtGui.QMainWindow):
         self.origin_button.clicked.connect(lambda: self.move_to_origin(self.origin_button, sliders, spin_boxes, 
                                             self.combo_box_coordinates.currentIndex()))
 
-        self.logger_box.setReadOnly(1)
-        self.logger_box.insertPlainText("Welcome to the p-Arm GUI!!\nThe arm is now being initialized...\n")
-        self.logger_box.ensureCursorVisible()
+        self.log.info("Welcome to the p-Arm GUI")
+        self.log.info("The arm is now being initialized...")
 
         self.top_view.setBackground("w")
         self.side_view.setBackground("w")
@@ -274,7 +281,7 @@ class Ui(QtGui.QMainWindow):
             if index == 0:
                     self.draw_view_from_angle(graphics, spin_boxes, id)
             elif index == 1:
-                    self.drawViewFromCartesian(graphics, spin_boxes, id)
+                    self.draw_view_from_cartesian(graphics, spin_boxes, id)
             spin_boxes[id-1].setValue(sliders[id-1].value()/10)
         elif type == "spinBox":
             sliders[id-1].setSliderPosition(spin_boxes[id-1].value()*10)
@@ -413,8 +420,11 @@ class Ui(QtGui.QMainWindow):
         msg.setIcon(2)
         x = msg.exec_()
 
-    def execute_movement(self,button : QtWidgets.QPushButton, logger: QtWidgets.QPlainTextEdit, 
-                        spin_boxes: QtWidgets.QDoubleSpinBox, index: int):
+    def execute_movement(self,
+                         button: QtWidgets.QPushButton,
+                         logger: QtWidgets.QPlainTextEdit,
+                         spin_boxes: QtWidgets.QDoubleSpinBox,
+                         index: int):
         if button.State:
             self.progress_bar.show()
             button.setText("Cancel movement")
@@ -424,123 +434,187 @@ class Ui(QtGui.QMainWindow):
             ft = None
             if index == 0:
                 ft = self.handler.move_to_thetas(spin_boxes[0].value(),
-                                            spin_boxes[1].value(),
-                                            spin_boxes[2].value(),
-                                            time_holder_val)
-                self.logger_box.insertPlainText('Sending joints to PCB: ' + str((spin_boxes[0].value(),
-                                                spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
+                                                 spin_boxes[1].value(),
+                                                 spin_boxes[2].value(),
+                                                 time_holder_val)
+                self.log.info(f'Sending joints to pArm: {{'
+                              f't0: {spin_boxes[0].value()}, '
+                              f't1: {spin_boxes[1].value()}, '
+                              f't2: {spin_boxes[2].value()}}}')
             elif index == 1:
                 ft = self.handler.move_to_xyz(spin_boxes[0].value(),
-                                         spin_boxes[1].value(),
-                                         spin_boxes[2].value(),
-                                         time_holder_val)
-                self.logger_box.insertPlainText('Sending coordinates to PCB: ' + str((spin_boxes[0].value(), 
-                                                spin_boxes[1].value(),spin_boxes[2].value())) + '\n')
+                                              spin_boxes[1].value(),
+                                              spin_boxes[2].value(),
+                                              time_holder_val)
+                self.log.info(f'Sending joints to pArm: {{'
+                              f'x: {spin_boxes[0].value()}, '
+                              f'y: {spin_boxes[1].value()}, '
+                              f'z: {spin_boxes[2].value()}}}')
             if ft:
-                ft.add_done_callback(lambda future: self.future_callback(future))     
+                ft.add_done_callback(lambda fut: self.future_callback(fut))
+
         else:
             self.progress_bar.hide()
-            #self.handler.cancel_movement()
+            # self.handler.cancel_movement()
             self.show_popup("Movement Cancelled")
-            self.logger_box.insertPlainText("Movement Cancelled\n")
-            self.logger_box.ensureCursorVisible()
+            self.log.warning('Movement cancelled!')
             button.setText("Execute Movement")
             button.State = True
 
-    def draw_view_from_angle(self,graphics: QtWidgets.QGraphicsView, spin_boxes: QtWidgets.QDoubleSpinBox, id):
+    def draw_view_from_angle(self,
+                             graphics: QtWidgets.QGraphicsView,
+                             spin_boxes: QtWidgets.QDoubleSpinBox, _):
 
-        theta_0, theta_1, theta_2 = spin_boxes[0].value(), spin_boxes[1].value(), spin_boxes[2].value()
+        t0, t1, t2 = spin_boxes[0].value(), \
+                     spin_boxes[1].value(), \
+                     spin_boxes[2].value()
 
-        x_coord1  = 142.07*math.cos((135 - theta_1)*(math.pi/180))
-        x_coord2  = x_coord1 + 158.81*math.cos((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
-        z_coord1 = 142.07*math.sin((135 - theta_1)*(math.pi/180))
-        z_coord2  = z_coord1 - 158.81*math.sin((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
+        math_trans = math.pi / 180
+        x_coord1  = 142.07 * math.cos((135 - t1) * math_trans)
+        x_coord2  = x_coord1 + 158.81 * \
+                    math.cos((180 - (135 - t1) - t2) * math_trans)
+        z_coord1 = 142.07 * math.sin((135 - t1) * math_trans)
+        z_coord2  = z_coord1 - 158.81 * \
+                    math.sin((180 - (135 - t1) - t2) * math_trans)
 
-        y_coord = x_coord2*math.cos(theta_0*(math.pi/180))
-        x_coord = x_coord2*math.sin(theta_0*(math.pi/180))
-        y1_coord = x_coord1*math.cos(theta_0*(math.pi/180))
-        x1_coord = x_coord1*math.sin(theta_0*(math.pi/180))
+        y_coord = x_coord2 * math.cos(t0 * math_trans)
+        x_coord = x_coord2 * math.sin(t0 * math_trans)
+        y1_coord = x_coord1 * math.cos(t0 * math_trans)
+        x1_coord = x_coord1 * math.sin(t0 * math_trans)
 
         graphics[0].clear()
         rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
         graphics[0].addItem(rect_item)
 
-        if self.check_list(theta_0, theta_1, theta_2, x_coord, y_coord, z_coord2):
-            pen1 = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
-            pen2 = pyqtgraph.mkPen(color=(0, 220,215), width=8, style = QtCore.Qt.SolidLine)
+        if self.check_list(t0, t1, t2, x_coord, y_coord, z_coord2):
+            pen1 = pyqtgraph.mkPen(color=(0, 240, 0),
+                                   width=8,
+                                   style=QtCore.Qt.SolidLine)
+            pen2 = pyqtgraph.mkPen(color=(0, 220, 215),
+                                   width=8,
+                                   style=QtCore.Qt.SolidLine)
             self.disable_execute_button(True)
         else:
-            pen1 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
-            pen2 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
-            self.disable_execute_button(False)   
+            pen1 = pyqtgraph.mkPen(color=(255, 0, 0),
+                                   width=8,
+                                   style=QtCore.Qt.SolidLine)
+            pen2 = pyqtgraph.mkPen(color=(255, 0, 0),
+                                   width=8,
+                                   style=QtCore.Qt.SolidLine)
+            self.disable_execute_button(False)
 
-        if(z_coord2 > z_coord1 and x_coord2 > x_coord1): # Upper arm above Lower Arm
-            graphics[0].plot((0,y1_coord),(0,x1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
-            graphics[0].plot((y1_coord,y_coord),(x1_coord,x_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))     
-        elif(z_coord2 < z_coord1 and x_coord2 < x_coord1): # Lowe arm above Upper Arm
-            graphics[0].plot((y1_coord,y_coord),(x1_coord,x_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
-            graphics[0].plot((0,y1_coord),(0,x1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
+        # Upper arm above Lower Arm
+        if z_coord2 > z_coord1 and x_coord2 > x_coord1:
+            graphics[0].plot((0, y1_coord), (0, x1_coord),
+                             pen=pen1, symbol='o',
+                             symbolSize=15, symbolBrush='b')
+            graphics[0].plot((y1_coord, y_coord), (x1_coord, x_coord),
+                             pen=pen2, symbol='o',
+                             symbolSize=15, symbolBrush='b')
+        # Lowe arm above Upper Arm
+        elif z_coord2 < z_coord1 and x_coord2 < x_coord1:
+            graphics[0].plot((y1_coord, y_coord), (x1_coord, x_coord),
+                             pen=pen2, symbol='o',
+                             symbolSize=15, symbolBrush='b')
+            graphics[0].plot((0, y1_coord), (0, x1_coord),
+                             pen=pen1, symbol='o',
+                             symbolSize=15, symbolBrush='b')
         else: # neutral position
-            graphics[0].plot((0,y1_coord),(0,x1_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
-            graphics[0].plot((y1_coord,y_coord),(x1_coord,x_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
+            graphics[0].plot((0, y1_coord), (0, x1_coord),
+                             pen=pen1, symbol='o',
+                             symbolSize=15, symbolBrush='b')
+            graphics[0].plot((y1_coord, y_coord), (x1_coord, x_coord),
+                             pen=pen2, symbol='o',
+                             symbolSize=15, symbolBrush='b')
 
         rect_item2 = RectItem(QtCore.QRectF(-53.05, -106.1, 106.1, 106.1))
 
         graphics[1].clear()
         graphics[1].addItem(rect_item2)
         graphics[1].plot((0, x_coord1),
-                    (0, z_coord1),
-                    pen=pen1,
-                    symbol='o',
-                    symbolSize=15,
-                    symbolBrush='b')
+                         (0, z_coord1),
+                         pen=pen1,
+                         symbol='o',
+                         symbolSize=15,
+                         symbolBrush='b')
         graphics[1].plot((x_coord1, x_coord2),
-                    (z_coord1, z_coord2),
-                    pen=pen2,
-                    symbol='o',
-                    symbolSize=15,
-                    symbolBrush='b')
+                         (z_coord1, z_coord2),
+                         pen=pen2,
+                         symbol='o',
+                         symbolSize=15,
+                         symbolBrush='b')
         
-    def drawViewFromCartesian(self, graphics: QtWidgets.QGraphicsView, spin_boxes: QtWidgets.QDoubleSpinBox, id):
+    def draw_view_from_cartesian(self,
+                                 graphics: QtWidgets.QGraphicsView,
+                                 spin_boxes: QtWidgets.QDoubleSpinBox,
+                                 _):
 
-        x_coord, y_coord, z_coord = spin_boxes[0].value(), spin_boxes[1].value(), spin_boxes[2].value()    
+        x_coord, y_coord, z_coord = spin_boxes[0].value(), \
+                                    spin_boxes[1].value(), \
+                                    spin_boxes[2].value()
        
         angles = inverse_kinematics(x_coord, y_coord, z_coord)
 
         if angles:
-            theta_0, theta_1, theta_2 = angles
-            print(f'(θ⁰: {theta_0}, θ¹: {theta_1}, θ²: {theta_2})')
+            t0, t1, t2 = angles
+            # print(f'(θ⁰: {theta_0}, θ¹: {theta_1}, θ²: {theta_2})')
 
-            if not self.check_list(theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
-                pen1 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
-                pen2 = pyqtgraph.mkPen(color=(255, 0, 0), width=8, style = QtCore.Qt.SolidLine)
+            if not self.check_list(t0, t1, t2, x_coord, y_coord, z_coord):
+                pen1 = pyqtgraph.mkPen(color=(255, 0, 0),
+                                       width=8,
+                                       style=QtCore.Qt.SolidLine)
+                pen2 = pyqtgraph.mkPen(color=(255, 0, 0),
+                                       width=8,
+                                       style=QtCore.Qt.SolidLine)
                 self.disable_execute_button(False)
             else:
-                pen1 = pyqtgraph.mkPen(color=(0, 240, 0), width=8, style = QtCore.Qt.SolidLine)
-                pen2 = pyqtgraph.mkPen(color=(0, 220,215), width=8, style = QtCore.Qt.SolidLine)
+                pen1 = pyqtgraph.mkPen(color=(0, 240, 0),
+                                       width=8,
+                                       style=QtCore.Qt.SolidLine)
+                pen2 = pyqtgraph.mkPen(color=(0, 220, 215),
+                                       width=8,
+                                       style=QtCore.Qt.SolidLine)
                 self.disable_execute_button(True)
 
-            x_coord1  = 142.07*math.cos((135 - theta_1)*(math.pi/180))
-            x_coord2  = x_coord1 + 158.08*math.cos((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
-            z_coord1 = 142.07*math.sin((135 - theta_1)*(math.pi/180))
-            z_coord2  = z_coord1 - 158.08*math.sin((180 - (135 - theta_1) - (theta_2))*(math.pi/180))
+            math_trans = math.pi / 180
+            x_coord1  = 142.07 * math.cos((135 - t1) * math_trans)
+            x_coord2  = x_coord1 + 158.08 * \
+                        math.cos((180 - (135 - t1) - t2) * math_trans)
+            z_coord1 = 142.07 * math.sin((135 - t1) * math_trans)
+            z_coord2  = z_coord1 - 158.08 * \
+                        math.sin((180 - (135 - t1) - t2) * math_trans)
 
-            mid_x = x_coord1*math.sin(theta_0*(math.pi/180))
-            mid_y = x_coord1*math.cos(theta_0*(math.pi/180))
+            mid_x = x_coord1 * math.sin(t0 * math_trans)
+            mid_y = x_coord1 * math.cos(t0 * math_trans)
 
             graphics[0].clear()
             rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
             graphics[0].addItem(rect_item)
 
-            if(z_coord2 > z_coord1 and x_coord2 > x_coord1): # Upper arm above Lower arm
-                graphics[0].plot((0,mid_y),(0,mid_x), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
-                graphics[0].plot((mid_y,y_coord),(mid_x,x_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))     
-            elif(z_coord2 < z_coord1 and x_coord2 < x_coord1): # Lowe arm above Upper arm
-                graphics[0].plot((mid_y,y_coord),(mid_x,x_coord), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
-                graphics[0].plot((0,mid_y),(0,mid_x), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
-            else: # neutral position
-                graphics[0].plot((0,mid_y),(0,mid_x), pen=pen1, symbol='o',symbolSize=15, symbolBrush=('b'))
-                graphics[0].plot((mid_y,y_coord),(mid_x,x_coord), pen=pen2, symbol='o',symbolSize=15, symbolBrush=('b'))
+            # Upper arm above Lower arm
+            if z_coord2 > z_coord1 and x_coord2 > x_coord1:
+                graphics[0].plot((0, mid_y), (0, mid_x),
+                                 pen=pen1, symbol='o',
+                                 symbolSize=15, symbolBrush='b')
+                graphics[0].plot((mid_y, y_coord), (mid_x, x_coord),
+                                 pen=pen2, symbol='o',
+                                 symbolSize=15, symbolBrush='b')
+            # Lowe arm above Upper arm
+            elif z_coord2 < z_coord1 and x_coord2 < x_coord1:
+                graphics[0].plot((mid_y, y_coord), (mid_x, x_coord),
+                                 pen=pen1, symbol='o',
+                                 symbolSize=15, symbolBrush='b')
+                graphics[0].plot((0, mid_y), (0, mid_x),
+                                 pen=pen1, symbol='o',
+                                 symbolSize=15, symbolBrush='b')
+            # neutral position
+            else:
+                graphics[0].plot((0, mid_y), (0, mid_x),
+                                 pen=pen1, symbol='o',
+                                 symbolSize=15, symbolBrush='b')
+                graphics[0].plot((mid_y, y_coord), (mid_x, x_coord),
+                                 pen=pen2, symbol='o',
+                                 symbolSize=15, symbolBrush='b')
 
             graphics[1].clear()
             rect_item2 = RectItem(QtCore.QRectF(-53.05, -106.1, 106.1, 106.1))
@@ -562,20 +636,19 @@ class Ui(QtGui.QMainWindow):
         port_list = serial.tools.list_ports.comports()
         if len(port_list) == 0:
             menu.addAction('No ports available')
-            self.logger_box.insertPlainText('No ports detected yet, please checkout devices connections \n')
+            self.log.warning('No ports available - check connections')
 
         for port in port_list:
             menu.addAction(port.device)
-            self.logger_box.insertPlainText('Port ' + port.device + ' detected & ready. \n')
-
+            self.log.info(f'Port {port.device} detected & ready')
 
     def set_serial_port(self, portID:QAction):
         self.port = portID.iconText()
         self.handler.port = self.port
-        if  not (self.port == 'No ports available'):
-            self.logger_box.insertPlainText('Port ' + self.port + ' selected as serial output')
+        if not (self.port == 'No ports available'):
+            self.log.info(f'Port {self.port} selected as communication bay')
         else:
-            self.logger_box.insertPlainText('No serial ports available, please checkout your usb cable')
+            self.log.warning('No ports available - check connections')
 
     def future_callback(self, ft: Future):
         res = ft.result()
@@ -584,9 +657,9 @@ class Ui(QtGui.QMainWindow):
             self.show_popup(res.err_msg)
             self.execute_button.State = 0
             self.execute_button.setText("Execute Movement")
-            self.logger_box.insertPlainText(f"Error happened: {res.err_msg}\n")
+            self.log.error(f'Error happened during movement: {res.err_msg}')
         elif isinstance(res, ControlInterface):
-            self.logger_box.insertPlainText("The movement has been completed succesfully. \n")
+            self.log.info('Movement was completed successfully')
             if self.combo_box_coordinates.currentIndex() == 0:
                 self.spin_box_1.setValue(res.theta1)
                 self.spin_box_2.setValue(res.theta2)
@@ -596,7 +669,11 @@ class Ui(QtGui.QMainWindow):
                 self.spin_box_2.setValue(res.y)
                 self.spin_box_3.setValue(res.z)
 
-    def move_to_origin(self, button: QtWidgets.QPushButton, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
+    def move_to_origin(self,
+                       button: QtWidgets.QPushButton,
+                       sliders: QtWidgets.QSlider,
+                       spin_boxes: QtWidgets.QDoubleSpinBox,
+                       index):
         if index == 0:
             spin_boxes[0].setValue(90)
             spin_boxes[1].setValue(0)
@@ -605,7 +682,7 @@ class Ui(QtGui.QMainWindow):
             spin_boxes[0].setValue(0)
             spin_boxes[1].setValue(0)
             spin_boxes[2].setValue(0)
-        self.logger_box.insertPlainText("Arm has been moved back to its origin position \n")
+        self.log.info('The arm was reset to origin position')
 
     def disable_execute_button(self, enabler):
         if not enabler:
@@ -615,8 +692,8 @@ class Ui(QtGui.QMainWindow):
             self.execute_button.setText("Execute Movement")
             self.execute_button.setEnabled(True)
 
-    def open_browser_info(self, action:QAction):
-        if action.iconText() ==  'GitHub project':
+    def open_browser_info(self, action: QAction):
+        if action.iconText() == 'GitHub project':
             webbrowser.open("https://github.com/pArm-TFG")
         elif action.iconText() == 'Documentation':
             webbrowser.open('https://github.com/pArm-TFG/Memoria')
@@ -625,71 +702,45 @@ class Ui(QtGui.QMainWindow):
             webbrowser.open('https://www.linkedin.com/in/javinator9889/')
             webbrowser.open('https://www.linkedin.com/in/mihai-octavian-34865419b/')
 
-    def check_list(self,theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
+    def check_list(self, theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
         result = True
 
-        if theta_0 > (151):
+        if theta_0 > 151:
             result = False
             if self.counter == 200:
-                self.logger_box.insertPlainText("Base joint (θ⁰) angle is over 151°\n")
-                self.logger_box.ensureCursorVisible()
+                self.log.warning('Base joint angle (θ⁰) is over 151º')
                 self.counter = 0
             self.counter += 1 
 
         if theta_1 > 135:
             result = False
-            if self.counter == 200:    
-                self.logger_box.insertPlainText("Shoulder joint (θ¹) angle is over 135°\n")
-                self.logger_box.ensureCursorVisible()
+            if self.counter == 200:
+                self.log.warning('Shoulder joint angle (θ¹) is over 135º')
                 self.counter = 0
             self.counter += 1 
 
         if theta_2 > 120:
             result = False
             if self.counter == 200:
-                self.logger_box.insertPlainText("Elbow joint (θ²) angle is over 120°\n")
-                self.logger_box.ensureCursorVisible()
+                self.log.warning('Elbow joint angle (θ²) is over 120º')
                 self.counter = 0
             self.counter += 1 
 
         if math.sqrt(x_coord**2 + y_coord**2 + z_coord**2) > 261:    
             result = False
             
-        if theta_2 >(theta_1 + 55):
+        if theta_2 > (theta_1 + 55):
             result = False
             if self.counter == 200:
-                self.logger_box.insertPlainText("Physical structure limitation\n")
-                self.logger_box.ensureCursorVisible()
+                self.log.critical('Physical structure limit!')
                 self.counter = 0
             self.counter += 1    
 
-        if x_coord < 53.0 and x_coord > -53.0 and z_coord <0 and y_coord < 53.0 and y_coord > -53.0:
+        if 53.0 > x_coord > -53.0 and z_coord < 0 and 53.0 > y_coord > -53.0:
             result = False   
             if self.counter == 200:
-                self.logger_box.insertPlainText("End effector colliding with arm base\n")
-                self.logger_box.ensureCursorVisible()
+                self.log.critical('End-effector colliding with pArm base')
                 self.counter = 0
             self.counter += 1    
             
-        return result        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
+        return result
