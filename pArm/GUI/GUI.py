@@ -634,7 +634,7 @@ class Ui(QtGui.QMainWindow):
         port_list = serial.tools.list_ports.comports()
         if len(port_list) == 0:
             menu.addAction('No ports available')
-            self.log.warning('No ports available - check connections')
+            self.log.warning('No ports available - Check out the connections')
 
         for port in port_list:
             menu.addAction(port.device)
@@ -646,7 +646,7 @@ class Ui(QtGui.QMainWindow):
         if not (self.port == 'No ports available'):
             self.log.info(f'Port {self.port} selected as communication bay')
         else:
-            self.log.warning('No ports available - check connections')
+            self.log.warning('No ports available - Check out the connections')
 
     def future_callback(self, ft: Future):
         res = ft.result()
