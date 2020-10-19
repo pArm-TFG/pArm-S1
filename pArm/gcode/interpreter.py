@@ -147,9 +147,8 @@ def parse_j_order(j_order):
         return 'Arrived to position'
 
 
-def wait_for(gcode: Union[str, Iterable[str]], timer: int = 20) -> Tuple[bool,
-                                                                        List[str],
-                                                                        str]:
+def wait_for(gcode: Union[str, Iterable[str]], timeout: int = 5) -> \
+        Tuple[bool, List[str], str]:
     """
     This function keeps reading the buffer until it finds the GCode that its
     passed as parameter. It is also capable to wait for an order from within an
@@ -157,7 +156,7 @@ def wait_for(gcode: Union[str, Iterable[str]], timer: int = 20) -> Tuple[bool,
 
     :param gcode: The order or interval of orders that the function has to
     look for
-    :param timer: The time that has to elapse until the function reaches timeout
+    :param timeout: The time that has to elapse until the function reaches timeout
     and stops looking for the specified order
     :return: Boolean, to know if the function finished because it found the
     order or because it reached timeout.
@@ -166,9 +165,8 @@ def wait_for(gcode: Union[str, Iterable[str]], timer: int = 20) -> Tuple[bool,
     String, contains the whole line where the order has been found.
     """
     missed_inst = []
-    timeout = time.time() + timer
+    timeout += time.time()
 
-    # with connection as conn:
     line = connection.sreadline()
     log.debug(f"Read line: {line}")
 
@@ -182,5 +180,6 @@ def wait_for(gcode: Union[str, Iterable[str]], timer: int = 20) -> Tuple[bool,
         if line != '':
             missed_inst.append(line)
         time.sleep(0.1)
+        line = connection.sreadline()
 
     return timeout > time.time(), missed_inst, line

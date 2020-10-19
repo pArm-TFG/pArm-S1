@@ -290,7 +290,7 @@ class Control(ControlInterface):
         control_management.request_handshake()
         try:
             gcode.add('I2')
-            found, missed_instructions, line = interpreter.wait_for(gcode)
+            found, missed_instructions, line = interpreter.wait_for(gcode, timeout=20)
             n = interpreter.parse_line(line)
             log.debug("n:"+n)
             if found and isinstance(n, str):
@@ -300,11 +300,12 @@ class Control(ControlInterface):
                 log.debug("e: "+e)
                 if found and isinstance(e, str):
                     n, e = int(n), int(e)
-                    rsa = RSA(n, e)
+                    rsa = RSA(n=n, e=e)
                     gcode.add('I4')
                     found, missed_instructions, line = \
                         interpreter.wait_for(gcode)
                     signed_value = interpreter.parse_line(line)
+                    print(signed_value)
                     if found and isinstance(signed_value, str):
                         signed_value = int(signed_value)
                         verified_value = rsa.verify(signed_value)
@@ -317,7 +318,7 @@ class Control(ControlInterface):
                             gcode.add('I5')
                             log.debug("He escrito el valor encriptado")
                             found, missed_instructions, line = \
-                                interpreter.wait_for(gcode)
+                                interpreter.wait_for('I5')
                             if found:
                                 log.info("Handshake done.")
                                 heart.start_beating = True
