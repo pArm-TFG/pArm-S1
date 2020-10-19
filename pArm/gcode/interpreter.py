@@ -171,9 +171,12 @@ def wait_for(gcode: Union[str, Iterable[str]], timer: int = 5) -> Tuple[bool,
     line = connection.sreadline()
 
     def check_valid(c_line, gcode) -> bool:
-        return c_line in gcode if isinstance(gcode, Iterable) else c_line != gcode
+        if len(c_line) == 0:
+            return False
+        code = c_line.split()[0]
+        return code in gcode if isinstance(gcode, Iterable) else code != gcode
 
-    while not check_valid(line.split()[0], gcode) and time.time() <= timeout:
+    while not check_valid(line, gcode) and time.time() <= timeout:
         if line != '':
             missed_inst.append(line)
         time.sleep(0.1)
