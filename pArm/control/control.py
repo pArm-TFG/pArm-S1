@@ -299,19 +299,21 @@ class Control(ControlInterface):
                 e = interpreter.parse_line(line)
                 log.debug("e: "+e)
                 if found and isinstance(e, str):
-                    rsa = RSA(int(n), int(e))
+                    n, e = int(n), int(e)
+                    rsa = RSA(n, e)
                     gcode.add('I4')
                     found, missed_instructions, line = \
                         interpreter.wait_for(gcode)
                     signed_value = interpreter.parse_line(line)
                     if found and isinstance(signed_value, str):
-                        verified_value = rsa.verify(int(signed_value))
-                        encrypted_value = rsa.encrypt(int(verified_value))
-                        heart = Heart(int(encrypted_value))
+                        signed_value = int(signed_value)
+                        verified_value = rsa.verify(signed_value)
+                        encrypted_value = rsa.encrypt(verified_value)
+                        heart = Heart(encrypted_value)
                         log.debug("Se ha iniciado el corazon")
                         with self.connection as conn:
                             conn.write(generator
-                                       .generate_unsigned_string(str(encrypted_value)))
+                                       .generate_unsigned_string(encrypted_value))
                             gcode.add('I5')
                             log.debug("He escrito el valor encriptado")
                             found, missed_instructions, line = \

@@ -1,5 +1,11 @@
+import logging
+import math
+import os
+import pyqtgraph
+import serial.tools.list_ports
+import webbrowser
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QMessageBox, QMenu, QAction, QGraphicsView
+from PyQt5.QtWidgets import QMessageBox, QMenu, QAction
 from pyqtgraph import PlotWidget
 from concurrent.futures import Future
 from ..utils import AtomicFloat
@@ -8,12 +14,6 @@ from ..control.control_interface import ControlInterface
 from .progress_widget import ProgressWidget
 from .rect_item import RectItem
 from ..logger import add_handler, QTextEditLogger
-import logging
-import math
-import os
-import pyqtgraph
-import serial.tools.list_ports
-import webbrowser
 
 
 def inverse_kinematics(x_coord, y_coord, z_coord): 
@@ -41,8 +41,8 @@ def inverse_kinematics(x_coord, y_coord, z_coord):
     except ValueError:
         return None
 
-class Ui(QtGui.QMainWindow):
 
+class Ui(QtWidgets.QMainWindow):
     def __init__(self, control: ControlInterface):
         super(Ui, self).__init__()
         uic.loadUi(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'InProgressGUI.ui'), self)
@@ -116,13 +116,13 @@ class Ui(QtGui.QMainWindow):
 
         # Extra setting initialization
         if getattr(self.slider_1, "id", None) is None:
-            setattr(self.slider_1,"id", 1)
+            setattr(self.slider_1, "id", 1)
 
         if getattr(self.slider_2, "id", None) is None:
-            setattr(self.slider_2,"id", 2)
+            setattr(self.slider_2, "id", 2)
 
         if getattr(self.slider_3, "id", None) is None:
-            setattr(self.slider_3,"id", 3)
+            setattr(self.slider_3, "id", 3)
 
         self.slider_1.setMaximum(1510)
         self.slider_1.setMinimum(0)
@@ -218,14 +218,13 @@ class Ui(QtGui.QMainWindow):
         msg.setText("The arm application will be closed and communications with the pArm will be stopped.")
         msg.setIcon(QMessageBox.Information)
         msg.setStandardButtons(QMessageBox.Close)
-        x = msg.exec_()
+        msg.exec_()
         ft.add_done_callback(lambda _:  event.accept())
       
-    def enable_mouse_control(self,event):   
-        print('enabled')
+    def enable_mouse_control(self, event):
         self.mouse_enabler = True
 
-    def top_view_mouse_control(self,event):   
+    def top_view_mouse_control(self, event):
         if self.mouse_enabler:
             y_coord = event.x()
             x_coord = event.y()
@@ -233,9 +232,8 @@ class Ui(QtGui.QMainWindow):
             x_coord = 106.75 - x_coord
             x_coord *= (450/170)
 
-            y_coord =  y_coord - 197
+            y_coord = y_coord - 197
             y_coord *= (930/350)
-            print((x_coord, y_coord))
 
             if self.combo_box_coordinates.currentIndex() == 1:
                 self.spin_box_1.setValue(x_coord)
@@ -248,7 +246,7 @@ class Ui(QtGui.QMainWindow):
                 else:
                     pass    
 
-    def side_view_mouse_control(self,event):   
+    def side_view_mouse_control(self, event):
         if self.mouse_enabler:
             x2_coord = event.x()
             z_coord = event.y()
@@ -256,14 +254,16 @@ class Ui(QtGui.QMainWindow):
             z_coord = 109.75 - z_coord
             z_coord *= (450/170)
 
-            x2_coord =  x2_coord - 193
+            x2_coord = x2_coord - 193
             x2_coord *= (930/350)  
 
             if self.combo_box_coordinates.currentIndex() == 1:
                 self.spin_box_1.setValue(x2_coord)
                 self.spin_box_3.setValue(z_coord)
             elif self.combo_box_coordinates.currentIndex() == 0:
-                angles = inverse_kinematics(x2_coord,self.spin_box_2.value(), z_coord)
+                angles = inverse_kinematics(x2_coord,
+                                            self.spin_box_2.value(),
+                                            z_coord)
                 if angles:
                     thetas_0, theta_1, theta_2 = angles 
                     self.spin_box_2.setValue(theta_1)
@@ -271,8 +271,7 @@ class Ui(QtGui.QMainWindow):
                 else:
                     pass     
 
-    def disable_mouse_control(self,event):   
-        print('disabled')        
+    def disable_mouse_control(self, _):
         self.mouse_enabler = False
 
     def adjust_widget_value(self,type, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, 
@@ -286,7 +285,7 @@ class Ui(QtGui.QMainWindow):
         elif type == "spinBox":
             sliders[id-1].setSliderPosition(spin_boxes[id-1].value()*10)
 
-    def labe_color_change(self,label: QtWidgets.QLabel,r, g, b):
+    def labe_color_change(self, label: QtWidgets.QLabel,r, g, b):
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(r, g, b))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -401,24 +400,24 @@ class Ui(QtGui.QMainWindow):
 
     def coordinates_highlight(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,
                             sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):            
-        if index == 1 :
+        if index == 1:
             self.set_cartesian_highlight(sliders_labels,sliders,spin_boxes)
-        elif index == 0 :
+        elif index == 0:
             self.set_angular_highlight(sliders_labels,sliders,spin_boxes)
 
     def switch_coordinate_menu(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders:
                              QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
-        if index == 1 :
+        if index == 1:
             self.set_cartesian_menu(sliders_labels, sliders, spin_boxes)
-        elif index == 0 :
+        elif index == 0:
             self.set_angular_menu(sliders_labels, sliders, spin_boxes)
 
-    def show_popup(self,message: str):
+    def show_popup(self, message: str):
         msg = QMessageBox()
         msg.setWindowTitle("Warning")
         msg.setText(message)
         msg.setIcon(2)
-        x = msg.exec_()
+        msg.exec_()
 
     def execute_movement(self,
                          button: QtWidgets.QPushButton,
@@ -455,7 +454,7 @@ class Ui(QtGui.QMainWindow):
 
         else:
             self.progress_bar.hide()
-            # self.handler.cancel_movement()
+            self.handler.cancel_movement()
             self.show_popup("Movement Cancelled")
             self.log.warning('Movement cancelled!')
             button.setText("Execute Movement")
@@ -519,7 +518,7 @@ class Ui(QtGui.QMainWindow):
             graphics[0].plot((0, y1_coord), (0, x1_coord),
                              pen=pen1, symbol='o',
                              symbolSize=15, symbolBrush='b')
-        else: # neutral position
+        else:  # neutral position
             graphics[0].plot((0, y1_coord), (0, x1_coord),
                              pen=pen1, symbol='o',
                              symbolSize=15, symbolBrush='b')

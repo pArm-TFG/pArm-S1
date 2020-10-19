@@ -25,19 +25,24 @@ logging.basicConfig(level=logging.NOTSET)
 
 
 def main():
-    init_logging("Roger", log_file="p-Arm.log")
-    app = QtWidgets.QApplication(sys.argv)
-    app.setWindowIcon(QtGui.QIcon("yo.jpg"))
+    try:
+        init_logging("Roger", log_file="p-Arm.log")
+        app = QtWidgets.QApplication(sys.argv)
+        app.setWindowIcon(QtGui.QIcon("yo.jpg"))
 
-    executor = ThreadPoolExecutor()
+        executor = ThreadPoolExecutor()
 
-    sys_control = Control(executor)
+        sys_control = Control(executor)
 
-    ui = GUI.Ui(sys_control)
-    ui.setupGUI()
-    ui.show()
+        ui = GUI.Ui(sys_control)
+        ui.setupGUI()
+        ui.show()
 
-    sys.exit(app.exec_())
+        sys.exit(app.exec_())
+    except Exception as e:
+        log = logging.getLogger("Roger")
+        log.critical(f"Unexpected error '{e}' while executing application!",
+                     exc_info=True)
 
 
 if __name__ == '__main__':
