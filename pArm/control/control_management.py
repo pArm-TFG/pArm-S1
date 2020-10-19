@@ -105,7 +105,7 @@ def request_cancel_movement():
     except SerialException:
         log.warning("There is no suitable connection with the device", exc_info=True)
     else:
-        log.debug(f"Requested move to origin")
+        log.debug(f"Requested cancel movement")
 
 
 def request_handshake():

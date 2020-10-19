@@ -29,8 +29,7 @@ class Heart:
         byte_stream = generator.generate_heart_beat(self.beat)
 
         try:
-            with connection as conn:
-                conn.write(byte_stream)
+            connection.write(byte_stream)
         except SerialException:
             log.warning("There is no suitable connection with the device", exc_info=True)
 
@@ -42,5 +41,5 @@ class Heart:
         """
         while self.is_beating:
             self.heartbeat_tick()
-            time.sleep(.2)
+            time.sleep(.195)
 
