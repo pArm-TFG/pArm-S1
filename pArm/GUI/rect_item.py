@@ -18,6 +18,14 @@ from PyQt5 import QtCore, QtGui
 
 
 class RectItem(qtg.GraphicsObject):
+    """
+    Custom graphics object for drawing a rectangle in Qt.
+    Receives a QRectF containing the points in which the rectangle
+    must start and must end.
+
+    :param rect: the rectangle vertices.
+    :param parent: optional parent at which is attached.
+    """
     def __init__(self, rect: QtCore.QRectF, parent=None):
         super(RectItem, self).__init__(parent)
         self.__rect = rect
@@ -26,10 +34,17 @@ class RectItem(qtg.GraphicsObject):
 
     @property
     def rect(self):
+        """
+        Access the rectangular vertices item.
+        :return: QtCore.QRectF object.
+        """
         # Read-only property
         return self.__rect
 
     def _gen_picture(self):
+        """
+        Generates the rectangle and paints it in pyqtgraph.
+        """
         painter = QtGui.QPainter(self.picture)
         painter.setPen(qtg.mkPen('w'))
         painter.setBrush(qtg.mkBrush((130,130,130)))
@@ -37,7 +52,18 @@ class RectItem(qtg.GraphicsObject):
         painter.end()
 
     def paint(self, painter: QtGui.QPainter, options, widget=None):
+        """
+        Starts painting the rectangle.
+        :param painter: the QPainter object.
+        :param options: options to pass to the painter (actually ignored).
+        :param widget: widget to use with the painter (actually ignored)
+        """
         painter.drawPicture(0, 0, self.picture)
 
     def boundingRect(self):
+        """
+        Generates the bounding rectangle by using the generated picture.
+
+        :return: QtCore.QRectF
+        """
         return QtCore.QRectF(self.picture.boundingRect())

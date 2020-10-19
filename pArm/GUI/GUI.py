@@ -557,8 +557,6 @@ class Ui(QtGui.QMainWindow):
 
         if angles:
             t0, t1, t2 = angles
-            # print(f'(θ⁰: {theta_0}, θ¹: {theta_1}, θ²: {theta_2})')
-
             if not self.check_list(t0, t1, t2, x_coord, y_coord, z_coord):
                 pen1 = pyqtgraph.mkPen(color=(255, 0, 0),
                                        width=8,
@@ -636,7 +634,7 @@ class Ui(QtGui.QMainWindow):
         port_list = serial.tools.list_ports.comports()
         if len(port_list) == 0:
             menu.addAction('No ports available')
-            self.log.warning('No ports available - check connections')
+            self.log.warning('No ports available - Check out the connections')
 
         for port in port_list:
             menu.addAction(port.device)
@@ -649,7 +647,7 @@ class Ui(QtGui.QMainWindow):
             self.log.info(f'Port {self.port} selected as communication bay')
             self.handler.do_handshake()
         else:
-            self.log.warning('No ports available - check connections')
+            self.log.warning('No ports available - Check out the connections')
 
     def future_callback(self, ft: Future):
         res = ft.result()
@@ -709,21 +707,21 @@ class Ui(QtGui.QMainWindow):
         if theta_0 > 151:
             result = False
             if self.counter == 200:
-                self.log.warning('Base joint angle (θ⁰) is over 151º')
+                self.log.warning('Base joint angle (t0) is over 151º')
                 self.counter = 0
             self.counter += 1 
 
         if theta_1 > 135:
             result = False
             if self.counter == 200:
-                self.log.warning('Shoulder joint angle (θ¹) is over 135º')
+                self.log.warning('Shoulder joint angle (t1) is over 135º')
                 self.counter = 0
             self.counter += 1 
 
         if theta_2 > 120:
             result = False
             if self.counter == 200:
-                self.log.warning('Elbow joint angle (θ²) is over 120º')
+                self.log.warning('Elbow joint angle (t2) is over 120º')
                 self.counter = 0
             self.counter += 1 
 
