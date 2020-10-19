@@ -310,18 +310,17 @@ class Control(ControlInterface):
                         signed_value = int(signed_value)
                         verified_value = rsa.verify(signed_value)
                         encrypted_value = rsa.encrypt(verified_value)
-                        heart = Heart(encrypted_value)
+                        heart = Heart(encrypted_value, conn=self.connection)
                         log.debug("Se ha iniciado el corazon")
-                        with self.connection as conn:
-                            conn.write(generator
-                                       .generate_unsigned_string(encrypted_value))
-                            gcode.add('I5')
-                            log.debug("He escrito el valor encriptado")
-                            found, missed_instructions, line = \
-                                interpreter.wait_for('I5')
-                            if found:
-                                log.info("Handshake done.")
-                                heart.start_beating = True
+                        conn.write(generator
+                                   .generate_unsigned_string(encrypted_value))
+                        gcode.add('I5')
+                        log.debug("He escrito el valor encriptado")
+                        found, missed_instructions, line = \
+                            interpreter.wait_for('I5')
+                        if found:
+                            log.info("Handshake done.")
+                            heart.start_beating = True
                     else:
                         self.connection.ser.close()
                         return signed_value

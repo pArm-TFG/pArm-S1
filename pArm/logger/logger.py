@@ -52,7 +52,7 @@ def init_logging(logger_name: Optional[str] = None,
     for handler in logger.handlers:
         if type(handler) is logging.StreamHandler:
             handler.setLevel(console_level)
-            handler.formatter = __formatter
+            handler.setFormatter(__formatter)
 
     def file_rotator(source: str, dest: str):
         """

@@ -1,23 +1,36 @@
-from threading import Thread
-from .. import Connection
-from serial import SerialException
-from logging import getLogger
-from ..gcode import generator
 import time
+from typing import Optional
+from threading import Thread
+from logging import getLogger
+from serial import SerialException
+from .. import Connection
 
-connection = Connection()
 log = getLogger("Roger")
 
 
 class Heart:
-
-    def __init__(self, beat: int = 0, start_beating: bool = False):
-
-        self.beat = beat
-        self.is_beating = start_beating
+    def __init__(self,
+                 beat: int = 0,
+                 start_beating: bool = False,
+                 conn: Optional[Connection] = None):
+        self.beat = f"I7 {beat}".encode('utf-8')
+        self._is_beating = start_beating
+        self.connection = conn if conn else Connection()
+        self._t = Thread(target=lambda: self.background_repeated_heartbeat())
         if start_beating:
-            t = Thread(target=lambda: self.background_repeated_heartbeat())
-            t.start()
+            self._t.start()
+
+    @property
+    def is_beating(self):
+        return self._is_beating
+
+    @is_beating.setter
+    def is_beating(self, val: bool):
+        self._is_beating = val
+        if val and not self._t.is_alive():
+            self._t.start()
+        elif not val and self._t.is_alive():
+            self._t.join()
 
     def heartbeat_tick(self):
         """
@@ -26,12 +39,12 @@ class Heart:
         :return: no return.
         """
 
-        byte_stream = generator.generate_heart_beat(self.beat)
-
         try:
-            connection.write(byte_stream)
+            log.debug('Ticking')
+            self.connection.write(self.beat)
         except SerialException:
-            log.warning("There is no suitable connection with the device", exc_info=True)
+            log.warning("There is no suitable connection with the device",
+                        exc_info=True)
 
     def background_repeated_heartbeat(self):
         """
