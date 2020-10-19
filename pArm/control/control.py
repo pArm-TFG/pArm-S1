@@ -312,6 +312,8 @@ class Control(ControlInterface):
                                 log.info("Handshake done.")
                                 heart.start_beating = True
                     else:
+                        with self.connection as conn:
+                            conn.ser.close()
                         return signed_value
                 else:
                     return e
