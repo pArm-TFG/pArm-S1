@@ -54,6 +54,43 @@ class ControlInterface(ABC):
         """
         pass
 
+    @abstractmethod
+    def do_handshake(self):
+        """
+       Starts the handshake procedure.
+       The procedure is as follows:
+       1. The control application (this software) requests the procedure to start
+
+       2. The arm controller sends I2 {n} where n is the module needed to "un-sign"
+       a string that will follow.
+
+       3. The arm controller sends I3 {e} where e is the exponent needed to "un-sign"
+       a string that will follow.
+
+       4. The control application (this software) will proceed to create an instance
+       of the RSA class with n and e.
+
+       5. The arm controller sends I4 {signed integer} where the signed integer
+       its a random integer that the arm controller has signed.
+
+       6. Using the RSA object the control application (this software) first
+       "un-sign" the integer. Then, using the same n and e we encrypt it.
+
+       7. Then we use this new encrypted integer to generate the heartbeat
+       and  send it back to the arm controller.
+
+       8. The arm controller verifies the integer, and if it succeeds,
+       it send an I5 to confirm the handshake has been done correctly.
+
+       The control application (this software) can also receive an error code
+       with the format Jx, where x its an integer between 2 and 21. This can happen
+       if at any step, the arm controller receives an unexpected value. This event
+       would finish the handshaking procedure and the pairing would fail.
+       :return: The returns from the else statements are possible error codes
+       that the arm controller could return.
+       """
+        pass
+
     @property
     @abstractmethod
     def err_fn(self) -> Callable[[int, str], None]:

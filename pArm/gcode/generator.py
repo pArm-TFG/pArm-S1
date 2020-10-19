@@ -9,7 +9,7 @@ def generate_xyz_movement(x, y, z):
     :param z: z position to there the arm end effector should move
     :return: the actual Gcode, ready to be sent.
     """
-    return f"G0 X{x} Y{y} Z{z}".encode('utf-8')
+    return f"G0 X{x} Y{y} Z{z}\n".encode('utf-8')
 
 
 def generate_theta_movement(theta1, theta2, theta3):
@@ -22,7 +22,7 @@ def generate_theta_movement(theta1, theta2, theta3):
     :param theta3: angle to which the elbow motor shall move.
     :return: the actual Gcode, ready to be sent.
     """
-    return f"G1 X{theta1} Y{theta2} Z{theta3}".encode('utf-8')
+    return f"G1 X{theta1} Y{theta2} Z{theta3}\n".encode('utf-8')
 
 
 def generate_send_to_origin():
@@ -31,7 +31,7 @@ def generate_send_to_origin():
     This process is called zeroing
     :return: the actual Gcode, ready to be sent.
     """
-    return 'G28'.encode('utf-8')
+    return 'G28\n'.encode('utf-8')
 
 
 def generate_cancel_movement():
@@ -40,7 +40,7 @@ def generate_cancel_movement():
     the arm is actually doing.
     :return: the actual Gcode, ready to be sent.
     """
-    return 'M1'.encode('utf-8')
+    return 'M1\n'.encode('utf-8')
 
 
 def generate_request_cartesian_position():
@@ -49,7 +49,7 @@ def generate_request_cartesian_position():
     arm currently is.
     :return: the actual Gcode, ready to be sent.
     """
-    return 'M114'.encode('utf-8')
+    return 'M114\n'.encode('utf-8')
 
 
 def generate_request_angular_position():
@@ -58,7 +58,7 @@ def generate_request_angular_position():
     arm currently is.
     :return: the actual Gcode, ready to be sent.
     """
-    return 'M280'.encode('utf-8')
+    return 'M280\n'.encode('utf-8')
 
 
 def generate_request_n_e():
@@ -67,7 +67,7 @@ def generate_request_n_e():
     needed to calculate the public key of the device.
     :return: the actual Gcode, ready to be sent.
     """
-    return 'I1'.encode('utf-8')
+    return 'I1\n'.encode('utf-8')
 
 
 def generate_unsigned_string(unsigned_string):
@@ -76,7 +76,7 @@ def generate_unsigned_string(unsigned_string):
     :param unsigned_string: unsigned string to be sent to the device
     :return: the actual Gcode, ready to be sent.
     """
-    return f'I5 {unsigned_string}'.encode('utf-8')
+    return f'I5 {unsigned_string}\n'.encode('utf-8')
 
 
 def generate_recalculate_keys(encrypted_string):
@@ -85,7 +85,7 @@ def generate_recalculate_keys(encrypted_string):
     authentication process.
     :return: the actual Gcode, ready to be sent.
     """
-    return f'I6 {encrypted_string}'.encode('utf-8')
+    return f'I6 {encrypted_string}\n'.encode('utf-8')
 
 
 def generate_heart_beat(beat):
@@ -94,7 +94,7 @@ def generate_heart_beat(beat):
     :param beat: the message that goes into the heartbeat
     :return: the actual GCode, ready to be sent.
     """
-    return f'I7 {beat}'.encode('utf-8')
+    return f'I7 {beat}\n'.encode('utf-8')
 
 
 

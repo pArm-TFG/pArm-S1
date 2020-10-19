@@ -40,7 +40,7 @@ def read_buffer_line():
         with connection as conn:
             line = conn.readline()
     except SerialException:
-        log.warning("There is no suitable connection with the device")
+        log.warning("There is no suitable connection with the device", exc_info=True)
     else:
         log.debug("Line read successfully")
 
@@ -81,7 +81,7 @@ def parse_i_order(i_order):
     :return: returns the parameter of the order.
     """
     split_order = i_order.split(' ')
-    order_number = int(i_order[0][1:])
+    order_number = int(split_order[0][1:])
 
     if order_number == 2:
         return split_order[1]
@@ -147,7 +147,7 @@ def parse_j_order(j_order):
         return 'Arrived to position'
 
 
-def wait_for(gcode: Union[str, Iterable[str]], timer: int = 5) -> Tuple[bool,
+def wait_for(gcode: Union[str, Iterable[str]], timer: int = 20) -> Tuple[bool,
                                                                         List[str],
                                                                         str]:
     """
@@ -168,14 +168,16 @@ def wait_for(gcode: Union[str, Iterable[str]], timer: int = 5) -> Tuple[bool,
     missed_inst = []
     timeout = time.time() + timer
 
+    # with connection as conn:
     line = connection.sreadline()
+    log.debug(f"Read line: {line}")
 
     def check_valid(c_line, gcode) -> bool:
         return c_line in gcode if isinstance(gcode, Iterable) else c_line != gcode
 
-    while not check_valid(line.split()[0], gcode) and time.time() <= timeout:
+    while line != '' and not check_valid(line.split()[0], gcode) and time.time() <= timeout:
         if line != '':
             missed_inst.append(line)
         time.sleep(0.1)
 
-    return timeout < time.time(), missed_inst, line
+    return timeout > time.time(), missed_inst, line

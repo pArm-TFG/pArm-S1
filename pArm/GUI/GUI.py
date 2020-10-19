@@ -647,6 +647,7 @@ class Ui(QtGui.QMainWindow):
         self.handler.port = self.port
         if not (self.port == 'No ports available'):
             self.log.info(f'Port {self.port} selected as communication bay')
+            self.handler.do_handshake()
         else:
             self.log.warning('No ports available - check connections')
 

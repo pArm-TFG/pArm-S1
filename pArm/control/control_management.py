@@ -8,7 +8,7 @@ import logging
 from ..utils import AtomicFloat
 from typing import Optional
 
-log = getLogger()
+log = getLogger("Roger")
 connection = Connection()
 
 
@@ -37,7 +37,7 @@ def verify_movement_completed(time_object: Optional[AtomicFloat] = None):
             return line_meaning
 
     except SerialException:
-        log.warning("There is no suitable connection with the device")
+        log.warning("There is no suitable connection with the device", exc_info=True)
 
 
 def request_cartesian_position():
@@ -52,7 +52,7 @@ def request_cartesian_position():
         with connection as conn:
             conn.write(byte_stream)
     except SerialException:
-        log.warning("There is no suitable connection with the device")
+        log.warning("There is no suitable connection with the device", exc_info=True)
     else:
         log.debug(f"Cartesian position requested")
 
@@ -69,7 +69,7 @@ def request_angular_position():
         with connection as conn:
             conn.write(byte_stream)
     except SerialException:
-        log.warning("There is no suitable connection with the device")
+        log.warning("There is no suitable connection with the device", exc_info=True)
     else:
         log.debug(f"Angular position requested")
 
@@ -87,7 +87,7 @@ def request_recalculate_keys():
         with connection as conn:
             conn.write(byte_stream)
     except SerialException:
-        log.warning("There is no suitable connection with the device")
+        log.warning("There is no suitable connection with the device", exc_info=True)
     else:
         log.debug(f"Key recalculation requested")
 
@@ -103,7 +103,7 @@ def request_cancel_movement():
         with connection as conn:
             conn.write(byte_stream)
     except SerialException:
-        log.warning("There is no suitable connection with the device")
+        log.warning("There is no suitable connection with the device", exc_info=True)
     else:
         log.debug(f"Requested move to origin")
 
@@ -117,9 +117,10 @@ def request_handshake():
     """
     byte_stream = generator.generate_request_n_e()
     try:
-        with connection as conn:
-            conn.write(byte_stream)
+        if not connection.is_open:
+            connection.ser.open()
+        connection.write(byte_stream)
     except SerialException:
-        log.warning("There is no suitable connection with the device")
+        log.warning("There is no suitable connection with the device", exc_info=True)
     else:
         log.debug(f"Requested handshake start")

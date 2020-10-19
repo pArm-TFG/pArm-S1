@@ -32,7 +32,7 @@ class Heart:
             with connection as conn:
                 conn.write(byte_stream)
         except SerialException:
-            log.warning("There is no suitable connection with the device")
+            log.warning("There is no suitable connection with the device", exc_info=True)
 
     def background_repeated_heartbeat(self):
         """

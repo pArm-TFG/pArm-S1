@@ -16,6 +16,9 @@
 import serial
 from typing import Optional
 from threading import Lock
+import logging
+
+log = logging.getLogger("Roger")
 
 
 class Connection:
@@ -50,8 +53,13 @@ class Connection:
         :param should_open: if true, the port is opened
         """
         if self.__must_init:
-            self.ser = serial.Serial(baudrate=baudrate)
+            self.ser = serial.Serial()
             self.ser.port = port
+            self.ser.baudrate = baudrate
+            self.ser.bytesize = 8
+            self.ser.parity = serial.PARITY_NONE
+            self.ser.stopbits = 1
+            self.ser.timeout = 3
             self.lock = Lock()
             self._port = port
             if should_open:
@@ -122,9 +130,7 @@ class Connection:
         """
 
         with self.lock:
-            line = self.ser.read()
-
-        return line
+            return self.ser.readline()
 
     def sreadline(self, encoding: str = 'utf-8') -> str:
         """
@@ -137,7 +143,6 @@ class Connection:
     def readall(self) -> bytes:
         """
         Reads all the serial buffer.
-
         :return: the entire buffer in bytes.
         """
 
