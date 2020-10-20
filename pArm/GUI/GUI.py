@@ -222,6 +222,7 @@ class Ui(QtWidgets.QMainWindow):
         self.side_view.setBackground("w")
 
         self.top_view.setXRange(-400, 400, padding = 0)
+        self.top_view.invertX(True)
         self.top_view.setYRange(280,-120, padding = 0)
         pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
         self.draw_view_from_angle(graphics, spin_boxes,1)
@@ -286,9 +287,9 @@ class Ui(QtWidgets.QMainWindow):
 
             if self.combo_box_coordinates.currentIndex() == 1:
                 self.spin_box_1.setValue(x_coord)
-                self.spin_box_2.setValue(y_coord)
+                self.spin_box_2.setValue(- y_coord) #negative y coord due to inverted Y axis on top view
             elif self.combo_box_coordinates.currentIndex() == 0:
-                angles = inverse_kinematics(x_coord, y_coord, self.spin_box_3.value())
+                angles = inverse_kinematics(x_coord, -y_coord, self.spin_box_3.value())
                 if angles:
                     thetas_0, theta_1, theta_2 = angles 
                     self.spin_box_1.setValue(thetas_0)
@@ -316,7 +317,7 @@ class Ui(QtWidgets.QMainWindow):
             x2_coord *= (930/350)  
 
             if self.combo_box_coordinates.currentIndex() == 1:
-                self.spin_box_1.setValue(x2_coord)
+                self.spin_box_1.setValue(x2_coord) 
                 self.spin_box_3.setValue(z_coord)
             elif self.combo_box_coordinates.currentIndex() == 0:
                 angles = inverse_kinematics(x2_coord,
@@ -618,7 +619,7 @@ class Ui(QtWidgets.QMainWindow):
         '''
         This method perform the calculations need to draw the arm preview. This
         calculations are made from the angles selected by the user and by using 
-        the shortened direct kinematics model
+        the shortened direct kinematics model.
 
         :param graphics: List of graphic views widgets.
         :param spin_boxes: List of spinboxes widgets.
@@ -925,8 +926,13 @@ class Ui(QtWidgets.QMainWindow):
             webbrowser.open('https://www.linkedin.com/in/mihai-octavian-34865419b/')
 
     def check_list(self, theta_0, theta_1, theta_2, x_coord, y_coord, z_coord):
+        '''
+        This method is used verificate whether a given arm's position is reachableç
+        or not.
+        :param theta_i coords: angular coordinates of the arm.
+        :param x, y, z coords: cartesian coordinate of the arm.
+        '''
         result = True
-
         if theta_0 > 151:
             result = False
             if self.counter == 200:
