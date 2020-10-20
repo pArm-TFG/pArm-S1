@@ -82,7 +82,7 @@ class Ui(QtWidgets.QMainWindow):
         #mouse flag
         self.mouse_enabler = False
 
-        #GUI window left section
+        #GUI window left section set up
         self.menu_port = self.findChild(QtWidgets.QMenu, 'menuPort_Selection')
 
         self.menu_info = self.findChild(QtWidgets.QMenu, 'menu_info')
@@ -116,7 +116,7 @@ class Ui(QtWidgets.QMainWindow):
         self.progress_bar = ProgressWidget.from_bar(self.findChild(QtWidgets.QProgressBar, 'ProgressBar'))
         self.progress_bar.hide()
         
-        #GUI window right section
+        #GUI window right section set up
         self.logger_box = self.findChild(QtWidgets.QPlainTextEdit, 'LoggerBox')
         qt_logger = QTextEditLogger(edit_text=self.logger_box)
         add_handler(qt_logger,
@@ -204,7 +204,7 @@ class Ui(QtWidgets.QMainWindow):
         self.combo_box_coordinates.activated.connect(lambda index: self.switch_coordinate_menu(self.combo_box_coordinates, 
                                                     sliders_labels, sliders, spin_boxes, index))
 
-        self.menu_port.triggered.connect(lambda portID: self.set_serial_port(portID))
+        self.menu_port.triggered.connect(lambda port_id: self.set_serial_port(port_id))
 
         self.menu_info.triggered.connect(lambda action: self.open_browser_info(action))
 
@@ -240,6 +240,12 @@ class Ui(QtWidgets.QMainWindow):
         self.scan_serial_ports(self.menu_port)
 
     def closeEvent(self, event):
+        '''
+        This method handles the closing of the GUI app.
+
+        :param event: Event generated when the user attemps to close the GUI app.
+                      This event may be accepted or declined.
+        '''
         ft = self.handler.cancel_movement()
         msg = QMessageBox()
         msg.setWindowTitle("Application Shut down")
@@ -250,9 +256,24 @@ class Ui(QtWidgets.QMainWindow):
         ft.add_done_callback(lambda _:  event.accept())
       
     def enable_mouse_control(self, event):
+        '''
+        This method handles the event generated when the user clicks on the graphic_view widget.
+        When this event happens, the mouse enabler is set to True.
+
+        :param event: Event generated when the user clicks on the graphical representation of the arm
+        '''
         self.mouse_enabler = True
 
     def top_view_mouse_control(self, event):
+        '''
+        This method handles the event generated when the moves the mouse within the
+        top_view graphical widget. This method performs the calculations needed to
+        update the graphical representation of  the arm, as well as the sliders's and
+        spinboxes's value.
+
+        :param event: Event generated when the user moves the mouse within 
+        the top view widget.
+        '''
         if self.mouse_enabler:
             y_coord = event.x()
             x_coord = event.y()
@@ -275,6 +296,15 @@ class Ui(QtWidgets.QMainWindow):
                     pass    
 
     def side_view_mouse_control(self, event):
+        '''
+        This method handles the event generated when the moves the mouse within the
+        side view graphical widget. This method performs the calculations needed to
+        update the graphical representation of  the arm, as well as the sliders's and
+        spinboxes's value.
+
+        :param event: Event generated when the user moves the mouse within 
+        the side view widget.
+        '''
         if self.mouse_enabler:
             x2_coord = event.x()
             z_coord = event.y()
@@ -300,10 +330,28 @@ class Ui(QtWidgets.QMainWindow):
                     pass     
 
     def disable_mouse_control(self, _):
+        '''
+        This method handles the event generated when the users stop moving the mouse within
+        the graphic view widgets. When this happens, the mouse enabler flag is set to false.
+
+        :param event: Event generated when the user stop controlling the arm by using the mouse.
+        '''
         self.mouse_enabler = False
 
     def adjust_widget_value(self,type, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, 
-                        graphics: QtWidgets.QGraphicsView, index: int, id):                  
+                        graphics: QtWidgets.QGraphicsView, index: int, id):
+        '''
+        This method adjust the value of the spinboxes when the sliders are moved and viceversa. 
+        When this happens, the graphical representation of the arm is uptaded. This function is
+        called when a signal is emitted.
+
+        :param type: Indicates if the widget that has been changed is a slider or a spinbox.
+        :param sliders: List of all the slider widgets.
+        :param spin_boxes: List of all the spinboxes widgets.
+        :param graphics: List of all the graphic view widgets.
+        :param index: Indicates if the coordinates systems are angular or cartesian.
+        :param id: Indicates the indentifier of the widget that changes its value.
+        '''
         if type == "slider":
             if index == 0:
                     self.draw_view_from_angle(graphics, spin_boxes, id)
@@ -313,7 +361,13 @@ class Ui(QtWidgets.QMainWindow):
         elif type == "spinBox":
             sliders[id-1].setSliderPosition(spin_boxes[id-1].value()*10)
 
-    def labe_color_change(self, label: QtWidgets.QLabel,r, g, b):
+    def label_color_change(self, label: QtWidgets.QLabel,r, g, b):
+        '''
+        This method is used to change the color of a given label.
+
+        :param label: label who's color is going to be changed
+        :param (r,g,b): rgb code of the new color
+        '''
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(r, g, b))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -328,27 +382,51 @@ class Ui(QtWidgets.QMainWindow):
 
     def set_angular_highlight(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
                             spin_boxes: QtWidgets.QDoubleSpinBox):
+        '''
+        This method highlights the sliders's labels  when the coordinates combobox selection
+        is changed to angular. This functionality has not been used in the final version of the  GUI.
+
+        :param sliders_label: List of all the labels that are located close to the sliders.
+        :param sliders: List of all the slider widgets.
+        :param spin_boxes: List of all the spinboxes widgets.
+        '''                    
         sliders_labels[0].setText("Base Servo Angle")
         sliders_labels[1].setText("Shoulder Servo Angle")
         sliders_labels[2].setText("Elbow Servo Angle")
-        self.labe_color_change(sliders_labels[0],245,110,110)
-        self.labe_color_change(sliders_labels[1],245,110,110)
-        self.labe_color_change(sliders_labels[2],245,110,110)
+        self.label_color_change(sliders_labels[0],245,110,110)
+        self.label_color_change(sliders_labels[1],245,110,110)
+        self.label_color_change(sliders_labels[2],245,110,110)
 
     def set_cartesian_highlight(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
                             spin_boxes: QtWidgets.QDoubleSpinBox):
+        '''
+        This method highlights the sliders's labels  when the coordinates combobox selection
+        is changed to cartesian. This functionality has not been used in the final version of the GUI.
+
+        :param sliders_label: List of all the labels that are located close to the sliders.
+        :param sliders: List of all the slider widgets.
+        :param spin_boxes: List of all the spinboxes widgets.
+        '''                          
         sliders_labels[0].setText("X Coordinate")
         sliders_labels[1].setText("Y Coordinate")
         sliders_labels[2].setText("Z Coordinate")
-        self.labe_color_change(sliders_labels[0],245,110,110)
-        self.labe_color_change(sliders_labels[1],245,110,110)
-        self.labe_color_change(sliders_labels[2],245,110,110)
+        self.label_color_change(sliders_labels[0],245,110,110)
+        self.label_color_change(sliders_labels[1],245,110,110)
+        self.label_color_change(sliders_labels[2],245,110,110)
 
     def set_angular_menu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
                         spin_boxes: QtWidgets.QDoubleSpinBox):
-        self.labe_color_change(sliders_labels[0],212,0,0)
-        self.labe_color_change(sliders_labels[1],212,0,0)
-        self.labe_color_change(sliders_labels[2],212,0,0)
+        '''
+        This method changes the GUI coordinate system to angular, this means that sliders and spinboxes
+        represent the theta_i angles of the arm.
+
+        :param sliders_label: List of all the labels that are located close to the sliders.
+        :param sliders: List of all the slider widgets.
+        :param spin_boxes: List of all the spinboxes widgets.
+        '''                      
+        self.label_color_change(sliders_labels[0],212,0,0)
+        self.label_color_change(sliders_labels[1],212,0,0)
+        self.label_color_change(sliders_labels[2],212,0,0)
 
         self.top_view.clear()
         self.side_view.clear()
@@ -387,9 +465,17 @@ class Ui(QtWidgets.QMainWindow):
 
     def set_cartesian_menu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
                         spin_boxes: QtWidgets.QDoubleSpinBox):
-        self.labe_color_change(sliders_labels[0],212,0,0)
-        self.labe_color_change(sliders_labels[1],212,0,0)
-        self.labe_color_change(sliders_labels[2],212,0,0)
+        '''
+        This method changes the GUI coordinate system to angular, this means that sliders and spinboxes
+        represent the cartesian position of the arm's end effector.
+
+        :param sliders_label: List of all the labels that are located close to the sliders.
+        :param sliders: List of all the slider widgets.
+        :param spin_boxes: List of all the spinboxes widgets.
+        '''                                      
+        self.label_color_change(sliders_labels[0],212,0,0)
+        self.label_color_change(sliders_labels[1],212,0,0)
+        self.label_color_change(sliders_labels[2],212,0,0)
 
         self.top_view.clear()
         self.side_view.clear()
@@ -426,21 +512,45 @@ class Ui(QtWidgets.QMainWindow):
         spin_boxes[2].setRange(-106.1,360.6)
         spin_boxes[2].setValue(0)
 
-    def coordinates_highlight(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,
-                            sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):            
+    def coordinates_highlight(self, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, 
+                              spin_boxes: QtWidgets.QDoubleSpinBox, index):   
+        '''
+        This method highlights the sliders's labels when the coordinate system is changed from angular
+        to cartesian and viceversa. This functionality has not been used in the final version of the GUI.
+
+        :param sliders_label: List of all the labels that are located close to the sliders.
+        :param sliders: List of all the slider widgets.
+        :param spin_boxes: List of all the spinboxes widgets.
+        :param index: Indicates whether the coordinates system is angular or cartesian
+        '''                                                   
         if index == 1:
             self.set_cartesian_highlight(sliders_labels,sliders,spin_boxes)
         elif index == 0:
             self.set_angular_highlight(sliders_labels,sliders,spin_boxes)
 
-    def switch_coordinate_menu(self,comboBox: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders:
+    def switch_coordinate_menu(self,combo_box: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders:
                              QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
+        '''
+        This method switch the coordinate from angular to cartesian and viceversa when the combobox selection
+        changes.
+
+        :param combo_box: Combo box coordinate selection.
+        :param sliders_label: List of all the labels that are located close to the sliders.
+        :param sliders: List of all the slider widgets.
+        :param spin_boxes: List of all the spinboxes widgets.
+        :param index: Indicates whether the coordinates system is angular or cartesian
+        '''                          
         if index == 1:
             self.set_cartesian_menu(sliders_labels, sliders, spin_boxes)
         elif index == 0:
             self.set_angular_menu(sliders_labels, sliders, spin_boxes)
 
     def show_popup(self, message: str):
+        '''
+        This method generates a warning pop that shows a given prompt.
+
+        :param message: string that is going to be showed up in the pop up.
+        '''     
         msg = QMessageBox()
         msg.setWindowTitle("Warning")
         msg.setText(message)
@@ -452,6 +562,20 @@ class Ui(QtWidgets.QMainWindow):
                          logger: QtWidgets.QPlainTextEdit,
                          spin_boxes: QtWidgets.QDoubleSpinBox,
                          index: int):
+        '''
+        This method is in charge of executing/canceling a movement by communicating it to
+        the communications code through the handler object. This method is connected to a
+        button widget, which triggers the execution of this function.
+
+        When this function is executed, a future object is generated in orden to not freeze
+        the GUI execution thread. When S2 completes the movement, the future object is trully
+        returned, indicating if the movement was completed succesfully or if there was an error.
+
+        :param button: button widget.
+        :param logger: logger object instance, that is used to generate logs.
+        :param spin_boxes: spinboxes object, used to get the values selected  by the user.
+        :param index: indicates whether the GUI coordinates are angular or cartesian.
+        '''                    
         if button.State:
             self.progress_bar.show()
             button.setText("Cancel movement")
@@ -491,6 +615,14 @@ class Ui(QtWidgets.QMainWindow):
     def draw_view_from_angle(self,
                              graphics: QtWidgets.QGraphicsView,
                              spin_boxes: QtWidgets.QDoubleSpinBox, _):
+        '''
+        This method perform the calculations need to draw the arm preview. This
+        calculations are made from the angles selected by the user and by using 
+        the shortened direct kinematics model
+
+        :param graphics: List of graphic views widgets.
+        :param spin_boxes: List of spinboxes widgets.
+        '''                   
 
         t0, t1, t2 = spin_boxes[0].value(), \
                      spin_boxes[1].value(), \
@@ -575,7 +707,14 @@ class Ui(QtWidgets.QMainWindow):
                                  graphics: QtWidgets.QGraphicsView,
                                  spin_boxes: QtWidgets.QDoubleSpinBox,
                                  _):
+        '''
+        This method perform the calculations need to draw the arm preview. This
+        calculations are made from the cartesian coordinates selected by the user and by using 
+        the inverse kinematics model
 
+        :param graphics: List of graphic views widgets.
+        :param spin_boxes: List of spinboxes widgets.
+        '''      
         x_coord, y_coord, z_coord = spin_boxes[0].value(), \
                                     spin_boxes[1].value(), \
                                     spin_boxes[2].value()
@@ -658,6 +797,13 @@ class Ui(QtWidgets.QMainWindow):
                              symbolBrush='b')                 
         
     def scan_serial_ports(self, menu: QMenu):
+        '''
+        This method performs a scan of the available serial ports of the PC
+        that is executing the GUI app, and then, add these available ports to
+        the port selection menu of the GUI.
+
+        :param menu: port selection menu object of the GUI app.
+        '''    
         port_list = serial.tools.list_ports.comports()
         if len(port_list) == 0:
             menu.addAction('No ports available')
@@ -667,8 +813,18 @@ class Ui(QtWidgets.QMainWindow):
             menu.addAction(port.device)
             self.log.info(f'Port {port.device} detected & ready')
 
-    def set_serial_port(self, portID:QAction):
-        self.port = portID.iconText()
+    def set_serial_port(self, port_id:QAction):
+        '''
+        This method is used to set the serial port that is going to
+        be used to communicate the GUI app with the PCB. When the user
+        select a port in the GUI, this function is executed and
+        the port selected is passed to the logic communication code 
+        using  the handler object.
+
+
+        :param port_id: indicates the port that was selected by the user.
+        '''
+        self.port = port_id.iconText()
         self.handler.port = self.port
         if not (self.port == 'No ports available'):
             self.log.info(f'Port {self.port} selected as communication bay')
@@ -677,6 +833,24 @@ class Ui(QtWidgets.QMainWindow):
             self.log.warning('No ports available - Check out the connections')
 
     def future_callback(self, ft: Future):
+        '''
+        This method is executed when the future object created in the 
+        execute movement process is finally returned, which means that
+        this method is a call back.
+
+        When the future object is finally returned, the GUI recieves it
+        and decides whether the movement was completed succesfully or
+        if there was an error.
+
+        If the future object is an error type object, the GUI shows a pop
+        up that notifys the error to the user.
+
+        If the future object is an contro type object, the GUI uptades the
+        value of the sliders and spin box with the data provided by the PCB
+        and notifys the user that the movement was completed succesfully.
+
+        :param ft: Future object instance that was finally returned.
+        '''
         res = ft.result()
         self.progress_bar.hide()
         if isinstance(res, ErrorData):
@@ -700,6 +874,16 @@ class Ui(QtWidgets.QMainWindow):
                        sliders: QtWidgets.QSlider,
                        spin_boxes: QtWidgets.QDoubleSpinBox,
                        index):
+        '''
+        This method is used to return the sliders, spinboxes and graphic
+        views to its orign position, taking into account if the coordinates
+        are angular or cartesian
+
+        :param button: Button widget assigned to origin event.
+        :param sliders: List of all sliders.
+        :param spin_boxes: List of all spinboxes
+        :param index: indicates if the coordinates are angular or cartesian
+        '''
         if index == 0:
             spin_boxes[0].setValue(90)
             spin_boxes[1].setValue(0)
@@ -708,9 +892,15 @@ class Ui(QtWidgets.QMainWindow):
             spin_boxes[0].setValue(0)
             spin_boxes[1].setValue(0)
             spin_boxes[2].setValue(0)
-        self.log.info('The arm was reset to origin position')
+        self.log.info('The arm was sent to  its origin position')
 
     def disable_execute_button(self, enabler):
+        '''
+        This method is used to disable/enable the execute movement button and to
+        notify the user that the current selected position is unreachable.
+
+        :param enabler: flag that indicates if the button is enabled or not.
+        '''
         if not enabler:
             self.execute_button.setText("Unreachable position")
             self.execute_button.setEnabled(False)
@@ -719,6 +909,12 @@ class Ui(QtWidgets.QMainWindow):
             self.execute_button.setEnabled(True)
 
     def open_browser_info(self, action: QAction):
+        '''
+        This method is used open some links using the browser when the users click
+        the 'extra info' menu.
+
+        :param enabler: flag that indicates if the button is enabled or not.
+        '''
         if action.iconText() == 'GitHub project':
             webbrowser.open("https://github.com/pArm-TFG")
         elif action.iconText() == 'Documentation':
