@@ -1,4 +1,4 @@
-import logging
+import logging 
 import math
 import os
 import pyqtgraph
@@ -17,6 +17,14 @@ from ..logger import add_handler, QTextEditLogger
 
 
 def inverse_kinematics(x_coord, y_coord, z_coord): 
+    '''
+    This function performs the calculations related to inverse
+    kinematic model, which are used to graphically draw the 
+    position of the arm on the GUI.
+
+    :params x, y, z coord: Cartesian coordinates of the point to which                                                                            
+                           inverse kinematics is applied.
+    '''
     try:
         from math import acos, atan, atan2, pi, sqrt, sin, cos
         
@@ -43,22 +51,38 @@ def inverse_kinematics(x_coord, y_coord, z_coord):
 
 
 class Ui(QtWidgets.QMainWindow):
+    '''
+    Ui class contains all the code related to the graphic user interface, including
+    inizialitations, configurations, Qt signals handling, etc. This class inherits from
+    the QMainWindow class, which represent the main window graphical component of Qt framework
+    '''
     def __init__(self, control: ControlInterface):
+        '''
+        This method is in charge of loading the .ui XML file, which contains all the graphic layout of the
+        GUI, and then matching all the graphical components into the code by using 'findchild()'. Most attributes
+        of the class are declared in this method.
+
+        :param control: object instance of control.py class that is used to interact with the logic communication code
+        '''
+        #Class is initialized by calling to its parent class init.
         super(Ui, self).__init__()
+
+        #.ui XML file is loaded
         uic.loadUi(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'InProgressGUI.ui'), self)
 
-        #Logic interface
+        #instance of control.py class which is used to communicate with the logic communications code
         self.handler = control
 
         #Serial Port used to send data to PCB
         self.port = None
 
-        #Auxiliar Dirty Counter
+        #Auxiliar counter
         self.counter = 200
-
+        
+        #mouse flag
         self.mouse_enabler = False
 
-        #Left Window Section
+        #GUI window left section
         self.menu_port = self.findChild(QtWidgets.QMenu, 'menuPort_Selection')
 
         self.menu_info = self.findChild(QtWidgets.QMenu, 'menu_info')
@@ -92,7 +116,7 @@ class Ui(QtWidgets.QMainWindow):
         self.progress_bar = ProgressWidget.from_bar(self.findChild(QtWidgets.QProgressBar, 'ProgressBar'))
         self.progress_bar.hide()
         
-        #Right Window Section
+        #GUI window right section
         self.logger_box = self.findChild(QtWidgets.QPlainTextEdit, 'LoggerBox')
         qt_logger = QTextEditLogger(edit_text=self.logger_box)
         add_handler(qt_logger,
@@ -105,6 +129,10 @@ class Ui(QtWidgets.QMainWindow):
         self.side_view = self.findChild(PlotWidget, 'SideView')
 
     def setupGUI(self):
+        '''
+        Every graphic component/widget of the GUI is initialized and configured within this
+        method.
+        '''
         # Grouped widgets in order to ease parameter passing
         sliders = [self.slider_1,self.slider_2, self.slider_3]
         spin_boxes = [self.spin_box_1, self.spin_box_2, self.spin_box_3]
