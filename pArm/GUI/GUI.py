@@ -227,7 +227,7 @@ class Ui(QtWidgets.QMainWindow):
         pen = pyqtgraph.mkPen(color=(0, 255, 0), width=8, style = QtCore.Qt.SolidLine)
         self.draw_view_from_angle(graphics, spin_boxes,1)
         self.side_view.setXRange(-420, 420, padding = 0)
-        self.side_view.setYRange(294, -106, padding = 0)
+        self.side_view.setYRange(261, -133.2, padding = 0)
         self.draw_view_from_angle(graphics, spin_boxes,3)
 
         self.top_view.mousePressEvent = self.enable_mouse_control
@@ -643,7 +643,7 @@ class Ui(QtWidgets.QMainWindow):
         x1_coord = x_coord1 * math.sin(t0 * math_trans)
 
         graphics[0].clear()
-        rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
+        rect_item = RectItem(QtCore.QRectF(-60, -60, 120, 120))
         graphics[0].addItem(rect_item)
 
         if self.check_list(t0, t1, t2, x_coord, y_coord, z_coord2):
@@ -687,10 +687,12 @@ class Ui(QtWidgets.QMainWindow):
                              pen=pen2, symbol='o',
                              symbolSize=15, symbolBrush='b')
 
-        rect_item2 = RectItem(QtCore.QRectF(-53.05, -106.1, 106.1, 106.1))
+        rect_item2 = RectItem(QtCore.QRectF(-60, -133.2, 120, 113.2))
+        rect_item3 = RectItem(QtCore.QRectF(-36, -20, 72, 20))
 
         graphics[1].clear()
         graphics[1].addItem(rect_item2)
+        graphics[1].addItem(rect_item3)
         graphics[1].plot((0, x_coord1),
                          (0, z_coord1),
                          pen=pen1,
@@ -753,7 +755,7 @@ class Ui(QtWidgets.QMainWindow):
             mid_y = x_coord1 * math.cos(t0 * math_trans)
 
             graphics[0].clear()
-            rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
+            rect_item = RectItem(QtCore.QRectF(-60, -60, 120, 120))
             graphics[0].addItem(rect_item)
 
             # Upper arm above Lower arm
@@ -782,8 +784,10 @@ class Ui(QtWidgets.QMainWindow):
                                  symbolSize=15, symbolBrush='b')
 
             graphics[1].clear()
-            rect_item2 = RectItem(QtCore.QRectF(-53.05, -106.1, 106.1, 106.1))
+            rect_item2 = RectItem(QtCore.QRectF(-60, -133.2, 120, 113.2))
+            rect_item3 = RectItem(QtCore.QRectF(-36, -20, 72, 20))
             graphics[1].addItem(rect_item2)
+            graphics[1].addItem(rect_item3)
             graphics[1].plot((0, x_coord1),
                              (0, z_coord1),
                              pen=pen1,
@@ -964,7 +968,7 @@ class Ui(QtWidgets.QMainWindow):
                 self.counter = 0
             self.counter += 1    
 
-        if 53.0 > x_coord > -53.0 and z_coord < 0 and 53.0 > y_coord > -53.0:
+        if 60 > x_coord > -60 and z_coord < 0 and 60 > y_coord > -60:
             result = False   
             if self.counter == 200:
                 self.log.critical('End-effector colliding with pArm base')
