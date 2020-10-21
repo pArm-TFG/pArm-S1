@@ -10,6 +10,7 @@ from pArm.control import control_management
 from concurrent.futures import ThreadPoolExecutor, Future
 from ..utils import AtomicFloat, ErrorData
 from .heart_beat import Heart
+from math import pi as pi
 
 LOWEST_X_VALUE = 0
 HIGHEST_X_VALUE = 300
@@ -128,7 +129,13 @@ class Control(ControlInterface):
         :return: the future object.
         """
 
-        byte_stream = generator.generate_theta_movement(theta1, theta2, theta3)
+        theta1_in_radians = theta1 * (pi/180)
+        theta2_in_radians = theta2 * (pi/180)
+        theta3_in_radians = theta3 * (pi/180)
+
+        byte_stream = generator.generate_theta_movement(theta1_in_radians,
+                                                        theta2_in_radians,
+                                                        theta3_in_radians)
 
         def fn():
             try:
