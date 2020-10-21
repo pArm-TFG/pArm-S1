@@ -130,6 +130,8 @@ class Connection:
         """
 
         with self.lock:
+            if not self.ser.is_open:
+                self.ser.open()
             return self.ser.readline()
 
     def sreadline(self, encoding: str = 'utf-8') -> str:

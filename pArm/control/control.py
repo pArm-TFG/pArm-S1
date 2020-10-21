@@ -10,6 +10,7 @@ from pArm.control import control_management
 from concurrent.futures import ThreadPoolExecutor, Future
 from ..utils import AtomicFloat, ErrorData
 from .heart_beat import Heart
+from math import pi as pi
 
 LOWEST_X_VALUE = 0
 HIGHEST_X_VALUE = 300
@@ -31,6 +32,7 @@ class Control(ControlInterface):
         self._err_fn = None
 
         self.connection = Connection()
+        self.heart = Heart(conn=self.connection)
 
     @property
     def x(self):
@@ -127,7 +129,13 @@ class Control(ControlInterface):
         :return: the future object.
         """
 
-        byte_stream = generator.generate_theta_movement(theta1, theta2, theta3)
+        theta1_in_radians = theta1 * (pi/180)
+        theta2_in_radians = theta2 * (pi/180)
+        theta3_in_radians = theta3 * (pi/180)
+
+        byte_stream = generator.generate_theta_movement(theta1_in_radians,
+                                                        theta2_in_radians,
+                                                        theta3_in_radians)
 
         def fn():
             try:
@@ -252,6 +260,10 @@ class Control(ControlInterface):
         except SerialException as e:
             log.warning(str(e), exc_info=True)
 
+    def quit(self):
+        self.cancel_movement()
+        self.heart.is_beating = False
+
     def do_handshake(self):
         """
         Starts the handshake procedure.
@@ -310,9 +322,8 @@ class Control(ControlInterface):
                         signed_value = int(signed_value)
                         verified_value = rsa.verify(signed_value)
                         encrypted_value = rsa.encrypt(verified_value)
-                        heart = Heart(encrypted_value, conn=self.connection)
                         log.debug("Se ha iniciado el corazon")
-                        conn.write(generator
+                        self.connection.write(generator
                                    .generate_unsigned_string(encrypted_value))
                         gcode.add('I5')
                         log.debug("He escrito el valor encriptado")
@@ -320,10 +331,11 @@ class Control(ControlInterface):
                             interpreter.wait_for('I5')
                         if found:
                             log.info("Handshake done.")
-                            heart.start_beating = True
-                    else:
-                        self.connection.ser.close()
-                        return signed_value
+                            self.heart.beat = encrypted_value
+                            self.heart.is_beating = True
+                        else:
+                            self.connection.ser.close()
+                            return signed_value
                 else:
                     return e
             else:

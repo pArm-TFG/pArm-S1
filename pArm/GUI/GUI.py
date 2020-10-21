@@ -116,7 +116,7 @@ class Ui(QtWidgets.QMainWindow):
         self.progress_bar = ProgressWidget.from_bar(self.findChild(QtWidgets.QProgressBar, 'ProgressBar'))
         self.progress_bar.hide()
         
-        #GUI window right section set up
+        #Right Window Section
         self.logger_box = self.findChild(QtWidgets.QPlainTextEdit, 'LoggerBox')
         qt_logger = QTextEditLogger(edit_text=self.logger_box)
         add_handler(qt_logger,
@@ -317,7 +317,7 @@ class Ui(QtWidgets.QMainWindow):
             x2_coord *= (930/350)  
 
             if self.combo_box_coordinates.currentIndex() == 1:
-                self.spin_box_1.setValue(x2_coord) 
+                self.spin_box_1.setValue(x2_coord)
                 self.spin_box_3.setValue(z_coord)
             elif self.combo_box_coordinates.currentIndex() == 0:
                 angles = inverse_kinematics(x2_coord,
@@ -390,7 +390,7 @@ class Ui(QtWidgets.QMainWindow):
         :param sliders_label: List of all the labels that are located close to the sliders.
         :param sliders: List of all the slider widgets.
         :param spin_boxes: List of all the spinboxes widgets.
-        """                    
+        """
         sliders_labels[0].setText("Base Servo Angle")
         sliders_labels[1].setText("Shoulder Servo Angle")
         sliders_labels[2].setText("Elbow Servo Angle")
@@ -407,7 +407,7 @@ class Ui(QtWidgets.QMainWindow):
         :param sliders_label: List of all the labels that are located close to the sliders.
         :param sliders: List of all the slider widgets.
         :param spin_boxes: List of all the spinboxes widgets.
-        """                          
+        """
         sliders_labels[0].setText("X Coordinate")
         sliders_labels[1].setText("Y Coordinate")
         sliders_labels[2].setText("Z Coordinate")
@@ -424,7 +424,7 @@ class Ui(QtWidgets.QMainWindow):
         :param sliders_label: List of all the labels that are located close to the sliders.
         :param sliders: List of all the slider widgets.
         :param spin_boxes: List of all the spinboxes widgets.
-        """                      
+        """
         self.label_color_change(sliders_labels[0],212,0,0)
         self.label_color_change(sliders_labels[1],212,0,0)
         self.label_color_change(sliders_labels[2],212,0,0)
@@ -473,7 +473,7 @@ class Ui(QtWidgets.QMainWindow):
         :param sliders_label: List of all the labels that are located close to the sliders.
         :param sliders: List of all the slider widgets.
         :param spin_boxes: List of all the spinboxes widgets.
-        """                                      
+        """
         self.label_color_change(sliders_labels[0],212,0,0)
         self.label_color_change(sliders_labels[1],212,0,0)
         self.label_color_change(sliders_labels[2],212,0,0)
@@ -523,7 +523,7 @@ class Ui(QtWidgets.QMainWindow):
         :param sliders: List of all the slider widgets.
         :param spin_boxes: List of all the spinboxes widgets.
         :param index: Indicates whether the coordinates system is angular or cartesian
-        """                                                   
+        """
         if index == 1:
             self.set_cartesian_highlight(sliders_labels,sliders,spin_boxes)
         elif index == 0:
@@ -540,7 +540,7 @@ class Ui(QtWidgets.QMainWindow):
         :param sliders: List of all the slider widgets.
         :param spin_boxes: List of all the spinboxes widgets.
         :param index: Indicates whether the coordinates system is angular or cartesian
-        """                          
+        """
         if index == 1:
             self.set_cartesian_menu(sliders_labels, sliders, spin_boxes)
         elif index == 0:
@@ -551,7 +551,7 @@ class Ui(QtWidgets.QMainWindow):
         This method generates a warning pop that shows a given prompt.
 
         :param message: string that is going to be showed up in the pop up.
-        """     
+        """
         msg = QMessageBox()
         msg.setWindowTitle("Warning")
         msg.setText(message)
@@ -576,7 +576,7 @@ class Ui(QtWidgets.QMainWindow):
         :param logger: logger object instance, that is used to generate logs.
         :param spin_boxes: spinboxes object, used to get the values selected  by the user.
         :param index: indicates whether the GUI coordinates are angular or cartesian.
-        """                    
+        """
         if button.State:
             self.progress_bar.show()
             button.setText("Cancel movement")
@@ -623,7 +623,7 @@ class Ui(QtWidgets.QMainWindow):
 
         :param graphics: List of graphic views widgets.
         :param spin_boxes: List of spinboxes widgets.
-        """                   
+        """
 
         t0, t1, t2 = spin_boxes[0].value(), \
                      spin_boxes[1].value(), \
@@ -717,7 +717,7 @@ class Ui(QtWidgets.QMainWindow):
 
         :param graphics: List of graphic views widgets.
         :param spin_boxes: List of spinboxes widgets.
-        """      
+        """
         x_coord, y_coord, z_coord = spin_boxes[0].value(), \
                                     spin_boxes[1].value(), \
                                     spin_boxes[2].value()
@@ -755,7 +755,7 @@ class Ui(QtWidgets.QMainWindow):
             mid_y = x_coord1 * math.cos(t0 * math_trans)
 
             graphics[0].clear()
-            rect_item = RectItem(QtCore.QRectF(-60, -60, 120, 120))
+            rect_item = RectItem(QtCore.QRectF(-53.05, -53.05, 106.1, 106.1))
             graphics[0].addItem(rect_item)
 
             # Upper arm above Lower arm
@@ -808,7 +808,7 @@ class Ui(QtWidgets.QMainWindow):
         the port selection menu of the GUI.
 
         :param menu: port selection menu object of the GUI app.
-        """    
+        """
         port_list = serial.tools.list_ports.comports()
         if len(port_list) == 0:
             menu.addAction('No ports available')
