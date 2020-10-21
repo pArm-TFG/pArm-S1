@@ -91,6 +91,10 @@ class ControlInterface(ABC):
        """
         pass
 
+    @abstractmethod
+    def quit(self):
+        pass
+
     @property
     @abstractmethod
     def err_fn(self) -> Callable[[int, str], None]:

@@ -31,6 +31,7 @@ class Control(ControlInterface):
         self._err_fn = None
 
         self.connection = Connection()
+        self.heart = Heart(conn=self.connection)
 
     @property
     def x(self):
@@ -252,6 +253,10 @@ class Control(ControlInterface):
         except SerialException as e:
             log.warning(str(e), exc_info=True)
 
+    def quit(self):
+        self.cancel_movement()
+        self.heart.is_beating = False
+
     def do_handshake(self):
         """
         Starts the handshake procedure.
@@ -310,9 +315,8 @@ class Control(ControlInterface):
                         signed_value = int(signed_value)
                         verified_value = rsa.verify(signed_value)
                         encrypted_value = rsa.encrypt(verified_value)
-                        heart = Heart(encrypted_value, conn=self.connection)
                         log.debug("Se ha iniciado el corazon")
-                        conn.write(generator
+                        self.connection.write(generator
                                    .generate_unsigned_string(encrypted_value))
                         gcode.add('I5')
                         log.debug("He escrito el valor encriptado")
@@ -320,10 +324,11 @@ class Control(ControlInterface):
                             interpreter.wait_for('I5')
                         if found:
                             log.info("Handshake done.")
-                            heart.start_beating = True
-                    else:
-                        self.connection.ser.close()
-                        return signed_value
+                            self.heart.beat = encrypted_value
+                            self.heart.is_beating = True
+                        else:
+                            self.connection.ser.close()
+                            return signed_value
                 else:
                     return e
             else:

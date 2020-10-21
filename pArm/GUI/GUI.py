@@ -212,7 +212,7 @@ class Ui(QtWidgets.QMainWindow):
         self.scan_serial_ports(self.menu_port)
 
     def closeEvent(self, event):
-        ft = self.handler.cancel_movement()
+        ft = self.handler.quit()
         msg = QMessageBox()
         msg.setWindowTitle("Application Shut down")
         msg.setText("The arm application will be closed and communications with the pArm will be stopped.")
