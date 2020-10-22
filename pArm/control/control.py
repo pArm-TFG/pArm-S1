@@ -5,10 +5,10 @@ from .. import Connection
 from serial import SerialException
 from logging import getLogger
 from .control_interface import ControlInterface
-from typing import Callable, Optional, Union
+from typing import Callable, Optional
 from pArm.control import control_management
 from concurrent.futures import ThreadPoolExecutor, Future
-from ..utils import AtomicFloat, ErrorData
+from ..utils import AtomicFloat
 from .heart_beat import Heart
 from math import pi as pi
 
@@ -60,21 +60,24 @@ class Control(ControlInterface):
 
     @x.setter
     def x(self, x):
-        if LOWEST_X_VALUE <= x <= HIGHEST_X_VALUE:
+        #if LOWEST_X_VALUE <= x <= HIGHEST_X_VALUE:
+        if True:
             self._x = x
         else:
             print("X value out of bounds")
 
     @y.setter
     def y(self, y):
-        if LOWEST_Y_VALUE <= y <= HIGHEST_Y_VALUE:
+        #if LOWEST_Y_VALUE <= y <= HIGHEST_Y_VALUE:
+        if True:
             self._y = y
         else:
             print("Y value out of bounds")
 
     @z.setter
     def z(self, z):
-        if LOWEST_Z_VALUE <= z <= HIGHEST_Z_VALUE:
+        #if LOWEST_Z_VALUE <= z <= HIGHEST_Z_VALUE:
+        if True:
             self._z = z
         else:
             print("Z value out of bounds")
@@ -128,10 +131,13 @@ class Control(ControlInterface):
         :param time_object: the atomic float holder value.
         :return: the future object.
         """
-
         theta1_in_radians = theta1 * (pi/180)
         theta2_in_radians = theta2 * (pi/180)
         theta3_in_radians = theta3 * (pi/180)
+
+        log.debug(theta1_in_radians)
+        log.debug(theta2_in_radians)
+        log.debug(theta3_in_radians)
 
         byte_stream = generator.generate_theta_movement(theta1_in_radians,
                                                         theta2_in_radians,
@@ -213,9 +219,9 @@ class Control(ControlInterface):
             found, missed_instructions, line = interpreter.wait_for('G1')
             if found:
                 angular_positions = interpreter.parse_line(line)
-                self.theta1 = angular_positions.t1
-                self.theta2 = angular_positions.t2
-                self.theta3 = angular_positions.t3
+                self.theta1 = angular_positions.t1 * (180/pi)
+                self.theta2 = angular_positions.t2 * (180/pi)
+                self.theta3 = angular_positions.t3 * (180/pi)
         except SerialException:
             log.warning("There is no suitable connection with the device", exc_info=True)
 
@@ -302,12 +308,12 @@ class Control(ControlInterface):
         control_management.request_handshake()
         try:
             gcode.add('I2')
-            found, missed_instructions, line = interpreter.wait_for(gcode, timeout=20)
+            found, missed_instructions, line = interpreter.wait_for(gcode, timeout=30)
             n = interpreter.parse_line(line)
             log.debug("n:"+n)
             if found and isinstance(n, str):
                 gcode.add('I3')
-                found, missed_instructions, line = interpreter.wait_for(gcode)
+                found, missed_instructions, line = interpreter.wait_for(gcode, timeout=10)
                 e = interpreter.parse_line(line)
                 log.debug("e: "+e)
                 if found and isinstance(e, str):
@@ -315,7 +321,7 @@ class Control(ControlInterface):
                     rsa = RSA(n=n, e=e)
                     gcode.add('I4')
                     found, missed_instructions, line = \
-                        interpreter.wait_for(gcode)
+                        interpreter.wait_for(gcode, timeout=10)
                     signed_value = interpreter.parse_line(line)
                     print(signed_value)
                     if found and isinstance(signed_value, str):
@@ -324,7 +330,7 @@ class Control(ControlInterface):
                         encrypted_value = rsa.encrypt(verified_value)
                         log.debug("Se ha iniciado el corazon")
                         self.connection.write(generator
-                                   .generate_unsigned_string(encrypted_value))
+                                    .generate_unsigned_string(encrypted_value))
                         gcode.add('I5')
                         log.debug("He escrito el valor encriptado")
                         found, missed_instructions, line = \

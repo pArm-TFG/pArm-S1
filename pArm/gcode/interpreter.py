@@ -137,10 +137,11 @@ def parse_j_order(j_order):
     :return: Either confirmation messages (For J1 and J21) or error codes
     (from J2 to J20)
     """
-    order_number = int(j_order[1:])
+    split_j_order = j_order.split(' ')
+    order_number = int(split_j_order[0][1:])
 
     if order_number == 1:
-        return float(j_order.split()[1])
+        return float(split_j_order[1])
     if 2 <= order_number <= 20:
         return errors[order_number]
     if order_number == 21:

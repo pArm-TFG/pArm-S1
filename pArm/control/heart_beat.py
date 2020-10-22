@@ -13,7 +13,7 @@ class Heart:
                  beat: int = 0,
                  start_beating: bool = False,
                  conn: Optional[Connection] = None):
-        self._beat = f"I7 {beat}".encode('utf-8')
+        self._beat = f"I7 {beat}\n".encode('utf-8')
         self._is_beating = start_beating
         self.connection = conn if conn else Connection()
         self._t = Thread(target=lambda: self.background_repeated_heartbeat())
@@ -38,7 +38,7 @@ class Heart:
 
     @beat.setter
     def beat(self, beat):
-        self._beat = f"I7 {beat}".encode('utf-8')
+        self._beat = f"I7 {beat}\n".encode('utf-8')
 
     def heartbeat_tick(self):
         """
