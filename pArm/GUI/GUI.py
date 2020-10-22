@@ -488,7 +488,7 @@ class Ui(QtWidgets.QMainWindow):
         sliders_labels[4].setText("346.0mm")
         sliders_labels[5].setText("-346.0mm")
         sliders_labels[6].setText("346.0mm")
-        sliders_labels[7].setText("-106.1mm")
+        sliders_labels[7].setText("-133.2mm")
         sliders_labels[8].setText("360.6mm")
         sliders_labels[9].show()
 
@@ -507,10 +507,10 @@ class Ui(QtWidgets.QMainWindow):
         spin_boxes[1].setValue(0)
 
         sliders[2].setMaximum(3606)
-        sliders[2].setMinimum(-1061)
+        sliders[2].setMinimum(-1332)
         sliders[2].setTickInterval(901)
         sliders[2].setSliderPosition(0)
-        spin_boxes[2].setRange(-106.1,360.6)
+        spin_boxes[2].setRange(-133.2,360.6)
         spin_boxes[2].setValue(0)
 
     def coordinates_highlight(self, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, 
