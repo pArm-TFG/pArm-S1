@@ -603,7 +603,7 @@ class Ui(QtWidgets.QMainWindow):
                               f'y: {spin_boxes[1].value()}, '
                               f'z: {spin_boxes[2].value()}}}')
             if ft:
-                ft.add_done_callback(lambda fut: self.future_callback(fut))
+                ft.add_done_callback(lambda fut: self.future_callback(fut,button))
 
         else:
             self.progress_bar.hide()
@@ -837,7 +837,7 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.log.warning('No ports available - Check out the connections')
 
-    def future_callback(self, ft: Future):
+    def future_callback(self, ft: Future, button: QtWidgets.QPushButton):
         """
         This method is executed when the future object created in the 
         execute movement process is finally returned, which means that
@@ -858,10 +858,10 @@ class Ui(QtWidgets.QMainWindow):
         """
         res = ft.result()
         self.progress_bar.hide()
+        button.State = True
+        button.setText("Execute Movement")
         if isinstance(res, ErrorData):
             self.show_popup(res.err_msg)
-            self.execute_button.State = 0
-            self.execute_button.setText("Execute Movement")
             self.log.error(f'Error happened during movement: {res.err_msg}')
         elif isinstance(res, ControlInterface):
             self.log.info('Movement was completed successfully')
