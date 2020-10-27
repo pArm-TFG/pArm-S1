@@ -176,7 +176,8 @@ class Control(ControlInterface):
                 with self.connection as conn:
                     conn.write(byte_stream)
             except SerialException:
-                log.warning("There is no suitable connection with the device", exc_info=True)
+                log.warning("There is no suitable connection with the device",
+                            exc_info=True)
             else:
                 log.debug(f"Device sent to origin")
             err = control_management.verify_movement_completed(time_object)

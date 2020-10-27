@@ -1,4 +1,4 @@
-import logging 
+import logging
 import math
 import os
 import pyqtgraph
@@ -16,7 +16,7 @@ from .rect_item import RectItem
 from ..logger import add_handler, QTextEditLogger
 
 
-def inverse_kinematics(x_coord, y_coord, z_coord): 
+def inverse_kinematics(x_coord, y_coord, z_coord):
     """
     This function performs the calculations related to inverse
     kinematic model, which are used to graphically draw the 
@@ -27,7 +27,7 @@ def inverse_kinematics(x_coord, y_coord, z_coord):
     """
     try:
         from math import acos, atan, atan2, pi, sqrt, sin, cos
-        
+
         x_coord = 11.5 if x_coord < 11.5 else x_coord
 
         al = 142.07
@@ -78,7 +78,7 @@ class Ui(QtWidgets.QMainWindow):
 
         #Auxiliar counter
         self.counter = 200
-        
+
         #mouse flag
         self.mouse_enabler = False
 
@@ -115,7 +115,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.progress_bar = ProgressWidget.from_bar(self.findChild(QtWidgets.QProgressBar, 'ProgressBar'))
         self.progress_bar.hide()
-        
+
         #Right Window Section
         self.logger_box = self.findChild(QtWidgets.QPlainTextEdit, 'LoggerBox')
         qt_logger = QTextEditLogger(edit_text=self.logger_box)
@@ -136,9 +136,9 @@ class Ui(QtWidgets.QMainWindow):
         # Grouped widgets in order to ease parameter passing
         sliders = [self.slider_1,self.slider_2, self.slider_3]
         spin_boxes = [self.spin_box_1, self.spin_box_2, self.spin_box_3]
-        sliders_labels = [self.slider_1_label, self.slider_2_label, self.slider_3_label, 
-                        self.slider_1_left_label, self.slider_1_right_label, self.slider_2_left_label, 
-                        self.slider_2_right_label, self.slider_3_left_label, self.slider_3_right_label, 
+        sliders_labels = [self.slider_1_label, self.slider_2_label, self.slider_3_label,
+                        self.slider_1_left_label, self.slider_1_right_label, self.slider_2_left_label,
+                        self.slider_2_right_label, self.slider_3_left_label, self.slider_3_right_label,
                         self.slider_2_mid_label]
         graphics = [self.top_view, self.side_view]
 
@@ -168,11 +168,11 @@ class Ui(QtWidgets.QMainWindow):
         self.slider_3.setTickInterval(275)
         self.slider_3.setTickPosition(3)
 
-        self.slider_1.valueChanged.connect(lambda: self.adjust_widget_value("slider", sliders, spin_boxes, graphics, 
+        self.slider_1.valueChanged.connect(lambda: self.adjust_widget_value("slider", sliders, spin_boxes, graphics,
                                             self.combo_box_coordinates.currentIndex(), 1))
-        self.slider_2.valueChanged.connect(lambda: self.adjust_widget_value("slider", sliders, spin_boxes, graphics, 
+        self.slider_2.valueChanged.connect(lambda: self.adjust_widget_value("slider", sliders, spin_boxes, graphics,
                                             self.combo_box_coordinates.currentIndex(), 2))
-        self.slider_3.valueChanged.connect(lambda: self.adjust_widget_value("slider",  sliders, spin_boxes, graphics, 
+        self.slider_3.valueChanged.connect(lambda: self.adjust_widget_value("slider",  sliders, spin_boxes, graphics,
                                             self.combo_box_coordinates.currentIndex(), 3))
 
         if getattr(self.spin_box_1, "id", None) is None:
@@ -192,16 +192,16 @@ class Ui(QtWidgets.QMainWindow):
         self.spin_box_3.setRange(10.0, 120.0)
         self.spin_box_3.setSingleStep(0.1)
 
-        self.spin_box_1.valueChanged.connect(lambda: self.adjust_widget_value("spinBox",  sliders, spin_boxes, graphics, 
+        self.spin_box_1.valueChanged.connect(lambda: self.adjust_widget_value("spinBox",  sliders, spin_boxes, graphics,
                                             self.combo_box_coordinates.currentIndex(),1 ))
-        self.spin_box_2.valueChanged.connect(lambda: self.adjust_widget_value("spinBox",  sliders, spin_boxes, graphics, 
+        self.spin_box_2.valueChanged.connect(lambda: self.adjust_widget_value("spinBox",  sliders, spin_boxes, graphics,
                                             self.combo_box_coordinates.currentIndex(), 2))
-        self.spin_box_3.valueChanged.connect(lambda: self.adjust_widget_value("spinBox",  sliders, spin_boxes, graphics, 
+        self.spin_box_3.valueChanged.connect(lambda: self.adjust_widget_value("spinBox",  sliders, spin_boxes, graphics,
                                             self.combo_box_coordinates.currentIndex(), 3))
 
         self.slider_2_mid_label.hide()
 
-        self.combo_box_coordinates.activated.connect(lambda index: self.switch_coordinate_menu(self.combo_box_coordinates, 
+        self.combo_box_coordinates.activated.connect(lambda index: self.switch_coordinate_menu(self.combo_box_coordinates,
                                                     sliders_labels, sliders, spin_boxes, index))
 
         self.menu_port.triggered.connect(lambda port_id: self.set_serial_port(port_id))
@@ -212,7 +212,7 @@ class Ui(QtWidgets.QMainWindow):
             setattr(self.execute_button,"State", True)
         self.execute_button.clicked.connect(lambda: self.execute_movement(self.execute_button,self.logger_box, spin_boxes,
                                             self.combo_box_coordinates.currentIndex()))
-        self.origin_button.clicked.connect(lambda: self.move_to_origin(self.origin_button, sliders, spin_boxes, 
+        self.origin_button.clicked.connect(lambda: self.move_to_origin(self.origin_button, sliders, spin_boxes,
                                             self.combo_box_coordinates.currentIndex()))
 
         self.log.info("Welcome to the p-Arm GUI")
@@ -255,7 +255,7 @@ class Ui(QtWidgets.QMainWindow):
         msg.setStandardButtons(QMessageBox.Close)
         msg.exec_()
         ft.add_done_callback(lambda _:  event.accept())
-      
+
     def enable_mouse_control(self, event):
         """
         This method handles the event generated when the user clicks on the graphic_view widget.
@@ -291,10 +291,10 @@ class Ui(QtWidgets.QMainWindow):
             elif self.combo_box_coordinates.currentIndex() == 0:
                 angles = inverse_kinematics(x_coord, -y_coord, self.spin_box_3.value())
                 if angles:
-                    thetas_0, theta_1, theta_2 = angles 
+                    thetas_0, theta_1, theta_2 = angles
                     self.spin_box_1.setValue(thetas_0)
                 else:
-                    pass    
+                    pass
 
     def side_view_mouse_control(self, event):
         """
@@ -309,12 +309,12 @@ class Ui(QtWidgets.QMainWindow):
         if self.mouse_enabler:
             x2_coord = event.x()
             z_coord = event.y()
-            
+
             z_coord = 109.75 - z_coord
             z_coord *= (450/170)
 
             x2_coord = x2_coord - 193
-            x2_coord *= (930/350)  
+            x2_coord *= (930/350)
 
             if self.combo_box_coordinates.currentIndex() == 1:
                 self.spin_box_1.setValue(x2_coord)
@@ -324,11 +324,11 @@ class Ui(QtWidgets.QMainWindow):
                                             self.spin_box_2.value(),
                                             z_coord)
                 if angles:
-                    thetas_0, theta_1, theta_2 = angles 
+                    thetas_0, theta_1, theta_2 = angles
                     self.spin_box_2.setValue(theta_1)
                     self.spin_box_3.setValue(theta_2)
                 else:
-                    pass     
+                    pass
 
     def disable_mouse_control(self, _):
         """
@@ -339,7 +339,7 @@ class Ui(QtWidgets.QMainWindow):
         """
         self.mouse_enabler = False
 
-    def adjust_widget_value(self,type, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, 
+    def adjust_widget_value(self,type, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox,
                         graphics: QtWidgets.QGraphicsView, index: int, id):
         """
         This method adjust the value of the spinboxes when the sliders are moved and viceversa. 
@@ -381,25 +381,30 @@ class Ui(QtWidgets.QMainWindow):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
         label.setPalette(palette)
 
-    def set_angular_highlight(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
-                            spin_boxes: QtWidgets.QDoubleSpinBox):
+    def set_angular_highlight(self,
+                              sliders_labels: QtWidgets.QLabel,
+                              sliders: QtWidgets.QSlider,
+                              spin_boxes: QtWidgets.QDoubleSpinBox):
         """
         This method highlights the sliders's labels  when the coordinates combobox selection
         is changed to angular. This functionality has not been used in the final version of the  GUI.
 
-        :param sliders_label: List of all the labels that are located close to the sliders.
+        :param sliders_labels: List of all the labels that are located close
+        to the sliders.
         :param sliders: List of all the slider widgets.
         :param spin_boxes: List of all the spinboxes widgets.
         """
         sliders_labels[0].setText("Base Servo Angle")
         sliders_labels[1].setText("Shoulder Servo Angle")
         sliders_labels[2].setText("Elbow Servo Angle")
-        self.label_color_change(sliders_labels[0],245,110,110)
-        self.label_color_change(sliders_labels[1],245,110,110)
-        self.label_color_change(sliders_labels[2],245,110,110)
+        self.label_color_change(sliders_labels[0], 245, 110, 110)
+        self.label_color_change(sliders_labels[1], 245, 110, 110)
+        self.label_color_change(sliders_labels[2], 245, 110, 110)
 
-    def set_cartesian_highlight(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
-                            spin_boxes: QtWidgets.QDoubleSpinBox):
+    def set_cartesian_highlight(self,
+                                sliders_labels: QtWidgets.QLabel,
+                                sliders: QtWidgets.QSlider,
+                                spin_boxes: QtWidgets.QDoubleSpinBox):
         """
         This method highlights the sliders's labels  when the coordinates combobox selection
         is changed to cartesian. This functionality has not been used in the final version of the GUI.
@@ -415,8 +420,10 @@ class Ui(QtWidgets.QMainWindow):
         self.label_color_change(sliders_labels[1],245,110,110)
         self.label_color_change(sliders_labels[2],245,110,110)
 
-    def set_angular_menu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
-                        spin_boxes: QtWidgets.QDoubleSpinBox):
+    def set_angular_menu(self,
+                         sliders_labels: QtWidgets.QLabel,
+                         sliders: QtWidgets.QSlider,
+                         spin_boxes: QtWidgets.QDoubleSpinBox):
         """
         This method changes the GUI coordinate system to angular, this means that sliders and spinboxes
         represent the theta_i angles of the arm.
@@ -425,9 +432,9 @@ class Ui(QtWidgets.QMainWindow):
         :param sliders: List of all the slider widgets.
         :param spin_boxes: List of all the spinboxes widgets.
         """
-        self.label_color_change(sliders_labels[0],212,0,0)
-        self.label_color_change(sliders_labels[1],212,0,0)
-        self.label_color_change(sliders_labels[2],212,0,0)
+        self.label_color_change(sliders_labels[0], 212, 0, 0)
+        self.label_color_change(sliders_labels[1], 212, 0, 0)
+        self.label_color_change(sliders_labels[2], 212, 0, 0)
 
         self.top_view.clear()
         self.side_view.clear()
@@ -447,36 +454,39 @@ class Ui(QtWidgets.QMainWindow):
         sliders[0].setMinimum(0)
         sliders[0].setTickInterval(377)
         sliders[0].setSliderPosition(0)
-        spin_boxes[0].setRange(0,151.0)
+        spin_boxes[0].setRange(0, 151.0)
         spin_boxes[0].setValue(0.0)
 
         sliders[1].setMaximum(1350)
         sliders[1].setMinimum(0)
         sliders[1].setTickInterval(337)
         sliders[1].setSliderPosition(0)
-        spin_boxes[1].setRange(0,135.0)
+        spin_boxes[1].setRange(0, 135.0)
         spin_boxes[1].setValue(0.0)
 
         sliders[2].setMaximum(1200)
         sliders[2].setMinimum(100)
         sliders[2].setTickInterval(275)
         sliders[2].setSliderPosition(0)
-        spin_boxes[2].setRange(10.,110.0)
+        spin_boxes[2].setRange(10., 110.0)
         spin_boxes[2].setValue(0.0)
 
-    def set_cartesian_menu(self,sliders_labels: QtWidgets.QLabel, sliders: QtWidgets.QSlider, 
-                        spin_boxes: QtWidgets.QDoubleSpinBox):
+    def set_cartesian_menu(self,
+                           sliders_labels: QtWidgets.QLabel,
+                           sliders: QtWidgets.QSlider,
+                           spin_boxes: QtWidgets.QDoubleSpinBox):
         """
         This method changes the GUI coordinate system to angular, this means that sliders and spinboxes
         represent the cartesian position of the arm's end effector.
 
-        :param sliders_label: List of all the labels that are located close to the sliders.
+        :param sliders_labels: List of all the labels that are located close
+        to the sliders.
         :param sliders: List of all the slider widgets.
         :param spin_boxes: List of all the spinboxes widgets.
         """
-        self.label_color_change(sliders_labels[0],212,0,0)
-        self.label_color_change(sliders_labels[1],212,0,0)
-        self.label_color_change(sliders_labels[2],212,0,0)
+        self.label_color_change(sliders_labels[0], 212, 0, 0)
+        self.label_color_change(sliders_labels[1], 212, 0, 0)
+        self.label_color_change(sliders_labels[2], 212, 0, 0)
 
         self.top_view.clear()
         self.side_view.clear()
@@ -503,7 +513,7 @@ class Ui(QtWidgets.QMainWindow):
         sliders[1].setMinimum(-3460)
         sliders[1].setTickInterval(1730)
         sliders[1].setSliderPosition(0)
-        spin_boxes[1].setRange(-346.0,346.0)
+        spin_boxes[1].setRange(-346.0, 346.0)
         spin_boxes[1].setValue(0)
 
         sliders[2].setMaximum(3606)
@@ -513,30 +523,38 @@ class Ui(QtWidgets.QMainWindow):
         spin_boxes[2].setRange(-133.2,360.6)
         spin_boxes[2].setValue(0)
 
-    def coordinates_highlight(self, sliders_labels: QtWidgets.QLabel,sliders: QtWidgets.QSlider, 
-                              spin_boxes: QtWidgets.QDoubleSpinBox, index):   
+    def coordinates_highlight(self,
+                              sliders_labels: QtWidgets.QLabel,
+                              sliders: QtWidgets.QSlider,
+                              spin_boxes: QtWidgets.QDoubleSpinBox, index):
         """
         This method highlights the sliders's labels when the coordinate system is changed from angular
         to cartesian and viceversa. This functionality has not been used in the final version of the GUI.
 
-        :param sliders_label: List of all the labels that are located close to the sliders.
+        :param sliders_labels: List of all the labels that are located close
+        to the sliders.
         :param sliders: List of all the slider widgets.
         :param spin_boxes: List of all the spinboxes widgets.
         :param index: Indicates whether the coordinates system is angular or cartesian
         """
         if index == 1:
-            self.set_cartesian_highlight(sliders_labels,sliders,spin_boxes)
+            self.set_cartesian_highlight(sliders_labels, sliders, spin_boxes)
         elif index == 0:
-            self.set_angular_highlight(sliders_labels,sliders,spin_boxes)
+            self.set_angular_highlight(sliders_labels, sliders, spin_boxes)
 
-    def switch_coordinate_menu(self,combo_box: QtWidgets.QComboBox, sliders_labels: QtWidgets.QLabel,sliders:
-                             QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox, index):
+    def switch_coordinate_menu(self,
+                               combo_box: QtWidgets.QComboBox,
+                               sliders_labels: QtWidgets.QLabel,
+                               sliders: QtWidgets.QSlider,
+                               spin_boxes: QtWidgets.QDoubleSpinBox,
+                               index):
         """
         This method switch the coordinate from angular to cartesian and viceversa when the combobox selection
         changes.
 
         :param combo_box: Combo box coordinate selection.
-        :param sliders_label: List of all the labels that are located close to the sliders.
+        :param sliders_labels: List of all the labels that are located close
+        to the sliders.
         :param sliders: List of all the slider widgets.
         :param spin_boxes: List of all the spinboxes widgets.
         :param index: Indicates whether the coordinates system is angular or cartesian
@@ -615,7 +633,8 @@ class Ui(QtWidgets.QMainWindow):
 
     def draw_view_from_angle(self,
                              graphics: QtWidgets.QGraphicsView,
-                             spin_boxes: QtWidgets.QDoubleSpinBox, _):
+                             spin_boxes: QtWidgets.QDoubleSpinBox,
+                             *args):
         """
         This method perform the calculations need to draw the arm preview. This
         calculations are made from the angles selected by the user and by using 
@@ -705,11 +724,11 @@ class Ui(QtWidgets.QMainWindow):
                          symbol='o',
                          symbolSize=15,
                          symbolBrush='b')
-        
+
     def draw_view_from_cartesian(self,
                                  graphics: QtWidgets.QGraphicsView,
                                  spin_boxes: QtWidgets.QDoubleSpinBox,
-                                 _):
+                                 *args):
         """
         This method perform the calculations need to draw the arm preview. This
         calculations are made from the cartesian coordinates selected by the user and by using 
@@ -721,7 +740,7 @@ class Ui(QtWidgets.QMainWindow):
         x_coord, y_coord, z_coord = spin_boxes[0].value(), \
                                     spin_boxes[1].value(), \
                                     spin_boxes[2].value()
-       
+
         angles = inverse_kinematics(x_coord, y_coord, z_coord)
 
         if angles:
@@ -799,8 +818,8 @@ class Ui(QtWidgets.QMainWindow):
                              pen=pen2,
                              symbol='o',
                              symbolSize=15,
-                             symbolBrush='b')                 
-        
+                             symbolBrush='b')
+
     def scan_serial_ports(self, menu: QMenu):
         """
         This method performs a scan of the available serial ports of the PC
@@ -833,7 +852,7 @@ class Ui(QtWidgets.QMainWindow):
         self.handler.port = self.port
         if not (self.port == 'No ports available'):
             self.log.info(f'Port {self.port} selected as communication bay')
-            self.handler.do_handshake()
+            # self.handler.do_handshake()
         else:
             self.log.warning('No ports available - Check out the connections')
 
@@ -855,6 +874,7 @@ class Ui(QtWidgets.QMainWindow):
         and notifys the user that the movement was completed succesfully.
 
         :param ft: Future object instance that was finally returned.
+        :param button: UI button that must be changed when finished movement.
         """
         res = ft.result()
         self.progress_bar.hide()
@@ -865,6 +885,10 @@ class Ui(QtWidgets.QMainWindow):
             self.log.error(f'Error happened during movement: {res.err_msg}')
         elif isinstance(res, ControlInterface):
             self.log.info('Movement was completed successfully')
+            self.log.debug(f"Arm reported angles: "
+                           f"{(res.theta1, res.theta2, res.theta3)}")
+            self.log.debug(f"Arm reported position: {(res.x, res.y, res.z)}")
+            return
             if self.combo_box_coordinates.currentIndex() == 0:
                 self.spin_box_1.setValue(res.theta1)
                 self.spin_box_2.setValue(res.theta2)
@@ -881,7 +905,7 @@ class Ui(QtWidgets.QMainWindow):
                        index):
         """
         This method is used to return the sliders, spinboxes and graphic
-        views to its orign position, taking into account if the coordinates
+        views to its origin position, taking into account if the coordinates
         are angular or cartesian
 
         :param button: Button widget assigned to origin event.
@@ -894,10 +918,11 @@ class Ui(QtWidgets.QMainWindow):
             spin_boxes[1].setValue(0)
             spin_boxes[2].setValue(0)
         elif index == 1:
-            spin_boxes[0].setValue(0)
+            spin_boxes[0].setValue(29.63)
             spin_boxes[1].setValue(0)
-            spin_boxes[2].setValue(0)
-        self.log.info('The arm was sent to  its origin position')
+            spin_boxes[2].setValue(9.36)
+        self.log.info('The arm was sent to its origin position')
+        self.handler.send_to_origin()
 
     def disable_execute_button(self, enabler):
         """
@@ -925,7 +950,7 @@ class Ui(QtWidgets.QMainWindow):
         elif action.iconText() == 'Documentation':
             webbrowser.open('https://github.com/pArm-TFG/Memoria')
         elif action.iconText() == 'About us':
-            webbrowser.open('https://www.linkedin.com/in/jose-alejandro-moya-blanco-78952a126/')  
+            webbrowser.open('https://www.linkedin.com/in/jose-alejandro-moya-blanco-78952a126/')
             webbrowser.open('https://www.linkedin.com/in/javinator9889/')
             webbrowser.open('https://www.linkedin.com/in/mihai-octavian-34865419b/')
 
@@ -943,37 +968,37 @@ class Ui(QtWidgets.QMainWindow):
             if self.counter == 200:
                 self.log.warning('Base joint angle (t0) is over 151º')
                 self.counter = 0
-            self.counter += 1 
+            self.counter += 1
 
         if theta_1 > 135:
             result = False
             if self.counter == 200:
                 self.log.warning('Shoulder joint angle (t1) is over 135º')
                 self.counter = 0
-            self.counter += 1 
+            self.counter += 1
 
         if theta_2 > 120:
             result = False
             if self.counter == 200:
                 self.log.warning('Elbow joint angle (t2) is over 120º')
                 self.counter = 0
-            self.counter += 1 
+            self.counter += 1
 
-        if math.sqrt(x_coord**2 + y_coord**2 + z_coord**2) > 261:    
+        if math.sqrt(x_coord**2 + y_coord**2 + z_coord**2) > 261:
             result = False
-            
+
         if theta_2 > (theta_1 + 55):
             result = False
             if self.counter == 200:
                 self.log.critical('Physical structure limit!')
                 self.counter = 0
-            self.counter += 1    
+            self.counter += 1
 
         if 60 > x_coord > -60 and z_coord < 0 and 60 > y_coord > -60:
-            result = False   
+            result = False
             if self.counter == 200:
                 self.log.critical('End-effector colliding with pArm base')
                 self.counter = 0
-            self.counter += 1    
-            
+            self.counter += 1
+
         return result

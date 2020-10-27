@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import Callable, Optional
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, Future
 from ..utils import AtomicFloat
 
 
 class ControlInterface(ABC):
 
     @abstractmethod
-    def __init__(self, executor: ThreadPoolExecutor, x=0, y=0, z=0, theta1=0, theta2=0, theta3=0, port=''):
+    def __init__(self, executor: ThreadPoolExecutor, x=0, y=0, z=0, theta1=0,
+                 theta2=0, theta3=0, port=''):
         self.executor = executor
         self.x = x
         self.y = y
@@ -31,7 +32,8 @@ class ControlInterface(ABC):
         pass
 
     @abstractmethod
-    def move_to_thetas(self, theta1, theta2, theta3, time_object: Optional[AtomicFloat] = None):
+    def move_to_thetas(self, theta1, theta2, theta3,
+                       time_object: Optional[AtomicFloat] = None):
         """
         Triggers the needed procedures to move the arm to the angular position
         that is indicated in its parameters.
@@ -143,4 +145,9 @@ class ControlInterface(ABC):
     @err_fn.setter
     @abstractmethod
     def err_fn(self, fn: Callable[[int, str], None]):
+        pass
+
+    @abstractmethod
+    def send_to_origin(self, time_object: Optional[AtomicFloat] = None) -> \
+            Future:
         pass

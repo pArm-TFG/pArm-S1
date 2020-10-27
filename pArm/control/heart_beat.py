@@ -48,7 +48,6 @@ class Heart:
         """
 
         try:
-            log.debug('Ticking')
             self.connection.write(self.beat)
         except SerialException:
             log.warning("There is no suitable connection with the device",
