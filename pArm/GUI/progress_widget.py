@@ -54,16 +54,22 @@ class Worker(QObject):
         displayed. At the end, notifies that it has finished processing
         and quits.
         """
-        while not self.time.value != -1.0:
-            sleep(.01)
+        try:
+            while not self.time.value != -1.0:
+                sleep(.01)
 
-        self.limit_values.emit((0, self.time.value))
-        start_time = time()
-        finish_time = start_time + self.time.value
-        while time() < finish_time:
-            self.update_progress.emit(time() - start_time)
+            self.limit_values.emit((0, self.time.value))
+            start_time = time()
+            finish_time = start_time + self.time.value
+            while time() < finish_time:
+                self.update_progress.emit(time() - start_time)
 
-        self.finished.emit(True)
+            self.finished.emit(True)
+        except RuntimeError:
+            # Very probably the app is trying to update the Worker
+            # object when the execution of the application has
+            # finished, so quit silently
+            pass
 
 
 class ProgressWidget(QProgressBar):
