@@ -21,7 +21,8 @@ def verify_movement_completed(time_object: Optional[AtomicFloat] = None):
     """
     try:
         gcode = ["J{}".format(x) for x in range(1, 21)]
-        found, missed_instructions, line = interpreter.wait_for(gcode)
+        found, missed_instructions, line = interpreter.wait_for(gcode, timeout=10)
+        log.debug((found, missed_instructions, line))
         line_meaning = interpreter.parse_line(line)
 
         if found and isinstance(line_meaning, float):

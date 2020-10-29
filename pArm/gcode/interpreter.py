@@ -179,6 +179,7 @@ def wait_for(gcode: Union[str, Iterable[str]], timeout: int = 5) -> \
 
     while not check_valid(line, gcode) and time.time() <= timeout:
         if line != '':
+            log.debug(f"Read line: {line}")
             missed_inst.append(line)
         time.sleep(0.1)
         line = connection.sreadline()
