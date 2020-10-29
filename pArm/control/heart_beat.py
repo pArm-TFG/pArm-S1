@@ -42,7 +42,7 @@ class Heart:
 
     def heartbeat_tick(self):
         """
-        This function generate a heartbeat. The heartbeat its an int passed as
+        This function generate a heartbeat. The heartbeat is an int passed as
         parameter to the class
         :return: no return.
         """

@@ -60,7 +60,7 @@ class Control(ControlInterface):
 
     @x.setter
     def x(self, x):
-        #if LOWEST_X_VALUE <= x <= HIGHEST_X_VALUE:
+        # if LOWEST_X_VALUE <= x <= HIGHEST_X_VALUE:
         if True:
             self._x = x
         else:
@@ -68,7 +68,7 @@ class Control(ControlInterface):
 
     @y.setter
     def y(self, y):
-        #if LOWEST_Y_VALUE <= y <= HIGHEST_Y_VALUE:
+        # if LOWEST_Y_VALUE <= y <= HIGHEST_Y_VALUE:
         if True:
             self._y = y
         else:
@@ -76,7 +76,7 @@ class Control(ControlInterface):
 
     @z.setter
     def z(self, z):
-        #if LOWEST_Z_VALUE <= z <= HIGHEST_Z_VALUE:
+        # if LOWEST_Z_VALUE <= z <= HIGHEST_Z_VALUE:
         if True:
             self._z = z
         else:
@@ -104,9 +104,9 @@ class Control(ControlInterface):
             try:
                 with self.connection as conn:
                     conn.write(byte_stream)
+                    err = control_management.verify_movement_completed(time_object)
             except SerialException:
                 log.warning("There is no suitable connection with the device", exc_info=True)
-            err = control_management.verify_movement_completed(time_object)
             if err:
                 return err
             self.read_cartesian_positions()
@@ -147,12 +147,12 @@ class Control(ControlInterface):
             try:
                 with self.connection as conn:
                     conn.write(byte_stream)
+                    err = control_management.verify_movement_completed(time_object)
             except SerialException:
                 log.warning("There is no suitable connection with the device", exc_info=True)
             else:
                 log.debug(
                     "theta1, theta2, theta3 values successfully sent to device")
-            err = control_management.verify_movement_completed(time_object)
             if err:
                 return err
             self.read_cartesian_positions()
@@ -175,12 +175,12 @@ class Control(ControlInterface):
             try:
                 with self.connection as conn:
                     conn.write(byte_stream)
+                    err = control_management.verify_movement_completed(time_object)
             except SerialException:
                 log.warning("There is no suitable connection with the device",
                             exc_info=True)
             else:
                 log.debug(f"Device sent to origin")
-            err = control_management.verify_movement_completed(time_object)
             if err:
                 return err
             self.read_cartesian_positions()

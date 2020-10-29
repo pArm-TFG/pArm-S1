@@ -88,6 +88,7 @@ class Connection:
 
         with self.lock:
             length = self.ser.write(data)
+            log.debug(f"Estoy escribiendo {data}")
 
         return length
 
