@@ -1,0 +1,70 @@
+        # Grouped widgets in order to ease parameter passing
+
+        sliders = [self.Slider1,self.Slider2, self.Slider3]
+        spinBoxes = [self.doubleSpinBox1, self.doubleSpinBox2, self.doubleSpinBox3]
+        slidersLabels = [self.SliderLabel1, self.SliderLabel2, self.SliderLabel3, self.subLabel1, self.subLabel2, self.subLabel3, self.subLabel4, self.subLabel5, self.subLabel6, self.subLabel7]
+
+        # Extra setting initialization
+        
+        self.Slider1.setMaximum(1510)
+        self.Slider1.setMinimum(0)
+        self.Slider1.setTickInterval(377)
+        self.Slider1.setTickPosition(3)
+
+        self.Slider2.setMaximum(1350)
+        self.Slider2.setMinimum(0)
+        self.Slider2.setTickInterval(337)
+        self.Slider2.setTickPosition(3)
+
+        self.Slider3.setMaximum(1200)
+        self.Slider3.setMinimum(0)
+        self.Slider3.setTickInterval(300)
+        self.Slider3.setTickPosition(3)
+
+        # Extra setting initialization
+
+        self.Slider1.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider1, self.doubleSpinBox1,self.topView))
+        self.Slider2.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider2, self.doubleSpinBox2,self.topView))
+        self.Slider3.valueChanged.connect(lambda: adjustWidgetValue("slider", self.Slider3, self.doubleSpinBox3,self.topView))
+
+        self.doubleSpinBox1.setRange(0,151.0)
+        self.doubleSpinBox1.setSingleStep(0.1)
+        self.doubleSpinBox2.setRange(0,135.0)
+        self.doubleSpinBox2.setSingleStep(0.1)
+        self.doubleSpinBox3.setRange(0,120.0)
+        self.doubleSpinBox3.setSingleStep(0.1)
+
+        self.doubleSpinBox1.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider1, self.doubleSpinBox1,self.topView))
+        self.doubleSpinBox2.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider2, self.doubleSpinBox2,self.topView))
+        self.doubleSpinBox3.valueChanged.connect(lambda: adjustWidgetValue("spinBox", self.Slider3, self.doubleSpinBox3,self.topView))
+
+        self.subLabel7.hide()
+
+        #self.comboBoxCoordinates.highlighted.connect(lambda index: CoordinatesHighlight(self.comboBoxCoordinates, slidersLabels, sliders, spinBoxes, index))
+        self.comboBoxCoordinates.activated.connect(lambda index: changeCoordinateMenu(self.comboBoxCoordinates, slidersLabels, sliders, spinBoxes, index))
+
+        if getattr(self.ExecuteButton, "State", None) is None:
+            setattr(self.ExecuteButton,"State", True)
+        self.ExecuteButton.clicked.connect(lambda: executeMovement(self.ExecuteButton,self.loggerBox))
+
+        self.loggerBox.setReadOnly(1)
+        self.loggerBox.insertPlainText("Welcome to the p-Arm GUI!!\nThe arm is now being initialized...\n")
+        self.loggerBox.ensureCursorVisible()
+
+        self.topView.setBackground("w")
+        self.sideView.setBackground("w")
+
+        self.topView.setXRange(-400, 400, padding = 0)
+        self.topView.setYRange(400,0, padding = 0)
+        #self.topView.getPlotItem().hideAxis('bottom')
+        #self.topView.getPlotItem().hideAxis('left')
+        pen = pyqtgraph.mkPen(color=(255, 0, 0), width=10)
+        self.topView.plot((-346,0), (0,0), pen = pen)
+        self.topView.setTitle("Top View")
+       
+        #self.graphicsView.setBackground("w")
+        #self.graphicsView_2.setBackground("w")
+        #self.graphicsView.setXRange((-1,1))
+
+        #self.graphicsView.getPlotItem().hideAxis('bottom')
+        #self.graphicsView.getPlotItem().hideAxis('left')

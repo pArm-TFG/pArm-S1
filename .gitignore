@@ -137,6 +137,7 @@ dmypy.json
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/
 
 # Generated files
 .idea/**/contentModel.xml
@@ -211,5 +212,9 @@ fabric.properties
 # Local History for Visual Studio Code
 .history/
 
-# Mis ignores
+# VSCode settings
 .vscode/settings.json
+
+*.gz
+
+build.sh
