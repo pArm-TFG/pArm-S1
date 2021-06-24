@@ -131,14 +131,10 @@ class ProgressWidget(QProgressBar):
         """
         thread = QtCore.QThread()
         worker = Worker(time_object)
-        worker.update_progress.connect(
-            lambda progress: self.handle_progress(progress)
-        )
+        worker.update_progress.connect(self.handle_progress)
         worker.moveToThread(thread)
         thread.started.connect(worker.work)
-        worker.limit_values.connect(
-            lambda limits: self.handle_limits(limits)
-        )
+        worker.limit_values.connect(self.handle_limits)
         worker.finished.connect(thread.quit)
         QtCore.QMetaObject.connectSlotsByName(self)
 

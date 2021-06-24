@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=pArm
+Comment=Centro de control del pArm
+Icon=robot-arm.svg
+Exec=pArm %F
+Terminal=false
+Categories=Application;Development;
+Keywords=Python;Editor;microbit;micro:bit;
+StartupWMClass=mu
+MimeType=text/x-python3;text/x-python3;

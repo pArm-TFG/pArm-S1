@@ -61,34 +61,24 @@ class Control(ControlInterface):
     @x.setter
     def x(self, x):
         # if LOWEST_X_VALUE <= x <= HIGHEST_X_VALUE:
-        if True:
-            self._x = x
-        else:
-            print("X value out of bounds")
+        self._x = x
 
     @y.setter
     def y(self, y):
         # if LOWEST_Y_VALUE <= y <= HIGHEST_Y_VALUE:
-        if True:
-            self._y = y
-        else:
-            print("Y value out of bounds")
+        self._y = y
 
     @z.setter
     def z(self, z):
         # if LOWEST_Z_VALUE <= z <= HIGHEST_Z_VALUE:
-        if True:
-            self._z = z
-        else:
-            print("Z value out of bounds")
+        self._z = z
 
     @port.setter
     def port(self, port):
         self.connection.port = port
 
     def move_to_xyz(self, x, y, z,
-                    time_object: Optional[AtomicFloat] = None) -> \
-            Future:
+                    time_object: Optional[AtomicFloat] = None) -> Future:
         """
         Triggers the needed procedures to move the arm to the cartesian position
         that is indicated in its parameters.
@@ -134,10 +124,6 @@ class Control(ControlInterface):
         theta1_in_radians = theta1 * (pi/180)
         theta2_in_radians = theta2 * (pi/180)
         theta3_in_radians = theta3 * (pi/180)
-
-        log.debug(theta1_in_radians)
-        log.debug(theta2_in_radians)
-        log.debug(theta3_in_radians)
 
         byte_stream = generator.generate_theta_movement(theta1_in_radians,
                                                         theta2_in_radians,

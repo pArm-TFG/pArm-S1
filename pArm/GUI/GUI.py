@@ -19,10 +19,10 @@ from ..logger import add_handler, QTextEditLogger
 def inverse_kinematics(x_coord, y_coord, z_coord):
     """
     This function performs the calculations related to inverse
-    kinematic model, which are used to graphically draw the 
+    kinematic model, which are used to graphically draw the
     position of the arm on the GUI.
 
-    :params x, y, z coord: Cartesian coordinates of the point to which                                                                            
+    :params x, y, z coord: Cartesian coordinates of the point to which
                            inverse kinematics is applied.
     """
     try:
@@ -121,8 +121,8 @@ class Ui(QtWidgets.QMainWindow):
         qt_logger = QTextEditLogger(edit_text=self.logger_box)
         add_handler(qt_logger,
                     logger_name="Roger",
-                    level=logging.INFO,
-                    log_format="%(asctime)s | [%(""levelname)s]: %(message)s")
+                    level=logging.INFO)
+        #             log_format="%(asctime)s | [%(""levelname)s]: %(message)s")
         self.log = logging.getLogger("Roger")
 
         self.top_view = self.findChild(PlotWidget, 'TopView')
@@ -272,7 +272,7 @@ class Ui(QtWidgets.QMainWindow):
         update the graphical representation of  the arm, as well as the sliders's and
         spinboxes's value.
 
-        :param event: Event generated when the user moves the mouse within 
+        :param event: Event generated when the user moves the mouse within
         the top view widget.
         """
         if self.mouse_enabler:
@@ -303,7 +303,7 @@ class Ui(QtWidgets.QMainWindow):
         update the graphical representation of  the arm, as well as the sliders's and
         spinboxes's value.
 
-        :param event: Event generated when the user moves the mouse within 
+        :param event: Event generated when the user moves the mouse within
         the side view widget.
         """
         if self.mouse_enabler:
@@ -342,7 +342,7 @@ class Ui(QtWidgets.QMainWindow):
     def adjust_widget_value(self,type, sliders: QtWidgets.QSlider, spin_boxes: QtWidgets.QDoubleSpinBox,
                         graphics: QtWidgets.QGraphicsView, index: int, id):
         """
-        This method adjust the value of the spinboxes when the sliders are moved and viceversa. 
+        This method adjust the value of the spinboxes when the sliders are moved and viceversa.
         When this happens, the graphical representation of the arm is uptaded. This function is
         called when a signal is emitted.
 
@@ -637,7 +637,7 @@ class Ui(QtWidgets.QMainWindow):
                              *args):
         """
         This method perform the calculations need to draw the arm preview. This
-        calculations are made from the angles selected by the user and by using 
+        calculations are made from the angles selected by the user and by using
         the shortened direct kinematics model.
 
         :param graphics: List of graphic views widgets.
@@ -731,7 +731,7 @@ class Ui(QtWidgets.QMainWindow):
                                  *args):
         """
         This method perform the calculations need to draw the arm preview. This
-        calculations are made from the cartesian coordinates selected by the user and by using 
+        calculations are made from the cartesian coordinates selected by the user and by using
         the inverse kinematics model
 
         :param graphics: List of graphic views widgets.
@@ -842,7 +842,7 @@ class Ui(QtWidgets.QMainWindow):
         This method is used to set the serial port that is going to
         be used to communicate the GUI app with the PCB. When the user
         select a port in the GUI, this function is executed and
-        the port selected is passed to the logic communication code 
+        the port selected is passed to the logic communication code
         using  the handler object.
 
 
@@ -858,7 +858,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def future_callback(self, ft: Future, button: QtWidgets.QPushButton):
         """
-        This method is executed when the future object created in the 
+        This method is executed when the future object created in the
         execute movement process is finally returned, which means that
         this method is a call back.
 
