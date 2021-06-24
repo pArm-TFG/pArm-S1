@@ -12,5 +12,6 @@
 #
 #     You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
-from ..logger.logger import init_logging, add_handler
+# from ..logger.logger import init_logging, add_handler
+from .logger import init_logging, add_handler
 from ..logger.PyQtHandler import QTextEditLogger

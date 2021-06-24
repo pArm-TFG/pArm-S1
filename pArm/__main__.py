@@ -20,14 +20,16 @@ from .control.control import Control
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
-logging.basicConfig(level=logging.NOTSET)
+# logging.basicConfig(level=logging.NOTSET)
 
 
 def main():
     try:
-        init_logging("Roger", log_file="p-Arm.log")
+        init_logging("Roger", log_file="p-Arm.log",
+                     file_level=logging.WARN,
+                     enable_console_logging=True)
         app = QtWidgets.QApplication(sys.argv)
-        app.setWindowIcon(QtGui.QIcon("yo.jpg"))
+        app.setWindowIcon(QtGui.QIcon("robot-arm.svg"))
 
         executor = ThreadPoolExecutor()
 

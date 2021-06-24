@@ -218,3 +218,5 @@ fabric.properties
 *.gz
 
 build.sh
+AppDir
+appimage-builder-cache/

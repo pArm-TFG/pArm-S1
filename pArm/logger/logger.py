@@ -1,4 +1,5 @@
-#                             pArm-S1
+#                             pArm - S1
+#                  Copyright (C) 2021 - Javinator9889
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -12,85 +13,91 @@
 #
 #     You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+Log file containing the :func:`init_logging` method which initializes and creates the logger
+"""
+import gzip
 import logging
 import os
+import shutil
 from logging.handlers import RotatingFileHandler
 from typing import Optional
 
+LOG_DEFAULT_FORMAT = "%(asctime)s | [%(levelname)s]:\t%(message)s"
+"""
+Default logging format used when outputting messages. It has the form:
+    > HH:MM:SS:ssss | [message level]:  message
+"""
+logging.basicConfig(level=logging.DEBUG, format=LOG_DEFAULT_FORMAT)
 
-__formatter = None
 
-
-def init_logging(logger_name: Optional[str] = None,
-                 log_file: Optional[str] = None,
-                 console_level: int = logging.DEBUG,
-                 file_level: int = logging.WARNING,
-                 log_format: str = "%(process)d - %(asctime)s | [%("
-                                   "levelname)s]: %(message)s") -> logging:
+def file_rotator(src: str, dest: str):
     """
-    Creates a custom logging that outputs to both console and file, if
-    filename provided. Automatically cleans-up old logs during runtime and
-    allows customization of both console and file levels in addition to the
-    formatter.
+    Custom file rotator that creates a compressed GZIP object from the given log file.
 
-    :param logger_name: the logger name for later obtaining it.
-    :param log_file: a filename for saving the logs during execution - can be
-                    `None`
-    :param console_level: the logging level for console.
-    :param file_level: the logging level for the file.
-    :param log_format: the logging format.
-
-    :return: the created logging instance
+    :param src: the source log file.
+    :param dest: the destination compressed GZIP file.
     """
-    global __formatter
-    __formatter = logging.Formatter(log_format)
-    logger = logging.getLogger(logger_name)
-    if getattr(logger, 'created', False):
-        return logger
-    setattr(logger, 'created', True)
-    for handler in logger.handlers:
-        if type(handler) is logging.StreamHandler:
-            handler.setLevel(console_level)
-            handler.setFormatter(__formatter)
+    with open(src, "rb") as sf, gzip.open(dest, "wb") as gzfile:
+        shutil.copyfileobj(sf, gzfile)
+    os.remove(src)
 
-    def file_rotator(source: str, dest: str):
-        """
-        Custom file rotator for creating compressed logging files.
 
-        :param source: source filename.
-        :param dest: destination filename.
-        """
-        import gzip
-        import shutil
+def namer(name: str) -> str:
+    """
+    Custom "namer" that appends ``.gz`` to the provided filename.
 
-        with open(source, "rb") as in_file:
-            with gzip.open(dest, "wb") as out_file:
-                shutil.copyfileobj(in_file, out_file)
+    :param name: the log filename.
+    :return: the filename with ``.gz`` extension.
+    :rtype: :obj:`str`
+    """
+    return f"{name}.gz"
 
-    def namer(name: str) -> str:
-        """
-        Custom namer implementation as we are gzipping files.
 
-        :param name: the name to append .gz
-        :return: the name with .gz extension
-        """
-        return f"{name}.gz"
+def init_logging(
+    logger_name: Optional[str] = None,
+    log_file: Optional[str] = None,
+    console_level: int = logging.DEBUG,
+    file_level: int = logging.DEBUG,
+    log_format: str = LOG_DEFAULT_FORMAT,
+    enable_console_logging: bool = False,
+) -> logging.Logger:
+    """
+    Creates a custom logger (or uses the :class:`logging.RootLogger`) that is able to output to
+    both console and file, which is useful in development environments and production ones.
 
-    if log_file:
-        old_log = os.path.exists(log_file)
-        file_handler = RotatingFileHandler(log_file,
-                                           mode='a',
-                                           maxBytes=2 << 20,
-                                           backupCount=5)
+    By default, it rotates the log files when they are about 2MB size and compress them for
+    later visualization and usage.
+
+    :param logger_name: the name of the logger, or ``None`` to use :class:`logging.RootLogger`.
+    :param log_file: the filename in which logs will be stored. If ``None``, no file will be used.
+    :param console_level: the logging level of the console, by default :attr:`logging.DEBUG`.
+    :param file_level: the logging level of the file, by default :attr:`logging.DEBUG`.
+    :param log_format: the logging format to use. By default, uses the one defined at
+           :attr:`LOG_DEFAULT_FORMAT`.
+    :param enable_console_logging: whether to log to the console or not. Defaults to ``False``.
+    :return: an instance of the created :class:`logging.Logger`.
+    """
+    fmt = logging.Formatter(log_format)
+    log = logging.getLogger(logger_name)
+
+    for handler in log.handlers:
+        if isinstance(handler, logging.StreamHandler):
+            if enable_console_logging:
+                handler.setLevel(console_level)
+                handler.setFormatter(fmt)
+            else:
+                log.handlers.remove(handler)
+
+    if log_file is not None:
+        file_handler = RotatingFileHandler(log_file, maxBytes=1 << 20, backupCount=5, delay=True)
         file_handler.rotator = file_rotator
         file_handler.namer = namer
         file_handler.setLevel(file_level)
-        file_handler.formatter = __formatter
-        if old_log:
-            file_handler.doRollover()
-        logger.addHandler(file_handler)
+        file_handler.setFormatter(fmt)
+        log.addHandler(file_handler)
 
-    return logger
+    return log
 
 
 def add_handler(handler: logging.Handler,
@@ -108,8 +115,7 @@ def add_handler(handler: logging.Handler,
     :param log_format: the log format used if not formatter was created.
     """
     logger = logging.getLogger(logger_name)
-    global __formatter
-    fmt = logging.Formatter(log_format) if log_format else __formatter
+    fmt = logging.Formatter(log_format) if log_format else logging.Formatter(LOG_DEFAULT_FORMAT)
     handler.setFormatter(fmt)
     handler.setLevel(level)
 
